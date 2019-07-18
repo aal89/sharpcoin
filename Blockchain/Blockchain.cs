@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Blockchain
@@ -10,7 +11,8 @@ namespace Blockchain
             FIRST, LAST
         }
 
-        private Block[] collection = null;
+        private Block[] Collection = null;
+        private Transaction[] QueuedTransactions = null;
 
         public Blockchain(string pathToData)
         {
@@ -30,36 +32,37 @@ namespace Blockchain
             Block test5 = new Block();
             test5.Index = 4;
             test5.Timestamp = new DateTime(2019, 07, 01, 10, 40, 0);
-            collection = new Block[] { test, test2, test3, test4, test5 };
+            test5.Transactions = new Transaction[] { new Transaction() };
+            Collection = new Block[] { test, test2, test3, test4, test5 };
         }
 
         public Block[] GetBlocks()
         {
-            return collection;
+            return Collection;
         }
 
         public Block[] GetBlocks(int n, Order take = Order.FIRST)
         {
             if (take == Order.FIRST)
             {
-                return collection.Take(n).ToArray();
+                return Collection.Take(n).ToArray();
             }
-            return Enumerable.Reverse(collection).Take(n).Reverse().ToArray();
+            return Enumerable.Reverse(Collection).Take(n).Reverse().ToArray();
         }
 
         public Block GetBlockByIndex(int Index)
         {
-            return Array.Find(collection, (Block block) => block.Index == Index);
+            return Array.Find(Collection, (Block Block) => Block.Index == Index);
         }
 
         public Block GetBlockByHash(string Hash)
         {
-            return Array.Find(collection, (Block block) => block.Hash == Hash);
+            return Array.Find(Collection, (Block Block) => Block.Hash == Hash);
         }
 
         public Block GetLastBlock()
         {
-            return collection[collection.Length - 1];
+            return Collection[Collection.Length - 1];
         }
 
         public ulong GetDifficulty()
@@ -67,10 +70,53 @@ namespace Blockchain
             return Config.CalculateDifficulty(this);
         }
 
+        public Transaction[] GetQueuedTransactions()
+        {
+            return QueuedTransactions;
+        }
+
+        public Transaction GetQueuedTransactionById(string Id)
+        {
+            return Array.Find(QueuedTransactions, (Transaction Transaction) => Transaction.Id == Id);
+        }
+
+        public Transaction GetTransactionFromChain(string Id)
+        {
+            return Collection.Map((Block Block) => Block.Transactions)
+                .SelectMany(x => x)
+                .Filter((Transaction Transaction) => Transaction.Id == Id).FirstOrDefault();
+        }
+
+        public bool IsValidBlock(Block NewBlock, Block LastBlock)
+        {
+            // Before marking a block as valid we have to go through a serie of checks. Some can be quite
+            // hard to graps initially but they all make perfect sense once you get them. We do the cheap
+            // operations first since failing on those checks after a heavy operation is a waste of the
+            // cpu cycles.
+            // 1st) Check if the index is correct.
+            // 2nd) Check if the previous hash is my.
+            // 3rd) Check if the hash of the block is correct.
+            // 4th) Check if difficulty of new block is gte to the expected difficulty.
+            // 5th) Check if the block has at least one transaction (to prevent empty blocks from being
+            // mined).
+            // 6th) Check is block size does not exceed max block size.
+            // 7th) Check if there are only one reward and one fee transaction.
+            // More expensive operations:
+            // 8th) Check if all included transactions are valid.
+            // 9th) The transaction is not already in the blockchain.
+            // 10th) The transaction has only unspent inputs.
+            // 11th) The signature of the transaction is correct.
+            // 12th) Check if the sum of all input transactions equal the sum of all output transactions
+            // + block reward.
+            // 13th) Check if there are no double spent input transactions on the block.
+            // Some of these checks you can find under the transaction validation.
+            return true;
+        }
+
         static void Main(string[] args)
         {
-            Blockchain bc = new Blockchain("");
-            Console.WriteLine(bc.GetDifficulty());
+            Blockchain Bc = new Blockchain("");
+            Console.WriteLine(Bc.GetTransactionFromChain("000000000fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"));
         }
     }
 }

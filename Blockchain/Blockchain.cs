@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
+using Blockchain.Exceptions;
+using Blockchain.Utilities;
 
 namespace Blockchain
 {
@@ -10,6 +11,8 @@ namespace Blockchain
         {
             FIRST, LAST
         }
+
+        private int MaximumBlockSizeInBytes = 2 * 1024;
 
         private Block[] Collection = null;
         private Transaction[] QueuedTransactions = null;
@@ -32,7 +35,7 @@ namespace Blockchain
             Block test5 = new Block();
             test5.Index = 4;
             test5.Timestamp = new DateTime(2019, 07, 01, 10, 40, 0);
-            test5.Transactions = new Transaction[] { new Transaction() };
+            //test5.Transactions = new Transaction[] { new Transaction() };
             Collection = new Block[] { test, test2, test3, test4, test5 };
         }
 
@@ -94,7 +97,7 @@ namespace Blockchain
             // operations first since failing on those checks after a heavy operation is a waste of the
             // cpu cycles.
             // 1st) Check if the index is correct.
-            // 2nd) Check if the previous hash is my.
+            // 2nd) Check if the previous hash is my last block hash.
             // 3rd) Check if the hash of the block is correct.
             // 4th) Check if difficulty of new block is gte to the expected difficulty.
             // 5th) Check if the block has at least one transaction (to prevent empty blocks from being
@@ -102,21 +105,71 @@ namespace Blockchain
             // 6th) Check is block size does not exceed max block size.
             // 7th) Check if there are only one reward and one fee transaction.
             // More expensive operations:
-            // 8th) Check if all included transactions are valid.
-            // 9th) The transaction is not already in the blockchain.
+            // 8th) The transaction is not already in the blockchain.
+            // 9th) Check if all included transactions are valid.
             // 10th) The transaction has only unspent inputs.
             // 11th) The signature of the transaction is correct.
             // 12th) Check if the sum of all input transactions equal the sum of all output transactions
             // + block reward.
             // 13th) Check if there are no double spent input transactions on the block.
             // Some of these checks you can find under the transaction validation.
+
+            if (NewBlock.Index != LastBlock.Index + 1)
+            {
+                throw new BlockAssertion($"Not consecutive blocks. Expected new block index to be  {LastBlock.Index + 1}, but got {NewBlock.Index}.");
+            }
+
+            if (NewBlock.PreviousHash == LastBlock.Hash)
+            {
+                throw new BlockAssertion($"New block points to a different block. Previous hash of new block is {NewBlock.PreviousHash}, while hash of last block is {LastBlock.Hash}.");
+            }
+
+            if (NewBlock.Hash != NewBlock.ToHash())
+            {
+                throw new BlockAssertion($"New blocks integrity check failed.");
+            }
+
+            if (NewBlock.GetDifficulty() >= GetDifficulty())
+            {
+                throw new BlockAssertion($"Expected the difficulty of the new block ({NewBlock.GetDifficulty()}) to be less than the current difficulty ({GetDifficulty()}).");
+            }
+
+            if (!NewBlock.HasTransactions())
+            {
+                throw new BlockAssertion($"New block does not have any transactions.");
+            }
+
+            if (Serializer.GetSerializedSize(NewBlock) > MaximumBlockSizeInBytes)
+            {
+                throw new BlockAssertion($"New Block size (in bytes) is {Serializer.GetSerializedSize(NewBlock)} and the maximum is {MaximumBlockSizeInBytes}.");
+            }
+
+            if (!NewBlock.GotFeeRewardTransactions())
+            {
+                throw new BlockAssertion($"New block does not have a fee and reward transaction.");
+            }
+
+            // Somewhat more expensive operations
+
+            if (NewBlock.Transactions.Any((Transaction Transaction) => GetTransactionFromChain(Transaction.Id) != null))
+            {
+                throw new BlockAssertion($"New block contains duplicate transactions.");
+            }
+
+            if (!NewBlock.Transactions.All((Transaction Transaction) => Transaction.IsValid()))
+            {
+                throw new BlockAssertion($"New block contains invalid transaction.");
+            }
+
+
             return true;
         }
 
         static void Main(string[] args)
         {
             Blockchain Bc = new Blockchain("");
-            Console.WriteLine(Bc.GetTransactionFromChain("000000000fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"));
+            //Console.WriteLine(Serializer.GetSerializedSize(Bc.GetLastBlock()));
+            Serializer.Write(Bc.GetLastBlock(), "");
         }
     }
 }

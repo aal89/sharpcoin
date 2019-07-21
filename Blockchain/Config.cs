@@ -6,6 +6,10 @@ namespace Blockchain
     public static class Config
     {
         private static int MeanTimeBetweenBlocks = 10 * 60; // in seconds
+        // block reward is the 'half' of ulong number in length (20 digits)
+        // 'one' coin is now dividable into a billion pieces and there are
+        // still 18446744073 blocks to be mined with this reward.
+        public static ulong BlockReward = 1000000000;
 
         public static ulong CalculateDifficulty(Blockchain Blockchain)
         {

@@ -36,14 +36,6 @@ namespace Blockchain
                 .Length == 2;
         }
 
-        /**
-         * Determines whether or not all inputs cancel out to all output transactions + block reward.
-         */
-        public bool EquatesTransactions()
-        {
-            return true;
-        }
-
         public string ToHash()
         {
             string StringifiedTransactions = Transactions.Map((Transaction Transaction) => Transaction.ToString()).Reduce((Accu, Curr) => Accu + Curr);

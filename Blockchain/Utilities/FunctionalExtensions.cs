@@ -20,5 +20,15 @@ namespace Blockchain
         {
             return self.Where(predicate);
         }
+
+        public static IEnumerable<T> Flatten<T>(this IEnumerable<T[]> self)
+        {
+            return self.SelectMany(x => x);
+        }
+
+        public static IEnumerable<R> FlatMap<T, R>(this IEnumerable<T> self, Func<T, R[]> selector)
+        {
+            return self.Select(selector).Flatten();
+        }
     }
 }

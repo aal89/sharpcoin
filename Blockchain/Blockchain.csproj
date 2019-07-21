@@ -10,4 +10,7 @@
     <Folder Include="Utilities\" />
     <Folder Include="Transactions\" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Security.Cryptography.Cng" Version="4.5.0" />
+  </ItemGroup>
 </Project>

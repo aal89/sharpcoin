@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Blockchain.Exceptions;
+using Blockchain.Transactions;
 using Blockchain.Utilities;
 
 namespace Blockchain
@@ -90,6 +91,11 @@ namespace Blockchain
                 .Filter((Transaction Transaction) => Transaction.Id == Id).FirstOrDefault();
         }
 
+        public Transaction[] GetTransactions()
+        {
+            return Collection.Map((Block Block) => Block.Transactions).SelectMany(x => x).ToArray();
+        }
+
         public bool IsValidBlock(Block NewBlock, Block LastBlock)
         {
             // Before marking a block as valid we have to go through a serie of checks. Some can be quite
@@ -156,11 +162,26 @@ namespace Blockchain
                 throw new BlockAssertion($"New block contains duplicate transactions.");
             }
 
-            if (!NewBlock.Transactions.All((Transaction Transaction) => Transaction.IsValid()))
+            if (!NewBlock.Transactions.All((Transaction Transaction) => Transaction.Equates(Config.BlockReward) && Transaction.Verify()))
             {
-                throw new BlockAssertion($"New block contains invalid transaction.");
+                throw new BlockAssertion($"New block contains invalid transaction (inputs do not equate with outputs or signature invalid).");
             }
 
+            // Double spending inputs check. Get one list of all transaction inputs of the new block and check
+            // if each one Input does not occur in transactions on the chain
+
+            Transaction[] AllTxInChain = GetTransactions();
+            bool HasDuplicateInputs = NewBlock.Transactions
+                .FlatMap((Transaction Tx) => Tx.TransactionInputs)
+                .Map((Input Input) => AllTxInChain.Any((Transaction ChainTx) => ChainTx.HasInputTransaction(Input.Transaction, Input.Index)))
+                .Contains(true);
+
+            if (HasDuplicateInputs)
+            {
+                throw new BlockAssertion($"New block tries to spend already spent transaction inputs.");
+            }
+
+            // If all these checks pass we got a valid consecutive block.
 
             return true;
         }
@@ -169,7 +190,8 @@ namespace Blockchain
         {
             Blockchain Bc = new Blockchain("");
             //Console.WriteLine(Serializer.GetSerializedSize(Bc.GetLastBlock()));
-            Serializer.Write(Bc.GetLastBlock(), "");
+            //Serializer.Write(Bc.GetLastBlock(), "");
+            Console.WriteLine(CryptoECDsa.Sign("hello world"));
         }
     }
 }

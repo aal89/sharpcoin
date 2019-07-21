@@ -28,7 +28,7 @@ namespace Blockchain
 
         public static IEnumerable<R> FlatMap<T, R>(this IEnumerable<T> self, Func<T, R[]> selector)
         {
-            return self.Select(selector).Flatten();
+            return self.Map(selector).Flatten();
         }
     }
 }

@@ -6,20 +6,46 @@ namespace Blockchain.Utilities
 {
     public static class Hash
     {
-        public static string Sha256(string data)
+        public static string Sha1(byte[] bytes)
         {
-            using (SHA256 sha256Hash = SHA256.Create())
+            using (SHA1Managed sha1 = new SHA1Managed())
             {
                 // ComputeHash - returns byte array  
-                byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(data));
+                byte[] computedBytes = sha1.ComputeHash(bytes);
 
                 // Convert byte array to a string   
                 StringBuilder builder = new StringBuilder();
 
-                Array.ForEach(bytes, (Byte Byte) => builder.Append(Byte.ToString("x2")));
+                Array.ForEach(computedBytes, (Byte Byte) => builder.Append(Byte.ToString("x2")));
 
                 return builder.ToString();
             }
+        }
+
+        public static string Sha1(string data)
+        {
+            return Sha1(Encoding.UTF8.GetBytes(data));
+        }
+
+        public static string Sha256(byte[] bytes)
+        {
+            using (SHA256 sha256Hash = SHA256.Create())
+            {
+                // ComputeHash - returns byte array  
+                byte[] computedBytes = sha256Hash.ComputeHash(bytes);
+
+                // Convert byte array to a string   
+                StringBuilder builder = new StringBuilder();
+
+                Array.ForEach(computedBytes, (Byte Byte) => builder.Append(Byte.ToString("x2")));
+
+                return builder.ToString();
+            }
+        }
+
+        public static string Sha256(string data)
+        {
+            return Sha256(Encoding.UTF8.GetBytes(data));
         }
     }
 }

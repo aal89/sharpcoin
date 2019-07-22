@@ -11,9 +11,16 @@ namespace Blockchain
             return self.Select(selector);
         }
 
-        public static T Reduce<T>(this IEnumerable<T> self, Func<T, T, T> func)
+        public static T Reduce<T>(this IEnumerable<T> self, Func<T, T, T> func, T DefaultValue)
         {
-            return self.Aggregate(func);
+            try
+            {
+                return self.Aggregate(func);
+            }
+            catch
+            {
+                return DefaultValue;
+            }
         }
 
         public static IEnumerable<T> Filter<T>(this IEnumerable<T> self, Func<T, bool> predicate)

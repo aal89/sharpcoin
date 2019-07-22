@@ -13,7 +13,12 @@ namespace Blockchain.Utilities
             public Signature(byte[] PublicKey, string SignatureHex)
             {
                 this.PublicKey = PublicKey;
-                this.Value = SignatureHex;
+                Value = SignatureHex;
+            }
+
+            public bool Verify(string Message)
+            {
+                return new SharpKeyPair(PublicKey).Verify(this, Message);
             }
         }
 

@@ -1,22 +1,30 @@
 ﻿using System;
+using Blockchain.Utilities;
+
 namespace Blockchain.Transactions
 {
+    [Serializable]
     public class Input
     {
         public string Transaction = "";
-        public int Index = 0;
-        public ulong Amount = 0;
+        public int Index;
+        public ulong Amount;
         public string Address = "";
-        public string Signature = "";
-
-        public void Sign(string Key)
-        {
-            Signature = "SIGNED";
-        }
+        public SharpKeyPair.Signature Signature;
 
         public bool Verify()
         {
-            return true;
+            return Signature.Verify(ToHash());
+        }
+
+        public void Sign(SharpKeyPair Skp)
+        {
+            Signature = Skp.Sign(ToHash());
+        }
+
+        public string ToHash()
+        {
+            return Hash.Sha256($"{Transaction}{Index}{Amount}{Address}");
         }
     }
 }

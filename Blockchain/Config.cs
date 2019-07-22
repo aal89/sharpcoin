@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Blockchain.Utilities;
 
 namespace Blockchain
 {
@@ -33,7 +34,7 @@ namespace Blockchain
 
             if (TimeDifferenceLength > 0)
             {
-                int AverageTimeDifference = TimeDifferences.Reduce(Total) / TimeDifferenceLength;
+                int AverageTimeDifference = TimeDifferences.Reduce(R.Total, 0) / TimeDifferenceLength;
 
                 // If the average time difference is larger than the mean time between blocks we decrease
                 // difficulty. However, is the time difference smaller than the mean time then we
@@ -51,11 +52,6 @@ namespace Blockchain
             // We return the default difficulty when we have no time differences between blocks or when the
             // average time calculated is exactly the allowed mean time between blocks.
             return DefaultDifficulty;
-        }
-
-        private static int Total(int Accumulator, int Current)
-        {
-            return Accumulator + Current;
         }
     }
 }

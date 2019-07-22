@@ -173,7 +173,7 @@ namespace Blockchain
             Transaction[] AllTxInChain = GetTransactions();
             bool HasDuplicateInputs = NewBlock.Transactions
                 .FlatMap((Transaction Tx) => Tx.TransactionInputs)
-                .Map((Input Input) => AllTxInChain.Any((Transaction ChainTx) => ChainTx.HasInputTransaction(Input.Transaction, Input.Index)))
+                .Map((Input Input) => AllTxInChain.Any((Transaction ChainTx) => ChainTx.ContainsInput(Input.Transaction, Input.Index)))
                 .Contains(true);
 
             if (HasDuplicateInputs)
@@ -188,10 +188,28 @@ namespace Blockchain
 
         static void Main(string[] args)
         {
-            Blockchain Bc = new Blockchain("");
+            //Blockchain Bc = new Blockchain("");
             //Console.WriteLine(Serializer.GetSerializedSize(Bc.GetLastBlock()));
             //Serializer.Write(Bc.GetLastBlock(), "");
-            Console.WriteLine(CryptoECDsa.Sign("hello world"));
+            //SharpKeyPair KeyPair = SharpKeyPair.Create();
+
+            //SharpKeyPair.Signature sig = KeyPair.Sign(Hash.Sha256("Hello world"));
+
+            //Console.WriteLine(sig.Value);
+            //Console.WriteLine(KeyPair.Verify(sig, Hash.Sha256("Hello world2")));
+
+            Transaction Tx = new Transaction();
+            Input i1 = new Input();
+            i1.Amount = 100;
+            Console.WriteLine(i1.ToHash());
+            Input i2 = new Input();
+            i2.Amount = 200;
+            Console.WriteLine(i2.ToHash());
+
+            Tx.TransactionInputs = new Input[] { i1, i2 };
+
+            Console.WriteLine(Tx.ToHash());
+
         }
     }
 }

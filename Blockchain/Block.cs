@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Blockchain.Utilities;
 
 namespace Blockchain
 {
@@ -38,7 +39,7 @@ namespace Blockchain
 
         public string ToHash()
         {
-            string StringifiedTransactions = Transactions.Map((Transaction Transaction) => Transaction.ToString()).Reduce((Accu, Curr) => Accu + Curr);
+            string StringifiedTransactions = Transactions.Map((Transaction Transaction) => Transaction.ToString()).Reduce(R.Concat, "");
             return Utilities.Hash.Sha256($"{Index}{PreviousHash}{Timestamp.ToString()}{Nonce}{StringifiedTransactions}");
         }
     }

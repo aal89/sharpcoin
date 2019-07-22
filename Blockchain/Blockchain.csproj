@@ -9,6 +9,7 @@
     <Folder Include="Exceptions\" />
     <Folder Include="Utilities\" />
     <Folder Include="Transactions\" />
+    <Folder Include="Crypto\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Security.Cryptography.Cng" Version="4.5.0" />

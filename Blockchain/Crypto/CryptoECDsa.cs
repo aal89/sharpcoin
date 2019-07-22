@@ -7,42 +7,6 @@ namespace Blockchain.Utilities
 {
     public static class CryptoECDsa
     {
-        public struct SharpKeyPair
-        {
-            public readonly byte[] PublicKey;
-            public readonly byte[] PrivateKey;
-
-            public SharpKeyPair(byte[] PublicKey = null, byte[] PrivateKey = null)
-            {
-                this.PublicKey = PublicKey;
-                this.PrivateKey = PrivateKey;
-            }
-
-            public bool HasPublicKey()
-            {
-                return PublicKey != null;
-            }
-
-            public (byte[] X, byte[] Y) GetPublicKey()
-            {
-                return (PublicKey.Take(PublicKey.Length / 2).ToArray(), PublicKey.TakeLast(PublicKey.Length / 2).ToArray());
-            }
-
-            public bool HasPrivateKey()
-            {
-                return PrivateKey != null;
-            }
-
-            public string GetAddress()
-            {
-                if (!HasPublicKey())
-                {
-                    throw new MissingFieldException("Missing public key.");
-                }
-                return "s" + Hash.Sha1(PublicKey);
-            }
-        }
-
         public static SharpKeyPair GenerateKeyPair()
         {
             // Curve ECDSA_P256 (weaker curve, but smaller keys)

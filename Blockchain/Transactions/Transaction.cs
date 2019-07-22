@@ -1,6 +1,7 @@
 ﻿using System;
 using Blockchain.Transactions;
 using System.Linq;
+using Blockchain.Utilities;
 
 namespace Blockchain
 {
@@ -14,6 +15,7 @@ namespace Blockchain
 
         public string Id = "000000000fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824";
         public TransactionType Type = TransactionType.DEFAULT;
+        public string Hash = "";
         public Input[] TransactionInputs = { };
         public Output[] TransactionOutputs = { };
         public string Signature = "";
@@ -28,6 +30,7 @@ namespace Blockchain
         public bool Verify()
         {
             return true;
+            //return CryptoECDsa.Verify()
         }
 
         public bool HasInputTransaction(string Transaction, int Index)

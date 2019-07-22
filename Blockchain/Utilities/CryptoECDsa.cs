@@ -12,37 +12,58 @@ namespace Blockchain.Utilities
             public readonly byte[] PublicKey;
             public readonly byte[] PrivateKey;
 
-            public SharpKeyPair(byte[] PublicKey, byte[] PrivateKey)
+            public SharpKeyPair(byte[] PublicKey = null, byte[] PrivateKey = null)
             {
                 this.PublicKey = PublicKey;
                 this.PrivateKey = PrivateKey;
+            }
+
+            public bool HasPublicKey()
+            {
+                return PublicKey != null;
+            }
+
+            public (byte[] X, byte[] Y) GetPublicKey()
+            {
+                return (PublicKey.Take(PublicKey.Length / 2).ToArray(), PublicKey.TakeLast(PublicKey.Length / 2).ToArray());
+            }
+
+            public bool HasPrivateKey()
+            {
+                return PrivateKey != null;
+            }
+
+            public string GetAddress()
+            {
+                if (!HasPublicKey())
+                {
+                    throw new MissingFieldException("Missing public key.");
+                }
+                return "s" + Hash.Sha1(PublicKey);
             }
         }
 
         public static SharpKeyPair GenerateKeyPair()
         {
-            // Curve ECDSA_P521
-            using (ECDsa dsa = ECDsa.Create())
+            // Curve ECDSA_P256 (weaker curve, but smaller keys)
+            using (ECDsa dsa = ECDsa.Create(ECCurve.NamedCurves.nistP256))
             {
                 ECParameters Params = dsa.ExportParameters(true);
                 return new SharpKeyPair(Params.Q.X.Concat(Params.Q.Y).ToArray(), Params.D);
             }
         }
 
-        public static string GenerateAddress(SharpKeyPair KeyPair)
+        public static byte[] Sign(byte[] PrivateKey, byte[] data)
         {
-            return "s" + Hash.Sha1(KeyPair.PublicKey);
-        }
-
-        public static byte[] Sign(SharpKeyPair KeyPair, byte[] data)
-        {
+            
             using (ECDsa dsa = ECDsa.Create(new ECParameters
             {
-                D = KeyPair.PrivateKey,
+                Curve = ECCurve.NamedCurves.nistP256,
+                D = PrivateKey,
                 Q = new ECPoint
                 {
-                    X = KeyPair.PublicKey.Take(66).ToArray(),
-                    Y = KeyPair.PublicKey.TakeLast(66).ToArray()
+                    X = new byte[PrivateKey.Length],
+                    Y = new byte[PrivateKey.Length]
                 }
             }))
             {
@@ -52,22 +73,40 @@ namespace Blockchain.Utilities
 
         public static string Sign(SharpKeyPair KeyPair, string data)
         {
-            return Hex.To(Sign(KeyPair, Encoding.UTF8.GetBytes(data)));
+            if (!KeyPair.HasPrivateKey())
+            {
+                throw new MissingFieldException("Missing private key.");
+            }
+            return Hex.To(Sign(KeyPair.PrivateKey, Encoding.UTF8.GetBytes(data)));
         }
 
-        //public static bool Verify(ECParameters PublicParams, byte[] Signature, byte[] Message)
-        //{
-        //    using (ECDsa dsa = ECDsa.Create(PublicParams))
-        //    {
-        //        if (dsa.VerifyData(Message, Signature, HashAlgorithmName.SHA256))
-        //            return true;
-        //        return false;
-        //    }
-        //}
+        public static bool Verify((byte[] X, byte[] Y) PublicKey, byte[] Signature, byte[] Message)
+        {
+            
+            using (ECDsa dsa = ECDsa.Create(new ECParameters
+            {
+                Curve = ECCurve.NamedCurves.nistP256,
+                D = new byte[PublicKey.X.Length],
+                Q = new ECPoint
+                {
+                    X = PublicKey.X,
+                    Y = PublicKey.Y
+                }
+            }))
+            {
+                if (dsa.VerifyData(Message, Signature, HashAlgorithmName.SHA256))
+                    return true;
+                return false;
+            }
+        }
 
-        //public static bool Verify(ECParameters PublicParams, string signatureHex, string Hash)
-        //{
-        //    return Verify(PublicParams, Hex.From(signatureHex), Encoding.UTF8.GetBytes(Hash));
-        //}
+        public static bool Verify(SharpKeyPair KeyPair, string signatureHex, string Message)
+        {
+            if (!KeyPair.HasPublicKey())
+            {
+                throw new MissingFieldException("Missing public key.");
+            }
+            return Verify(KeyPair.GetPublicKey(), Hex.From(signatureHex), Encoding.UTF8.GetBytes(Message));
+        }
     }
 }

@@ -8,8 +8,9 @@
   <ItemGroup>
     <Folder Include="Exceptions\" />
     <Folder Include="Utilities\" />
-    <Folder Include="Transactions\" />
+    <Folder Include="Transaction\" />
     <Folder Include="Crypto\" />
+    <Folder Include="Block\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Security.Cryptography.Cng" Version="4.5.0" />

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Blockchain.Exceptions;
 using Blockchain.Transactions;
@@ -13,34 +14,12 @@ namespace Blockchain
             FIRST, LAST
         }
 
-        private Block[] Collection = null;
-        private Transaction[] QueuedTransactions = null;
-
-        public Blockchain(string pathToData)
-        {
-            // TODO: resolve data file.
-            Block test = new Block();
-            test.Index = 0;
-            test.Timestamp = new DateTime(2019, 07, 01, 10, 9, 0);
-            Block test2 = new Block();
-            test2.Index = 1;
-            test2.Timestamp = new DateTime(2019, 07, 01, 10, 10, 0);
-            Block test3 = new Block();
-            test3.Index = 2;
-            test3.Timestamp = new DateTime(2019, 07, 01, 10, 12, 0);
-            Block test4 = new Block();
-            test4.Index = 3;
-            test4.Timestamp = new DateTime(2019, 07, 01, 10, 19, 0);
-            Block test5 = new Block();
-            test5.Index = 4;
-            test5.Timestamp = new DateTime(2019, 07, 01, 10, 40, 0);
-            //test5.Transactions = new Transaction[] { new Transaction() };
-            Collection = new Block[] { test, test2, test3, test4, test5 };
-        }
+        private List<Block> Collection = new List<Block> { new GenesisBlock() };
+        private List<Transaction> QueuedTransactions = new List<Transaction>();
 
         public Block[] GetBlocks()
         {
-            return Collection;
+            return Collection.ToArray();
         }
 
         public Block[] GetBlocks(int n, Order take = Order.FIRST)
@@ -49,22 +28,22 @@ namespace Blockchain
             {
                 return Collection.Take(n).ToArray();
             }
-            return Enumerable.Reverse(Collection).Take(n).Reverse().ToArray();
+            return Collection.TakeLast(n).ToArray();
         }
 
         public Block GetBlockByIndex(int Index)
         {
-            return Array.Find(Collection, (Block Block) => Block.Index == Index);
+            return Collection.Find(Block => Block.Index == Index);
         }
 
         public Block GetBlockByHash(string Hash)
         {
-            return Array.Find(Collection, (Block Block) => Block.Hash == Hash);
+            return Collection.Find(Block => Block.Hash == Hash);
         }
 
         public Block GetLastBlock()
         {
-            return Collection[Collection.Length - 1];
+            return Collection.Last();
         }
 
         public ulong GetDifficulty()
@@ -72,26 +51,40 @@ namespace Blockchain
             return Config.CalculateDifficulty(this);
         }
 
+        public void QueueTransaction(Transaction Transaction)
+        {
+            QueuedTransactions.Add(Transaction);
+        }
+
         public Transaction[] GetQueuedTransactions()
         {
-            return QueuedTransactions;
+            return QueuedTransactions.ToArray();
         }
 
         public Transaction GetQueuedTransactionById(string Id)
         {
-            return Array.Find(QueuedTransactions, (Transaction Transaction) => Transaction.Id == Id);
+            return QueuedTransactions.Find(Transaction => Transaction.Id == Id);
         }
 
         public Transaction GetTransactionFromChain(string Id)
         {
-            return Collection.Map((Block Block) => Block.Transactions)
-                .SelectMany(x => x)
-                .Filter((Transaction Transaction) => Transaction.Id == Id).FirstOrDefault();
+            return Collection.FlatMap(Block => Block.Transactions.ToArray()).Filter(Tx => Tx.Id == Id).FirstOrDefault();
         }
 
         public Transaction[] GetTransactions()
         {
-            return Collection.Map((Block Block) => Block.Transactions).SelectMany(x => x).ToArray();
+            return Collection.FlatMap(Block => Block.Transactions.ToArray()).ToArray();
+        }
+
+        public bool AddBlock(Block Block)
+        {
+            if (IsValidBlock(Block, GetLastBlock()))
+            {
+                Collection.Add(Block);
+                // Todo: save blockchain
+                return true;
+            }
+            return false;
         }
 
         public bool IsValidBlock(Block NewBlock, Block LastBlock)
@@ -155,12 +148,12 @@ namespace Blockchain
 
             // Somewhat more expensive operations
 
-            if (NewBlock.Transactions.Any((Transaction Transaction) => GetTransactionFromChain(Transaction.Id) != null))
+            if (NewBlock.Transactions.Any(Transaction => GetTransactionFromChain(Transaction.Id) != null))
             {
                 throw new BlockAssertion($"New block contains duplicate transactions.");
             }
 
-            if (!NewBlock.Transactions.All((Transaction Transaction) => Transaction.Equates(Config.BlockReward) && Transaction.Verify()))
+            if (!NewBlock.Transactions.All(Transaction => Transaction.Equates(Config.BlockReward) && Transaction.Verify()))
             {
                 throw new BlockAssertion($"New block contains invalid transaction (inputs do not equate with outputs or signature invalid).");
             }
@@ -196,18 +189,32 @@ namespace Blockchain
             //Console.WriteLine(sig.Value);
             //Console.WriteLine(KeyPair.Verify(sig, Hash.Sha256("Hello world2")));
 
-            Transaction Tx = new Transaction();
-            Input i1 = new Input();
-            i1.Amount = 100;
-            Console.WriteLine(i1.ToHash());
-            Input i2 = new Input();
-            i2.Amount = 200;
-            Console.WriteLine(i2.ToHash());
+            //Transaction Tx = new Transaction();
+            //Input i1 = new Input();
+            //i1.Amount = 100;
+            //Console.WriteLine(i1.ToHash());
+            //Input i2 = new Input();
+            //i2.Amount = 200;
+            //Console.WriteLine(i2.ToHash());
 
-            Tx.TransactionInputs = new Input[] { i1, i2 };
+            //Tx.TransactionInputs = new Input[] { i1, i2 };
 
-            Console.WriteLine(Tx.ToHash());
+            //Block gblock = new GenesisBlock();
+            //ulong count = 0;
+            //while (gblock.GetDifficulty() > 17964189177300000)
+            //{
+            //    gblock.Timestamp = DateTime.UtcNow;
+            //    gblock.Nonce++;
+            //    gblock.Hash = gblock.ToHash();
 
+            //    if (++count % 10 == 0)
+            //        Console.Write("x");
+            //}
+            //Console.WriteLine(gblock.Nonce);
+            //Console.WriteLine(gblock.Timestamp);
+            //Console.WriteLine(gblock.Hash);
+
+            Console.WriteLine(new GenesisBlock().GetDifficulty());
         }
     }
 }

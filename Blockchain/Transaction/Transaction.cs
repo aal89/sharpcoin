@@ -3,6 +3,7 @@ using Blockchain.Transactions;
 using System.Linq;
 using Blockchain.Utilities;
 using HashUtil = Blockchain.Utilities.Hash;
+using RandomUtil = Blockchain.Utilities.Random;
 
 namespace Blockchain
 {
@@ -14,11 +15,16 @@ namespace Blockchain
             DEFAULT, FEE, REWARD
         }
 
-        public string Id = "000000000fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824";
+        public readonly string Id;
         public TransactionType Type = TransactionType.DEFAULT;
         public Input[] TransactionInputs = { };
         public Output[] TransactionOutputs = { };
         public SharpKeyPair.Signature Signature;
+
+        public Transaction()
+        {
+            Id = HashUtil.Sha256(RandomUtil.Bytes());
+        }
 
         // Determines if all input and output transaction equate, with taking a variable
         // block reward into consideration.

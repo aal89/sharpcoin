@@ -13,8 +13,6 @@ namespace Blockchain
             FIRST, LAST
         }
 
-        private int MaximumBlockSizeInBytes = 2 * 1024;
-
         private Block[] Collection = null;
         private Transaction[] QueuedTransactions = null;
 
@@ -145,9 +143,9 @@ namespace Blockchain
                 throw new BlockAssertion($"New block does not have any transactions.");
             }
 
-            if (Serializer.GetSerializedSize(NewBlock) > MaximumBlockSizeInBytes)
+            if (Serializer.GetSerializedSize(NewBlock) > Config.MaximumBlockSizeInBytes)
             {
-                throw new BlockAssertion($"New Block size (in bytes) is {Serializer.GetSerializedSize(NewBlock)} and the maximum is {MaximumBlockSizeInBytes}.");
+                throw new BlockAssertion($"New Block size (in bytes) is {Serializer.GetSerializedSize(NewBlock)} and the maximum is {Config.MaximumBlockSizeInBytes}.");
             }
 
             if (!NewBlock.GotFeeRewardTransactions())

@@ -166,7 +166,7 @@ namespace Blockchain
 
             Transaction[] AllTxInChain = GetTransactions();
             bool HasDuplicateInputs = NewBlock.Transactions
-                .FlatMap(Tx => Tx.TransactionInputs)
+                .FlatMap(Tx => Tx.Inputs)
                 .Map(Input => AllTxInChain.Any(ChainTx => ChainTx.ContainsInput(Input.Transaction, Input.Index)))
                 .Contains(true);
 
@@ -220,18 +220,41 @@ namespace Blockchain
             //Console.WriteLine(Serializer.GetSerializedSize(new Transaction()));
             //Console.WriteLine(Serializer.GetSerializedSizeCompressed(new Transaction()));
 
+            SharpKeyPair skp = SharpKeyPair.Create();
             Block b = new GenesisBlock();
-            b.Transactions.Add(new Transaction());
-            b.Transactions.Add(new Transaction());
-            b.Transactions.Add(new Transaction());
-            b.Transactions.Add(new Transaction());
-            b.Transactions.Add(new Transaction());
+
+            Transaction Tx = new Transaction();
+            Input Input = new Input();
+            Input.Transaction = "aba9dae211ad3df108d8eb914200f633";
+            Input.Index = 0;
+            Input.Amount = 50000000;
+            Input.Address = skp.GetAddress();
+            Input.Sign(skp);
+            Tx.Inputs = new Input[1] { Input };
+            Output Output = new Output();
+            Output.Address = skp.GetAddress();
+            Output.Amount = 50000000;
+            Tx.Outputs = new Output[1] { Output };
+            Tx.Sign(skp);
+            b.Transactions.Add(Tx);
+
+            Transaction Tx2 = new Transaction();
+            Input Input2 = new Input();
+            Input2.Transaction = "ff149efc594d7e9ca222c811f96c2317";
+            Input2.Index = 0;
+            Input2.Amount = 40000000;
+            Input2.Address = skp.GetAddress();
+            Input2.Sign(skp);
+            Tx2.Inputs = new Input[1] { Input2 };
+            Output Output2 = new Output();
+            Output2.Address = skp.GetAddress();
+            Output2.Amount = 40000000;
+            Tx2.Outputs = new Output[1] { Output2 };
+            Tx2.Sign(skp);
+            b.Transactions.Add(Tx2);
 
             Serializer s = new Serializer();
-            byte[] bs = s.Serialize(b);
-
-            Console.WriteLine(bs.Length);
-            Console.WriteLine(s.Deserialize<Block>(bs).Hash);
+            Console.WriteLine(s.Size(b));
         }
     }
 }

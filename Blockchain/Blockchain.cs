@@ -64,7 +64,7 @@ namespace Blockchain
 
         public Transaction GetQueuedTransactionById(string Id)
         {
-            return QueuedTransactions.Find(Transaction => Transaction.Id == Id);
+            return QueuedTransactions.Find(Tx => Tx.Id == Id);
         }
 
         public Transaction GetTransactionFromChain(string Id)
@@ -151,12 +151,12 @@ namespace Blockchain
 
             // Somewhat more expensive operations
 
-            if (NewBlock.Transactions.Any(Transaction => GetTransactionFromChain(Transaction.Id) != null))
+            if (NewBlock.Transactions.Any(Tx => GetTransactionFromChain(Tx.Id) != null))
             {
                 throw new BlockAssertion($"New block contains duplicate transactions.");
             }
 
-            if (!NewBlock.Transactions.All(Transaction => Transaction.Equates(Config.BlockReward) && Transaction.Verify()))
+            if (!NewBlock.Transactions.All(Tx => Tx.Equates(Config.BlockReward) && Tx.Verify()))
             {
                 throw new BlockAssertion($"New block contains invalid transaction (inputs do not equate with outputs or signature invalid).");
             }
@@ -166,8 +166,8 @@ namespace Blockchain
 
             Transaction[] AllTxInChain = GetTransactions();
             bool HasDuplicateInputs = NewBlock.Transactions
-                .FlatMap((Transaction Tx) => Tx.TransactionInputs)
-                .Map((Input Input) => AllTxInChain.Any((Transaction ChainTx) => ChainTx.ContainsInput(Input.Transaction, Input.Index)))
+                .FlatMap(Tx => Tx.TransactionInputs)
+                .Map(Input => AllTxInChain.Any(ChainTx => ChainTx.ContainsInput(Input.Transaction, Input.Index)))
                 .Contains(true);
 
             if (HasDuplicateInputs)

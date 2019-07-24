@@ -5,6 +5,7 @@ namespace Blockchain.Utilities
 {
     public class SharpKeyPair
     {
+        [Serializable]
         public struct Signature
         {
             public readonly byte[] PublicKey;

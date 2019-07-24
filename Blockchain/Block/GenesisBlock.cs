@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace Blockchain
 {
+    [Serializable]
     public class GenesisBlock: Block
     {
         public GenesisBlock()

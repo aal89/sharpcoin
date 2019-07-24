@@ -1,6 +1,8 @@
-﻿using System;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
+﻿using System.IO;
+using System.IO.Compression;
+using System.Text;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace Blockchain.Utilities
 {
@@ -8,27 +10,45 @@ namespace Blockchain.Utilities
     {
         public Serializer()
         {
+            JsonSerializer serializer = new JsonSerializer();
+            serializer.Converters.Add(new JavaScriptDateTimeConverter());
+            serializer.NullValueHandling = NullValueHandling.Ignore;
         }
 
-        public static void Write(object o, string path)
+        public int Size(object o)
         {
-            using (Stream s = new FileStream("./temp.dat", FileMode.Create, FileAccess.Write))
-            {
-                BinaryFormatter formatter = new BinaryFormatter();
-                formatter.Serialize(s, o);
-            }
-
+            return Serialize(o).Length;
         }
 
-        public static long GetSerializedSize(object o)
+        public byte[] Serialize(object o)
         {
-            using (Stream s = new MemoryStream())
-            {
-                BinaryFormatter formatter = new BinaryFormatter();
-                formatter.Serialize(s, o);
-                return s.Length;
-            }
+            return Compress(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(o)));
+        }
 
+        public T Deserialize<T>(byte[] data)
+        {
+            return JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(Decompress(data)));
+        }
+
+        private static byte[] Compress(byte[] data)
+        {
+            MemoryStream output = new MemoryStream();
+            using (DeflateStream dstream = new DeflateStream(output, CompressionLevel.Optimal))
+            {
+                dstream.Write(data, 0, data.Length);
+            }
+            return output.ToArray();
+        }
+
+        private static byte[] Decompress(byte[] data)
+        {
+            MemoryStream input = new MemoryStream(data);
+            MemoryStream output = new MemoryStream();
+            using (DeflateStream dstream = new DeflateStream(input, CompressionMode.Decompress))
+            {
+                dstream.CopyTo(output);
+            }
+            return output.ToArray();
         }
     }
 }

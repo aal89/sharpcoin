@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Blockchain.Exceptions;
 using Blockchain.Transactions;
 using Blockchain.Utilities;
@@ -136,9 +137,11 @@ namespace Blockchain
                 throw new BlockAssertion($"New block does not have any transactions.");
             }
 
-            if (Serializer.GetSerializedSize(NewBlock) > Config.MaximumBlockSizeInBytes)
+            Serializer Serializer = new Serializer();
+
+            if (Serializer.Size(NewBlock) > Config.MaximumBlockSizeInBytes)
             {
-                throw new BlockAssertion($"New Block size (in bytes) is {Serializer.GetSerializedSize(NewBlock)} and the maximum is {Config.MaximumBlockSizeInBytes}.");
+                throw new BlockAssertion($"New Block size (in bytes) is {Serializer.Size(NewBlock)} and the maximum is {Config.MaximumBlockSizeInBytes}.");
             }
 
             if (!NewBlock.GotFeeRewardTransactions())
@@ -214,7 +217,21 @@ namespace Blockchain
             //Console.WriteLine(gblock.Timestamp);
             //Console.WriteLine(gblock.Hash);
 
-            Console.WriteLine(new GenesisBlock().GetDifficulty());
+            //Console.WriteLine(Serializer.GetSerializedSize(new Transaction()));
+            //Console.WriteLine(Serializer.GetSerializedSizeCompressed(new Transaction()));
+
+            Block b = new GenesisBlock();
+            b.Transactions.Add(new Transaction());
+            b.Transactions.Add(new Transaction());
+            b.Transactions.Add(new Transaction());
+            b.Transactions.Add(new Transaction());
+            b.Transactions.Add(new Transaction());
+
+            Serializer s = new Serializer();
+            byte[] bs = s.Serialize(b);
+
+            Console.WriteLine(bs.Length);
+            Console.WriteLine(s.Deserialize<Block>(bs).Hash);
         }
     }
 }

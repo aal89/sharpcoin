@@ -144,9 +144,9 @@ namespace Blockchain
                 throw new BlockAssertion($"New Block size (in bytes) is {Serializer.Size(NewBlock)} and the maximum is {Config.MaximumBlockSizeInBytes}.");
             }
 
-            if (!NewBlock.GotFeeRewardTransactions())
+            if (!NewBlock.GotRewardTransaction())
             {
-                throw new BlockAssertion($"New block does not have a fee and reward transaction.");
+                throw new BlockAssertion($"New block does not have as reward transaction.");
             }
 
             // Somewhat more expensive operations
@@ -164,13 +164,9 @@ namespace Blockchain
             // Double spending inputs check. Get one list of all transaction inputs of the new block and check
             // if each one Input does not occur in transactions on the chain
 
-            Transaction[] AllTxInChain = GetTransactions();
-            bool HasDuplicateInputs = NewBlock.Transactions
+            if (GetTransactions()
                 .FlatMap(Tx => Tx.Inputs)
-                .Map(Input => AllTxInChain.Any(ChainTx => ChainTx.ContainsInput(Input.Transaction, Input.Index)))
-                .Contains(true);
-
-            if (HasDuplicateInputs)
+                .Any(Input => NewBlock.Transactions.Any(Tx => Tx.ContainsInput(Input.Transaction, Input.Index))))
             {
                 throw new BlockAssertion($"New block tries to spend already spent transaction inputs.");
             }

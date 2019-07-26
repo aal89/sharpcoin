@@ -25,12 +25,9 @@ namespace Blockchain
             return Transactions.ToArray().Length > 0;
         }
 
-        public bool GotFeeRewardTransactions()
+        public bool GotRewardTransaction()
         {
-            return Transactions
-                .Filter(Tx => Tx.Type == Transaction.TransactionType.FEE || Tx.Type == Transaction.TransactionType.REWARD)
-                .ToArray()
-                .Length == 2;
+            return Transactions.Find(Tx => Tx.Type == Transaction.TransactionType.REWARD) != null;
         }
 
         public string ToHash()

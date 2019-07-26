@@ -29,6 +29,11 @@ namespace Blockchain
             return Transactions.Find(Tx => Tx.Type == Transaction.TransactionType.REWARD) != null;
         }
 
+        public Transaction GetRewardTransaction()
+        {
+            return Transactions.Find(Tx => Tx.Type == Transaction.TransactionType.REWARD);
+        }
+
         public string ToHash()
         {
             string StringifiedTransactions = Transactions.Map(Tx => Tx.ToString()).Reduce(R.Concat, "");

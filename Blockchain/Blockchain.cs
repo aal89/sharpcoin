@@ -79,16 +79,20 @@ namespace Blockchain
 
         public bool AddBlock(Block Block)
         {
-            if (IsValidBlock(Block, GetLastBlock()))
+            try
             {
+                IsValidBlock(Block, GetLastBlock());
                 Collection.Add(Block);
                 // Todo: save blockchain
                 return true;
             }
-            return false;
+            catch
+            {
+                return false;
+            }
         }
 
-        public bool IsValidBlock(Block NewBlock, Block LastBlock)
+        public void IsValidBlock(Block NewBlock, Block LastBlock)
         {
             // Before marking a block as valid we have to go through a serie of checks. Some can be quite
             // hard to graps initially but they all make perfect sense once you get them. We do the cheap
@@ -114,10 +118,10 @@ namespace Blockchain
 
             if (NewBlock.Index != LastBlock.Index + 1)
             {
-                throw new BlockAssertion($"Not consecutive blocks. Expected new block index to be  {LastBlock.Index + 1}, but got {NewBlock.Index}.");
+                throw new BlockAssertion($"Not consecutive blocks. Expected new block index to be {LastBlock.Index + 1}, but got {NewBlock.Index}.");
             }
 
-            if (NewBlock.PreviousHash == LastBlock.Hash)
+            if (NewBlock.PreviousHash != LastBlock.Hash)
             {
                 throw new BlockAssertion($"New block points to a different block. Previous hash of new block is {NewBlock.PreviousHash}, while hash of last block is {LastBlock.Hash}.");
             }
@@ -149,6 +153,11 @@ namespace Blockchain
                 throw new BlockAssertion($"New block does not have a reward transaction.");
             }
 
+            if (!NewBlock.GetRewardTransaction().IsRewardTransaction(Config.BlockReward))
+            {
+                throw new BlockAssertion($"New block does not have a valid reward transaction.");
+            }
+
             // Somewhat more expensive operations
 
             if (NewBlock.Transactions.Any(Tx => GetTransactionFromChain(Tx.Id) != null))
@@ -170,87 +179,21 @@ namespace Blockchain
             {
                 throw new BlockAssertion($"New block tries to spend already spent transaction inputs.");
             }
-
-            // If all these checks pass we got a valid consecutive block.
-
-            return true;
         }
 
         static void Main(string[] args)
         {
-            //Blockchain Bc = new Blockchain("");
-            //Console.WriteLine(Serializer.GetSerializedSize(Bc.GetLastBlock()));
-            //Serializer.Write(Bc.GetLastBlock(), "");
-            //SharpKeyPair KeyPair = SharpKeyPair.Create();
+            //Blockchain bc = new Blockchain();
 
-            //SharpKeyPair.Signature sig = KeyPair.Sign(Hash.Sha256("Hello world"));
+            //Block unminednextblock = new Block();
+            //// This one is here to fake previous hash because the genesis block
+            //// does not have a hash and defaults out to "".
+            //unminednextblock.PreviousHash = "PREVHASH";
+            //unminednextblock.Index = 1;
 
-            //Console.WriteLine(sig.Value);
-            //Console.WriteLine(KeyPair.Verify(sig, Hash.Sha256("Hello world2")));
+            //bc.IsValidBlock(unminednextblock, bc.GetLastBlock());
 
-            //Transaction Tx = new Transaction();
-            //Input i1 = new Input();
-            //i1.Amount = 100;
-            //Console.WriteLine(i1.ToHash());
-            //Input i2 = new Input();
-            //i2.Amount = 200;
-            //Console.WriteLine(i2.ToHash());
-
-            //Tx.TransactionInputs = new Input[] { i1, i2 };
-
-            //Block gblock = new GenesisBlock();
-            //ulong count = 0;
-            //while (gblock.GetDifficulty() > 17964189177300000)
-            //{
-            //    gblock.Timestamp = DateTime.UtcNow;
-            //    gblock.Nonce++;
-            //    gblock.Hash = gblock.ToHash();
-
-            //    if (++count % 10 == 0)
-            //        Console.Write("x");
-            //}
-            //Console.WriteLine(gblock.Nonce);
-            //Console.WriteLine(gblock.Timestamp);
-            //Console.WriteLine(gblock.Hash);
-
-            //Console.WriteLine(Serializer.GetSerializedSize(new Transaction()));
-            //Console.WriteLine(Serializer.GetSerializedSizeCompressed(new Transaction()));
-
-            SharpKeyPair skp = SharpKeyPair.Create();
-            Block b = new GenesisBlock();
-
-            Transaction Tx = new Transaction();
-            Input Input = new Input();
-            Input.Transaction = "aba9dae211ad3df108d8eb914200f633";
-            Input.Index = 0;
-            Input.Amount = 50000000;
-            Input.Address = skp.GetAddress();
-            Input.Sign(skp);
-            Tx.Inputs = new Input[1] { Input };
-            Output Output = new Output();
-            Output.Address = skp.GetAddress();
-            Output.Amount = 50000000;
-            Tx.Outputs = new Output[1] { Output };
-            Tx.Sign(skp);
-            b.Transactions.Add(Tx);
-
-            Transaction Tx2 = new Transaction();
-            Input Input2 = new Input();
-            Input2.Transaction = "ff149efc594d7e9ca222c811f96c2317";
-            Input2.Index = 0;
-            Input2.Amount = 40000000;
-            Input2.Address = skp.GetAddress();
-            Input2.Sign(skp);
-            Tx2.Inputs = new Input[1] { Input2 };
-            Output Output2 = new Output();
-            Output2.Address = skp.GetAddress();
-            Output2.Amount = 40000000;
-            Tx2.Outputs = new Output[1] { Output2 };
-            Tx2.Sign(skp);
-            b.Transactions.Add(Tx2);
-
-            Serializer s = new Serializer();
-            Console.WriteLine(s.Size(b));
+            //Console.WriteLine(bc.Collection[0].Hash);
         }
     }
 }

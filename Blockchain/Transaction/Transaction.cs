@@ -58,6 +58,11 @@ namespace Blockchain
             return Inputs.Filter((Input Input) => Input.Transaction == Transaction && Input.Index == Index).ToArray().Length > 0;
         }
 
+        public bool IsRewardTransaction(ulong Equates)
+        {
+            return Type == TransactionType.REWARD && Inputs.Length == 0 && Outputs.Length == 1 && Outputs[0].Amount == Equates;
+        }
+
         public override string ToString()
         {
             return $"{Id}";

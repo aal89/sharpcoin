@@ -144,9 +144,9 @@ namespace Blockchain
                 throw new BlockAssertion($"New Block size (in bytes) is {Serializer.Size(NewBlock)} and the maximum is {Config.MaximumBlockSizeInBytes}.");
             }
 
-            if (!NewBlock.GotRewardTransaction())
+            if (!NewBlock.HasRewardTransaction())
             {
-                throw new BlockAssertion($"New block does not have as reward transaction.");
+                throw new BlockAssertion($"New block does not have a reward transaction.");
             }
 
             // Somewhat more expensive operations

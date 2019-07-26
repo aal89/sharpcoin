@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Blockchain.Utilities;
 
 namespace Blockchain
@@ -22,10 +21,10 @@ namespace Blockchain
 
         public bool HasTransactions()
         {
-            return Transactions.ToArray().Length > 0;
+            return Transactions.Count > 0;
         }
 
-        public bool GotRewardTransaction()
+        public bool HasRewardTransaction()
         {
             return Transactions.Find(Tx => Tx.Type == Transaction.TransactionType.REWARD) != null;
         }

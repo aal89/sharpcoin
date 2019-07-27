@@ -32,11 +32,9 @@ namespace Blockchain
                 TimeDifferences.Add(Convert.ToInt32(CurrentBlock.Timestamp.Subtract(PreviousBlock.Timestamp).TotalSeconds));
             }
 
-            int TimeDifferenceLength = TimeDifferences.ToArray().Length;
-
-            if (TimeDifferenceLength > 0)
+            if (TimeDifferences.Count > 0)
             {
-                int AverageTimeDifference = TimeDifferences.Reduce(R.Total, 0) / TimeDifferenceLength;
+                int AverageTimeDifference = TimeDifferences.Reduce(R.Total, 0) / TimeDifferences.Count;
 
                 // If the average time difference is larger than the mean time between blocks we decrease
                 // difficulty. However, is the time difference smaller than the mean time then we
@@ -45,10 +43,9 @@ namespace Blockchain
 
                 // We don't need if's, de deltapercentage is either positive or negative.
                 float DeltaPercentage = ((float)AverageTimeDifference - (float)MeanTimeBetweenBlocks) / (float)MeanTimeBetweenBlocks;
-                float Change = 1 - DeltaPercentage;
 
                 // We loose some precision with the ulong cast, but its too small to have any effect so its okay.
-                return (ulong)(DefaultDifficulty * Change);
+                return (ulong)(DefaultDifficulty + DefaultDifficulty * DeltaPercentage);
             }
 
             // We return the default difficulty when we have no time differences between blocks or when the

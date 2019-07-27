@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Blockchain.Utilities;
+using System.Linq;
 
 namespace Blockchain
 {
@@ -10,7 +11,7 @@ namespace Blockchain
         public int Index = 0;
         public string PreviousHash = "";
         public string Hash = "";
-        public DateTime Timestamp = new DateTime();
+        public DateTime Timestamp = DateTime.UtcNow;
         public int Nonce = 0;
         public List<Transaction> Transactions = new List<Transaction>();
 
@@ -26,7 +27,7 @@ namespace Blockchain
 
         public bool HasRewardTransaction()
         {
-            return Transactions.Find(Tx => Tx.Type == Transaction.TransactionType.REWARD) != null;
+            return Transactions.Filter(Tx => Tx.Type == Transaction.TransactionType.REWARD).Count() == 1;
         }
 
         public Transaction GetRewardTransaction()

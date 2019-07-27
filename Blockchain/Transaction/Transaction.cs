@@ -26,14 +26,13 @@ namespace Blockchain
             Id = HashUtil.Sha1(RandomUtil.Bytes());
         }
 
-        // Determines if all input and output transaction equate, with taking a variable
-        // block reward into consideration.
-        public bool Equates(ulong Reward)
+        // Determines if all input and output transaction equate
+        public bool Equates()
         {
             ulong TotalInputValue = Inputs.Map(Tx => Tx.Amount).Reduce<ulong>(R.Total, 0);
             // Output also contains a reward tx
             ulong TotalOutputValue = Outputs.Map(Tx => Tx.Amount).Reduce<ulong>(R.Total, 0);
-            return TotalInputValue - TotalOutputValue == Reward;
+            return TotalInputValue - TotalOutputValue == 0;
         }
 
         public bool Verify()

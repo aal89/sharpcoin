@@ -77,23 +77,16 @@ namespace Blockchain
             return Collection.FlatMap(Block => Block.Transactions.ToArray()).ToArray();
         }
 
-        public bool AddBlock(Block Block)
+        public void AddBlock(Block Block)
         {
-            try
-            {
-                IsValidBlock(Block, GetLastBlock());
-                Collection.Add(Block);
-                // Todo: save blockchain
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            IsValidBlock(Block);
+            Collection.Add(Block);
+            // Todo: save blockchain
         }
 
-        public void IsValidBlock(Block NewBlock, Block LastBlock)
+        public bool IsValidBlock(Block NewBlock)
         {
+            Block LastBlock = GetLastBlock();
             // Before marking a block as valid we have to go through a serie of checks. Some can be quite
             // hard to graps initially but they all make perfect sense once you get them. We do the cheap
             // operations first since failing on those checks after a heavy operation is a waste of the
@@ -165,7 +158,7 @@ namespace Blockchain
                 throw new BlockAssertion($"New block contains duplicate transactions.");
             }
 
-            if (!NewBlock.Transactions.All(Tx => Tx.Equates(Config.BlockReward) && Tx.Verify()))
+            if (!NewBlock.Transactions.Filter(RTx => RTx.Type != Transaction.TransactionType.REWARD).All(Tx => Tx.Equates() && Tx.Verify()))
             {
                 throw new BlockAssertion($"New block contains invalid transaction (inputs do not equate with outputs or signature invalid).");
             }
@@ -179,6 +172,10 @@ namespace Blockchain
             {
                 throw new BlockAssertion($"New block tries to spend already spent transaction inputs.");
             }
+
+            // Todo: check if all inputs actually exist for each transaction
+
+            return true;
         }
 
         static void Main(string[] args)

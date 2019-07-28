@@ -174,6 +174,7 @@ namespace Blockchain
             }
 
             // Todo: check if all inputs actually exist for each transaction
+            // Todo: check if block is not too old
 
             return true;
         }

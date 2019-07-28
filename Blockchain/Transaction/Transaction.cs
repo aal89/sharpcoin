@@ -21,9 +21,9 @@ namespace Blockchain
         public Output[] Outputs = { };
         public SharpKeyPair.Signature Signature;
 
-        public Transaction()
+        public Transaction(string Id = null)
         {
-            Id = HashUtil.Sha1(RandomUtil.Bytes());
+            this.Id = Id ?? HashUtil.Sha1(RandomUtil.Bytes());
         }
 
         // Determines if all input and output transaction equate

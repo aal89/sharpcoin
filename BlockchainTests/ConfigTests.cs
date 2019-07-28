@@ -46,8 +46,6 @@ namespace BlockchainTests
 
             bc.AddBlock(nextblock);
 
-            Console.WriteLine(nextblock.GetDifficulty());
-
             Assert.Equal<ulong>(2416350211342336, Config.CalculateDifficulty(bc));
         }
 
@@ -102,8 +100,6 @@ namespace BlockchainTests
             nextblock2.Transactions.Add(RTx2);
 
             bc.AddBlock(nextblock2);
-
-            Console.WriteLine(nextblock2.GetDifficulty());
 
             Assert.Equal<ulong>(2817483513790464, Config.CalculateDifficulty(bc));
         }

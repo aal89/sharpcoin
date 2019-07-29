@@ -15,6 +15,11 @@ namespace Blockchain
         public int Nonce = 0;
         public List<Transaction> Transactions = new List<Transaction>();
 
+        public Block()
+        {
+            Hash = ToHash();
+        }
+
         public ulong GetDifficulty()
         {
             return Convert.ToUInt64(Hash.Substring(0, 16), 16);

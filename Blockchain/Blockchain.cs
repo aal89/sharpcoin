@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Blockchain.Exceptions;
 using Blockchain.Transactions;
 using Blockchain.Utilities;
@@ -121,7 +120,7 @@ namespace Blockchain
 
             if (NewBlock.Hash != NewBlock.ToHash())
             {
-                throw new BlockAssertion($"New blocks integrity check failed.");
+                throw new BlockAssertion($"New blocks integrity check failed. Is {NewBlock.Hash}, should be: {NewBlock.ToHash()}");
             }
 
             if (NewBlock.GetDifficulty() >= GetDifficulty())
@@ -181,17 +180,14 @@ namespace Blockchain
 
         static void Main(string[] args)
         {
-            //Blockchain bc = new Blockchain();
+            Blockchain bc = new Blockchain();
+            SharpKeyPair skp = SharpKeyPair.Create();
 
-            //Block unminednextblock = new Block();
-            //// This one is here to fake previous hash because the genesis block
-            //// does not have a hash and defaults out to "".
-            //unminednextblock.PreviousHash = "PREVHASH";
-            //unminednextblock.Index = 1;
-
-            //bc.IsValidBlock(unminednextblock, bc.GetLastBlock());
-
-            //Console.WriteLine(bc.Collection[0].Hash);
+            while (true)
+            {
+                Block b = Miner.Solve(skp, bc);
+                bc.AddBlock(b);
+            }
         }
     }
 }

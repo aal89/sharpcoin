@@ -11,6 +11,7 @@
     <Folder Include="Transaction\" />
     <Folder Include="Crypto\" />
     <Folder Include="Block\" />
+    <Folder Include="Miner\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Security.Cryptography.Cng" Version="4.5.0" />

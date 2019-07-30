@@ -20,7 +20,7 @@ namespace Blockchain
         {
             // Starting point
             ulong DefaultDifficulty = Blockchain.GetLastBlock().GetDifficulty();
-            Block[] Chain = Blockchain.GetBlocks(10, Blockchain.Order.LAST);
+            Block[] Chain = Blockchain.GetBlocks(6, Blockchain.Order.LAST);
             List<int> TimeDifferences = new List<int> { };
 
             // Walk backwards through the blockchain. Saves some absolute conversions (this is
@@ -35,9 +35,9 @@ namespace Blockchain
 
             if (TimeDifferences.Count > 0)
             {
-                // The average time diff can never be zero, sixty seconds is the minimum (10%). This comes
-                // down to the maximum percentile decrease in diff (lowerbound) is 90%.
-                int AverageTimeDifference = Math.Max(60, TimeDifferences.Reduce(R.Total, 0) / TimeDifferences.Count);
+                // The average time diff can never be zero, sixty seconds is the minimum (20%). This comes
+                // down to the maximum percentile decrease in diff (lowerbound) is 80%.
+                int AverageTimeDifference = Math.Max(120, TimeDifferences.Reduce(R.Total, 0) / TimeDifferences.Count);
                 ulong AverageDifficulty = Chain.Map(block => block.GetDifficulty()).Reduce<ulong>(R.Total, 0) / (ulong)Chain.Length;
 
                 // If the average time difference is larger than the mean time between blocks we decrease
@@ -45,12 +45,13 @@ namespace Blockchain
                 // increase the difficulty.
 
                 // We don't need if's, the deltapercentage is either positive or negative. We do cap
-                // the maximum change to 0.9 (or 90%) (upperbound) change. This is to cut off large pauses in between
+                // the maximum change to 0.8 (or 80%) (upperbound) change. This is to cut off large pauses in between
                 // blocks being mined. Normally you won't see this behaviour being coded in, but this
                 // blockchain is adapted for longer periods of not mining and then suddenly mining again.
                 // Without giving strange large swings in diff. Keep in mind that 'stabilizing' the chain
                 // will take some time after pauses.
-                float DeltaPercentage = Math.Min((float)0.9, ((float)AverageTimeDifference - (float)MeanTimeBetweenBlocks) / (float)MeanTimeBetweenBlocks);
+                float DeltaPercentage = Math.Min((float)0.8, ((float)AverageTimeDifference - (float)MeanTimeBetweenBlocks) / (float)MeanTimeBetweenBlocks);
+                Console.WriteLine(DeltaPercentage);
                 // We loose some precision with the ulong cast, but its too small to have any effect so its okay.
                 ulong TargetDiff = (ulong)(AverageDifficulty + AverageDifficulty * DeltaPercentage);
                 return TargetDiff != 0 ? TargetDiff : UInt64.MaxValue;

@@ -12,7 +12,7 @@ namespace Blockchain
             ulong TargetDiff = bc.GetDifficulty();
             while (Block.GetDifficulty() > TargetDiff)
             {
-                if ((int)started.Subtract(DateTime.UtcNow).TotalSeconds % 60 == 0)
+                if (((int)DateTime.UtcNow.Subtract(started).TotalSeconds + 1) % 30 == 0)
                 {
                     Block.Timestamp = DateTime.UtcNow;
                 }
@@ -20,7 +20,7 @@ namespace Blockchain
                 Block.Nonce++;
                 Block.Hash = Block.ToHash();
             }
-            Console.WriteLine($"Solved block {Block.Index} ({Block.Hash.Substring(0, 10)}...) at {DateTime.UtcNow} in {(int)DateTime.UtcNow.Subtract(started).TotalMinutes} mins! TargetDiff was: {TargetDiff}.");
+            Console.WriteLine($"Solved block {Block.Index} with nonce {Block.Nonce} ({Block.Hash.Substring(0, 10)}...) at {DateTime.UtcNow} in {(int)DateTime.UtcNow.Subtract(started).TotalMinutes} mins! TargetDiff was: {TargetDiff}.");
             return Block;
         }
 

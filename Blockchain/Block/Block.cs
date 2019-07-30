@@ -12,7 +12,7 @@ namespace Blockchain
         public string PreviousHash = "";
         public string Hash = "";
         public DateTime Timestamp = DateTime.UtcNow;
-        public int Nonce = 0;
+        public uint Nonce = 0;
         public List<Transaction> Transactions = new List<Transaction>();
 
         public Block()

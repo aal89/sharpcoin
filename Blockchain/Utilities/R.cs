@@ -6,5 +6,7 @@
         public static int Total(int Accumulator, int Current) => Accumulator + Current;
         public static ulong Total(ulong Accumulator, ulong Current) => Accumulator + Current;
         public static string Concat(string Accumulator, string Current) => $"{Accumulator}{Current}";
+        public static ulong Lowest(ulong Accumulator, ulong Current) => Current < Accumulator ? Accumulator = Current : Accumulator;
+        public static ulong Highest(ulong Accumulator, ulong Current) => Current > Accumulator ? Accumulator = Current : Accumulator;
     }
 }

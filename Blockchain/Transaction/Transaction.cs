@@ -17,13 +17,30 @@ namespace Blockchain
 
         public readonly string Id;
         public TransactionType Type = TransactionType.DEFAULT;
-        public Input[] Inputs = { };
-        public Output[] Outputs = { };
         public SharpKeyPair.Signature Signature;
 
-        public Transaction(string Id = null)
+        public readonly Input[] Inputs = new Input[0];
+        public readonly Output[] Outputs = new Output[0];
+
+        private readonly string InputsConcatenated;
+        private readonly string OutputsConcatenated;
+
+        public Transaction(Input[] Inputs, Output[] Outputs, string Id = null)
         {
             this.Id = Id ?? HashUtil.Sha1(RandomUtil.Bytes());
+            this.Inputs = Inputs;
+            this.Outputs = Outputs;
+            InputsConcatenated = Inputs.Map(In => In.ToString()).Reduce(R.Concat, "");
+            OutputsConcatenated = Outputs.Map(Out => Out.ToString()).Reduce(R.Concat, "");
+        }
+
+        public Transaction(Output[] Outputs, string Id = null)
+        {
+            this.Id = Id ?? HashUtil.Sha1(RandomUtil.Bytes());
+            this.Outputs = Outputs;
+            Type = TransactionType.REWARD;
+            InputsConcatenated = Inputs.Map(In => In.ToString()).Reduce(R.Concat, "");
+            OutputsConcatenated = Outputs.Map(Out => Out.ToString()).Reduce(R.Concat, "");
         }
 
         // Determines if all input and output transaction equate
@@ -36,19 +53,12 @@ namespace Blockchain
 
         public bool Verify()
         {
-            return Signature.Verify(ToHash()) && Inputs.All(In => In.Verify());
+            return Signature.Verify(HashUtil.Sha1(ToString())) && Inputs.All(In => In.Verify());
         }
 
         public void Sign(SharpKeyPair Skp)
         {
-            Signature = Skp.Sign(ToHash());
-        }
-
-        public string ToHash()
-        {
-            string InputsConcatenated = Inputs.Map(Tx => Tx.ToHash()).Reduce(R.Concat, "");
-            string OutputsConcatenated = Outputs.Map(Tx => Tx.ToHash()).Reduce(R.Concat, "");
-            return HashUtil.Sha1($"{Id}{InputsConcatenated}{OutputsConcatenated}");
+            Signature = Skp.Sign(HashUtil.Sha1(ToString()));
         }
 
         public bool ContainsInput(string Transaction, int Index)
@@ -59,6 +69,11 @@ namespace Blockchain
         public bool IsRewardTransaction(ulong Equates)
         {
             return Type == TransactionType.REWARD && Inputs.Length == 0 && Outputs.Length == 1 && Outputs[0].Amount == Equates;
+        }
+
+        public override string ToString()
+        {
+            return $"{Id}{InputsConcatenated}{OutputsConcatenated}";
         }
     }
 }

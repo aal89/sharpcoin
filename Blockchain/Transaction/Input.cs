@@ -14,17 +14,17 @@ namespace Blockchain.Transactions
 
         public bool Verify()
         {
-            return Signature.Verify(ToHash()) && new SharpKeyPair(Signature.PublicKey).GetAddress() == Address;
+            return Signature.Verify(Hash.Sha1(ToString())) && new SharpKeyPair(Signature.PublicKey).GetAddress() == Address;
         }
 
         public void Sign(SharpKeyPair Skp)
         {
-            Signature = Skp.Sign(ToHash());
+            Signature = Skp.Sign(Hash.Sha1(ToString()));
         }
 
-        public string ToHash()
+        public override string ToString()
         {
-            return Hash.Sha1($"{Transaction}{Index}{Amount}{Address}");
+            return $"{Transaction}{Index}{Amount}{Address}";
         }
     }
 }

@@ -9,9 +9,9 @@ namespace Blockchain.Transactions
         public ulong Amount = 0;
         public string Address = "";
 
-        public string ToHash()
+        public override string ToString()
         {
-            return Hash.Sha1($"{Amount}{Address}");
+            return $"{Amount}{Address}";
         }
     }
 }

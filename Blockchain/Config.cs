@@ -20,8 +20,6 @@ namespace Blockchain
 
         public static ulong CalculateDifficulty(Blockchain Blockchain)
         {
-            // Starting point
-            ulong DefaultDifficulty = Blockchain.GetLastBlock().GetDifficulty();
             Block[] Chain = Blockchain.GetLastSectionBlocks();
             List<int> TimeDifferences = new List<int> { };
 
@@ -35,7 +33,10 @@ namespace Blockchain
                 TimeDifferences.Add(Convert.ToInt32(CurrentBlock.Timestamp.Subtract(PreviousBlock.Timestamp).TotalSeconds));
             }
 
-            if (TimeDifferences.Count > 0)
+            // if we have a full section of blocks (which is always except when the chain is shorter
+            // than 6 blocks) continue calculating the averages, otherwise return
+            // the diff of the genesis block
+            if (TimeDifferences.Count == 5)
             {
                 // The average time diff can never be zero, sixty seconds is the minimum (20%). This comes
                 // down to the maximum percentile decrease in diff (lowerbound) is 80%.
@@ -59,9 +60,7 @@ namespace Blockchain
                 return TargetDiff != 0 ? TargetDiff : UInt64.MaxValue;
             }
 
-            // We return the default difficulty when we have no time differences between blocks or when the
-            // average time calculated is exactly the allowed mean time between blocks.
-            return DefaultDifficulty;
+            return Chain[0].GetDifficulty();
         }
     }
 }

@@ -14,13 +14,15 @@ namespace Blockchain
 
         public static int MaximumBlockSizeInBytes = 2 * 1024;
 
+        public static int SectionSize = 6;
+
         public static int MaximumBlockAge = (int)new TimeSpan(2, 0, 0, 0).TotalSeconds;
 
         public static ulong CalculateDifficulty(Blockchain Blockchain)
         {
             // Starting point
             ulong DefaultDifficulty = Blockchain.GetLastBlock().GetDifficulty();
-            Block[] Chain = Blockchain.GetBlocks(6, Blockchain.Order.LAST);
+            Block[] Chain = Blockchain.GetLastSectionBlocks();
             List<int> TimeDifferences = new List<int> { };
 
             // Walk backwards through the blockchain. Saves some absolute conversions (this is

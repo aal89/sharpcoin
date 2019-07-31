@@ -15,10 +15,10 @@ namespace BlockchainTests
         {
             GenesisBlock gblock = new GenesisBlock();
 
-            Assert.Equal(ulong.Parse("6491019730"), gblock.GetDifficulty());
+            Assert.Equal(ulong.Parse("283829339251"), gblock.GetDifficulty());
             Assert.True(gblock.HasTransactions());
             Assert.True(gblock.HasRewardTransaction());
-            Assert.Equal("0000000182e519d235da18b539cd315a9d61a2ee2d7bbafd17883bfa18228d0a", gblock.ToHash());
+            Assert.Equal("00000042158c047307b29b799f7513225a557841a1cc19a504755ddb97840e2a", gblock.ToHash());
             Assert.True(gblock.GetRewardTransaction().Verify());
         }
 

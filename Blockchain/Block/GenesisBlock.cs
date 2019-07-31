@@ -11,21 +11,21 @@ namespace Blockchain
         {
             Index = 0;
             PreviousHash = "";
-            Hash = "0000000182e519d235da18b539cd315a9d61a2ee2d7bbafd17883bfa18228d0a";
-            Timestamp = new DateTime(2019, 07, 30, 22, 40, 16);
-            Nonce = 32399984;
+            Hash = "00000042158c047307b29b799f7513225a557841a1cc19a504755ddb97840e2a";
+            Timestamp = new DateTime(2019, 07, 31, 08, 09, 45);
+            Nonce = 7831440;
 
-            Transaction RTx = new Transaction("64fbef255842974e39affa7f05bdc2133c567306");
+            Transaction RTx = new Transaction("1e7ffd72617efb7a301625302e396ebc813ad76a");
             Output utxo = new Output
             {
-                Address = "se34a76a22c22f7577486f2030c5aba036b5db416",
+                Address = "sb053596e0f3a8572833b5605bc62e4252324b9eb",
                 Amount = 50000000000
             };
             RTx.Outputs = new Output[1] { utxo };
             RTx.Type = Transaction.TransactionType.REWARD;
             RTx.Signature = new SharpKeyPair.Signature(new byte[] {
-                225, 127, 192, 208, 183, 193, 118, 61, 2, 7, 87, 51, 103, 250, 144, 58, 25, 251, 53, 222, 42, 203, 110, 178, 91, 181, 202, 72, 95, 111, 7, 138, 213, 46, 28, 178, 39, 145, 227, 173, 228, 186, 10, 195, 152, 43, 134, 166, 3, 159, 133, 215, 190, 158, 41, 240, 213, 91, 90, 26, 12, 38, 171, 181
-            }, "200e6c654b4a7e939013b480072cf5b7e59712286b366f909ffff0607a4d797eca79a8f0d175c9c2b05409528d65e44dba4db62b89c7c02e854061d3fff9307d");
+                19, 180, 45, 64, 148, 63, 85, 129, 61, 251, 187, 10, 218, 221, 72, 231, 172, 219, 154, 226, 49, 217, 76, 211, 72, 86, 77, 204, 4, 102, 135, 28, 201, 48, 200, 120, 87, 118, 200, 196, 212, 198, 43, 142, 153, 23, 52, 54, 255, 251, 250, 163, 92, 20, 2, 244, 162, 110, 177, 212, 49, 53, 7, 249
+            }, "2307dc492f376e8600ef5b3d92f29260e2bb8949892876acf0d3049bdd9cb3b12681be4c68ffe8b4eb5bf02511eb61b980549a2e2b7df458ff5faf13950cb99c");
 
             Transactions.Add(RTx);
         }

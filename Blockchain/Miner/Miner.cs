@@ -33,17 +33,13 @@ namespace Blockchain
                 PreviousHash = LastBlock.Hash
             };
 
-            Transaction RTx = new Transaction();
-            Output utxo = new Output
-            {
+            Transaction RTx = new Transaction(new Output[] { new Output {
                 Address = skp.GetAddress(),
                 Amount = Config.BlockReward
-            };
-            RTx.Outputs = new Output[1] { utxo };
-            RTx.Type = Transaction.TransactionType.REWARD;
+            } });
             RTx.Sign(skp);
 
-            Block.Transactions.Add(RTx);
+            Block.AddTransaction(RTx);
 
             Block.Hash = Block.ToHash();
 

@@ -82,12 +82,12 @@ namespace Blockchain
 
         public Transaction GetTransactionFromChain(string Id)
         {
-            return Collection.FlatMap(Block => Block.Transactions.ToArray()).Filter(Tx => Tx.Id == Id).FirstOrDefault();
+            return Collection.FlatMap(Block => Block.GetTransactions()).Filter(Tx => Tx.Id == Id).FirstOrDefault();
         }
 
         public Transaction[] GetTransactions()
         {
-            return Collection.FlatMap(Block => Block.Transactions.ToArray()).ToArray();
+            return Collection.FlatMap(Block => Block.GetTransactions()).ToArray();
         }
 
         public void AddBlock(Block Block)
@@ -166,12 +166,12 @@ namespace Blockchain
 
             // Somewhat more expensive operations
 
-            if (NewBlock.Transactions.Any(Tx => GetTransactionFromChain(Tx.Id) != null))
+            if (NewBlock.GetTransactions().Any(Tx => GetTransactionFromChain(Tx.Id) != null))
             {
                 throw new BlockAssertion($"New block contains duplicate transactions.");
             }
 
-            if (!NewBlock.Transactions.Filter(RTx => RTx.Type != Transaction.TransactionType.REWARD).All(Tx => Tx.Equates() && Tx.Verify()))
+            if (!NewBlock.GetTransactions().Filter(RTx => RTx.Type != Transaction.TransactionType.REWARD).All(Tx => Tx.Equates() && Tx.Verify()))
             {
                 throw new BlockAssertion($"New block contains invalid transaction (inputs do not equate with outputs or signature invalid).");
             }
@@ -181,7 +181,7 @@ namespace Blockchain
 
             if (GetTransactions()
                 .FlatMap(Tx => Tx.Inputs)
-                .Any(Input => NewBlock.Transactions.Any(Tx => Tx.ContainsInput(Input.Transaction, Input.Index))))
+                .Any(Input => NewBlock.GetTransactions().Any(Tx => Tx.ContainsInput(Input.Transaction, Input.Index))))
             {
                 throw new BlockAssertion($"New block tries to spend already spent transaction inputs.");
             }

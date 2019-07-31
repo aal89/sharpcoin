@@ -13,7 +13,9 @@ namespace Blockchain
         public string Hash = "";
         public DateTime Timestamp = DateTime.UtcNow;
         public uint Nonce = 0;
-        public List<Transaction> Transactions = new List<Transaction>();
+
+        private string StringifiedTransactions = "";
+        private List<Transaction> Transactions = new List<Transaction>();
 
         public Block()
         {
@@ -30,6 +32,17 @@ namespace Blockchain
             return Transactions.Count > 0;
         }
 
+        public void AddTransaction(Transaction Transaction)
+        {
+            Transactions.Add(Transaction);
+            StringifiedTransactions = Transactions.Map(Tx => Tx.ToString()).Reduce(R.Concat, "");
+        }
+
+        public Transaction[] GetTransactions()
+        {
+            return Transactions.ToArray();
+        }
+
         public bool HasRewardTransaction()
         {
             return Transactions.Filter(Tx => Tx.Type == Transaction.TransactionType.REWARD).Count() == 1;
@@ -42,8 +55,7 @@ namespace Blockchain
 
         public string ToHash()
         {
-            string StringifiedTransactions = Transactions.Map(Tx => Tx.ToHash()).Reduce(R.Concat, "");
-            return Utilities.Hash.Sha256($"{Index}{PreviousHash}{Timestamp.ToString()}{Nonce}{StringifiedTransactions}");
+            return Utilities.Hash.Sha256($"{Index}{PreviousHash}{Timestamp}{Nonce}{StringifiedTransactions}");
         }
     }
 }

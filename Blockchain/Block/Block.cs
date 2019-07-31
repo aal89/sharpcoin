@@ -42,7 +42,7 @@ namespace Blockchain
 
         public string ToHash()
         {
-            string StringifiedTransactions = Transactions.Map(Tx => Tx.ToString()).Reduce(R.Concat, "");
+            string StringifiedTransactions = Transactions.Map(Tx => Tx.ToHash()).Reduce(R.Concat, "");
             return Utilities.Hash.Sha256($"{Index}{PreviousHash}{Timestamp.ToString()}{Nonce}{StringifiedTransactions}");
         }
     }

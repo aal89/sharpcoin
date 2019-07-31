@@ -49,7 +49,7 @@ namespace Blockchain
         {
             string InputsConcatenated = Inputs.Map(Tx => Tx.ToHash()).Reduce(R.Concat, "");
             string OutputsConcatenated = Outputs.Map(Tx => Tx.ToHash()).Reduce(R.Concat, "");
-            return HashUtil.Sha256($"{Id}{InputsConcatenated}{OutputsConcatenated}");
+            return HashUtil.Sha1($"{Id}{InputsConcatenated}{OutputsConcatenated}");
         }
 
         public bool ContainsInput(string Transaction, int Index)
@@ -60,11 +60,6 @@ namespace Blockchain
         public bool IsRewardTransaction(ulong Equates)
         {
             return Type == TransactionType.REWARD && Inputs.Length == 0 && Outputs.Length == 1 && Outputs[0].Amount == Equates;
-        }
-
-        public override string ToString()
-        {
-            return $"{Id}";
         }
     }
 }

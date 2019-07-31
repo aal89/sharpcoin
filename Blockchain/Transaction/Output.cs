@@ -11,7 +11,7 @@ namespace Blockchain.Transactions
 
         public string ToHash()
         {
-            return Hash.Sha256($"{Amount}{Address}");
+            return Hash.Sha1($"{Amount}{Address}");
         }
     }
 }

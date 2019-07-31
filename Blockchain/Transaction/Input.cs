@@ -14,7 +14,7 @@ namespace Blockchain.Transactions
 
         public bool Verify()
         {
-            return Signature.Verify(ToHash());
+            return Signature.Verify(ToHash()) && new SharpKeyPair(Signature.PublicKey).GetAddress() == Address;
         }
 
         public void Sign(SharpKeyPair Skp)

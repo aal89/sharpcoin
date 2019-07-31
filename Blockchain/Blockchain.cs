@@ -145,7 +145,7 @@ namespace Blockchain
                 throw new BlockAssertion($"New block does not have a reward transaction.");
             }
 
-            if (!NewBlock.GetRewardTransaction().IsRewardTransaction(Config.BlockReward))
+            if (!NewBlock.GetRewardTransaction().IsRewardTransaction(Config.BlockReward) || !NewBlock.GetRewardTransaction().Verify())
             {
                 throw new BlockAssertion($"New block does not have a valid reward transaction.");
             }

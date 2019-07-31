@@ -30,14 +30,13 @@ namespace Blockchain
         public bool Equates()
         {
             ulong TotalInputValue = Inputs.Map(Tx => Tx.Amount).Reduce<ulong>(R.Total, 0);
-            // Output also contains a reward tx
             ulong TotalOutputValue = Outputs.Map(Tx => Tx.Amount).Reduce<ulong>(R.Total, 0);
             return TotalInputValue - TotalOutputValue == 0;
         }
 
         public bool Verify()
         {
-            return Signature.Verify(ToHash());
+            return Signature.Verify(ToHash()) && Inputs.All(In => In.Verify());
         }
 
         public void Sign(SharpKeyPair Skp)

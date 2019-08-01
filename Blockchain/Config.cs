@@ -43,7 +43,7 @@ namespace Blockchain
                 // down to the maximum percentile decrease in diff (lowerbound) is 80%.
                 int AverageTimeDifference = Math.Max(1, TimeDifferences.Reduce(R.Total, 0) / TimeDifferences.Count);
                 Block[] SecondLastSection = Blockchain.GetLastSection(2) ?? new Block[] { };
-                ulong AverageSecondLastDiff = SecondLastSection.Map(b => b.GetDifficulty()).Reduce(R.Total, DefaultDifficulty) / (ulong)SecondLastSection.Length;
+                ulong AverageSecondLastDiff = SecondLastSection.Map(b => b.GetDifficulty()).Reduce(R.Total, DefaultDifficulty) / Math.Max(1, (ulong)SecondLastSection.Length);
 
                 // If the average time difference is larger than the mean time between blocks we decrease
                 // difficulty. However, is the time difference smaller than the mean time then we

@@ -22,10 +22,10 @@ namespace Blockchain
             return Collection.ToArray();
         }
 
-        // kind of obscure naming, but the blockchain is split up in parts of 6
-        // blocks (+- one hour) this is used to recalculate the diff. In bitcoin
-        // the blockchain diff is recalculated every 2016 blocks (+- 2 weeks).
-        public Block[] GetLastSectionBlocks()
+        // kind of obscure naming, but the blockchain is split up in parts of x
+        // blocks this is used to recalculate the diff. In bitcoin the blockchain
+        // diff is recalculated every 2016 blocks (+- 2 weeks).
+        public Block[] GetLastSection()
         {
             if (Collection.Count >= Config.SectionSize)
             {
@@ -34,6 +34,17 @@ namespace Blockchain
                 return Collection.GetRange(PreviousSectionIndex, Config.SectionSize).ToArray();
             }
             return Collection.ToArray();
+        }
+
+        public Block[] GetSecondLastSection()
+        {
+            if (Collection.Count >= Config.SectionSize * 2)
+            {
+                // Collection.Count is effectively the same as the block index
+                int SecondLastSectionIndex = Collection.Count - (Collection.Count % Config.SectionSize) - Config.SectionSize * 2;
+                return Collection.GetRange(SecondLastSectionIndex, Config.SectionSize).ToArray();
+            }
+            return GetLastSection();
         }
 
         public Block[] GetBlocks(int n, Order take = Order.FIRST)

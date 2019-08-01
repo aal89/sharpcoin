@@ -42,7 +42,7 @@ namespace Blockchain
                 // The average time diff can never be zero, sixty seconds is the minimum (20%). This comes
                 // down to the maximum percentile decrease in diff (lowerbound) is 80%.
                 int AverageTimeDifference = Math.Max(1, TimeDifferences.Reduce(R.Total, 0) / TimeDifferences.Count);
-                Block[] SecondLastSection = Blockchain.GetLastSection(2);
+                Block[] SecondLastSection = Blockchain.GetLastSection(2) ?? new Block[] { };
                 ulong AverageSecondLastDiff = SecondLastSection.Map(b => b.GetDifficulty()).Reduce(R.Total, DefaultDifficulty) / (ulong)SecondLastSection.Length;
 
                 // If the average time difference is larger than the mean time between blocks we decrease
@@ -56,6 +56,7 @@ namespace Blockchain
                 // Without giving strange large swings in diff. Keep in mind that 'stabilizing' the chain
                 // will take some time after pauses.
                 float DeltaPercentage = Math.Min((float)500.8, ((float)AverageTimeDifference - (float)MeanTimeBetweenBlocks) / (float)MeanTimeBetweenBlocks);
+                Console.WriteLine(AverageSecondLastDiff);
                 Console.WriteLine(DeltaPercentage);
                 // We loose some precision with the ulong cast, but its too small to have any effect so its okay.
                 ulong TargetDiff = (ulong)(AverageSecondLastDiff + AverageSecondLastDiff * DeltaPercentage);

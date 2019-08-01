@@ -33,7 +33,7 @@ namespace Blockchain
                 int PreviousSectionIndex = Collection.Count - (Collection.Count % Config.SectionSize) - Config.SectionSize;
                 return Collection.GetRange(PreviousSectionIndex, Config.SectionSize).ToArray();
             }
-            return Collection.ToArray();
+            return null;
         }
 
         public Block[] GetSecondLastSection()
@@ -44,7 +44,7 @@ namespace Blockchain
                 int SecondLastSectionIndex = Collection.Count - (Collection.Count % Config.SectionSize) - Config.SectionSize * 2;
                 return Collection.GetRange(SecondLastSectionIndex, Config.SectionSize).ToArray();
             }
-            return GetLastSection();
+            return null;
         }
 
         public Block[] GetBlocks(int n, Order take = Order.FIRST)

@@ -20,8 +20,8 @@ namespace Blockchain
 
         public static ulong CalculateDifficulty(Blockchain Blockchain)
         {
-            Block[] Chain = Blockchain.GetLastSection();
-            Block[] SecondLastSection = Blockchain.GetSecondLastSection();
+            ulong DefaultDifficulty = Blockchain.GetBlockByIndex(0).GetDifficulty();
+            Block[] Chain = Blockchain.GetLastSection() ?? new Block[] { };
             List<int> TimeDifferences = new List<int> { };
 
             // Walk backwards through the blockchain. Saves some absolute conversions (this is
@@ -35,15 +35,15 @@ namespace Blockchain
             }
 
             // if we have a full section of blocks (which is always except when the chain is shorter
-            // than 6 blocks) continue calculating the averages, otherwise return
+            // than this.SectionSize blocks) continue calculating the averages, otherwise return
             // the diff of the genesis block
             if (TimeDifferences.Count == SectionSize - 1)
             {
                 // The average time diff can never be zero, sixty seconds is the minimum (20%). This comes
                 // down to the maximum percentile decrease in diff (lowerbound) is 80%.
                 int AverageTimeDifference = Math.Max(1, TimeDifferences.Reduce(R.Total, 0) / TimeDifferences.Count);
-                //ulong AverageDifficulty = Chain.Map(block => block.GetDifficulty()).Reduce<ulong>(R.Total, 0) / (ulong)Chain.Length;
-                ulong AverageSecondLastDiff = SecondLastSection.Map(block => block.GetDifficulty()).Reduce<ulong>(R.Total, 0) / (ulong)SecondLastSection.Length;
+                Block[] SecondLastSection = Blockchain.GetSecondLastSection();
+                ulong AverageSecondLastDiff = SecondLastSection.Map(b => b.GetDifficulty()).Reduce(R.Total, DefaultDifficulty) / (ulong)SecondLastSection.Length;
 
                 // If the average time difference is larger than the mean time between blocks we decrease
                 // difficulty. However, is the time difference smaller than the mean time then we
@@ -62,7 +62,7 @@ namespace Blockchain
                 return TargetDiff != 0 ? TargetDiff : UInt64.MaxValue;
             }
 
-            return Chain[0].GetDifficulty();
+            return DefaultDifficulty;
         }
     }
 }

@@ -13,6 +13,7 @@ namespace Blockchain
         public string Hash = "";
         public DateTime Timestamp = DateTime.UtcNow;
         public uint Nonce;
+        public byte Version = 0x00;
 
         private string StringifiedTransactions = "";
         private readonly List<Transaction> Transactions = new List<Transaction>();
@@ -55,7 +56,7 @@ namespace Blockchain
 
         public string ToHash()
         {
-            return Utilities.Hash.Sha256($"{Index}{PreviousHash}{Timestamp}{Nonce}{StringifiedTransactions}");
+            return Utilities.Hash.Sha256($"{Index}{PreviousHash}{Timestamp}{Nonce}{Version}{StringifiedTransactions}");
         }
     }
 }

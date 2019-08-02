@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using Blockchain.Exceptions;
@@ -14,8 +15,27 @@ namespace Blockchain
             FIRST, LAST
         }
 
-        private List<Block> Collection = new List<Block> { new GenesisBlock() };
-        private List<Transaction> QueuedTransactions = new List<Transaction>();
+        private readonly List<Block> Collection = new List<Block> { new GenesisBlock() };
+        private readonly List<Transaction> QueuedTransactions = new List<Transaction>();
+        private readonly Serializer Serializer;
+
+        public Blockchain()
+        {
+            Serializer = new Serializer();
+
+            if (!File.Exists(Path.Combine(Directory.GetCurrentDirectory(), "blockchain")))
+            {
+                Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), "blockchain"));
+            }
+
+            string[] Paths = Directory.GetFiles(Path.Combine(Directory.GetCurrentDirectory(), "blockchain"));
+
+            foreach(string p in Paths)
+            {
+                byte[] RawBlock = File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "blockchain", p));
+                AddBlock(Serializer.Deserialize<Block>(RawBlock), false);
+            }
+        }
 
         public Block[] GetBlocks()
         {
@@ -90,11 +110,14 @@ namespace Blockchain
             return Collection.FlatMap(Block => Block.GetTransactions()).ToArray();
         }
 
-        public void AddBlock(Block Block)
+        public void AddBlock(Block Block, bool save = true)
         {
             IsValidBlock(Block);
             Collection.Add(Block);
-            // Todo: save blockchain
+            if (save)
+            {
+                File.WriteAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "blockchain", $"{Block.Index}.block"), Serializer.Serialize(Block));
+            }
         }
 
         public bool IsValidBlock(Block NewBlock)
@@ -147,8 +170,6 @@ namespace Blockchain
                 throw new BlockAssertion($"New block does not have any transactions.");
             }
 
-            Serializer Serializer = new Serializer();
-
             if (Serializer.Size(NewBlock) > Config.MaximumBlockSizeInBytes)
             {
                 throw new BlockAssertion($"New Block size (in bytes) is {Serializer.Size(NewBlock)} and the maximum is {Config.MaximumBlockSizeInBytes}.");
@@ -187,20 +208,25 @@ namespace Blockchain
             }
 
             // Todo: check if all inputs actually exist for each transaction
-            // Todo: check if block is not too old
+            // Todo: check if block is not too old (check should go into the 'cheap' section)
 
             return true;
+        }
+
+        public int Size()
+        {
+            return Collection.Count;
         }
 
         static void Main(string[] args)
         {
             Blockchain bc = new Blockchain();
-            SharpKeyPair skp = SharpKeyPair.Create();
+            Console.WriteLine($"Loaded blockchain of size {bc.Size()}");
 
             Console.WriteLine($"Started mining at {DateTime.UtcNow}");
             while (true)
             {
-                Block b = Miner.Solve(skp, bc);
+                Block b = Miner.Solve(SharpKeyPair.Create(), bc);
                 bc.AddBlock(b);
             }
         }

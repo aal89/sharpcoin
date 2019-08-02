@@ -8,14 +8,14 @@ namespace Blockchain
     [Serializable]
     public class Block
     {
-        public int Index = 0;
+        public int Index;
         public string PreviousHash = "";
         public string Hash = "";
         public DateTime Timestamp = DateTime.UtcNow;
-        public uint Nonce = 0;
+        public uint Nonce;
 
         private string StringifiedTransactions = "";
-        private List<Transaction> Transactions = new List<Transaction>();
+        private readonly List<Transaction> Transactions = new List<Transaction>();
 
         public Block()
         {

@@ -28,11 +28,12 @@ namespace Blockchain
                 Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), "blockchain"));
             }
 
-            string[] Paths = Directory.GetFiles(Path.Combine(Directory.GetCurrentDirectory(), "blockchain"));
+            DirectoryInfo Info = new DirectoryInfo(Path.Combine(Directory.GetCurrentDirectory(), "blockchain"));
+            FileInfo[] Paths = Info.GetFiles().Filter(p => p.Name.Contains(".block")).OrderBy(p => p.CreationTime).ToArray();
 
-            foreach(string p in Paths)
+            foreach (FileInfo fi in Paths)
             {
-                byte[] RawBlock = File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "blockchain", p));
+                byte[] RawBlock = File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "blockchain", fi.Name));
                 AddBlock(Serializer.Deserialize<Block>(RawBlock), false);
             }
         }

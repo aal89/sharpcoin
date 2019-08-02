@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using Blockchain.Utilities;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace Blockchain
 {
-    [Serializable]
     public class Block
     {
         public int Index;
@@ -16,10 +16,20 @@ namespace Blockchain
         public byte Version = 0x00;
 
         private string StringifiedTransactions = "";
+
+        [JsonProperty]
         private readonly List<Transaction> Transactions = new List<Transaction>();
 
         public Block()
         {
+            Hash = ToHash();
+        }
+
+        [JsonConstructor]
+        public Block(List<Transaction> Transactions)
+        {
+            this.Transactions = Transactions;
+            StringifiedTransactions = Transactions.Map(Tx => Tx.ToString()).Reduce(R.Concat, "");
             Hash = ToHash();
         }
 

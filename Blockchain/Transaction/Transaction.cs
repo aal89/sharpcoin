@@ -4,10 +4,10 @@ using System.Linq;
 using Blockchain.Utilities;
 using HashUtil = Blockchain.Utilities.Hash;
 using RandomUtil = Blockchain.Utilities.Random;
+using Newtonsoft.Json;
 
 namespace Blockchain
 {
-    [Serializable]
     public class Transaction
     {
         public enum TransactionType
@@ -25,6 +25,7 @@ namespace Blockchain
         private readonly string InputsConcatenated;
         private readonly string OutputsConcatenated;
 
+        [JsonConstructor]
         public Transaction(Input[] Inputs, Output[] Outputs, string Id = null)
         {
             this.Id = Id ?? HashUtil.Sha1(RandomUtil.Bytes());

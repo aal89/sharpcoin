@@ -3,7 +3,6 @@ using Blockchain.Utilities;
 
 namespace Blockchain.Transactions
 {
-    [Serializable]
     public class Input
     {
         public string Transaction = "";

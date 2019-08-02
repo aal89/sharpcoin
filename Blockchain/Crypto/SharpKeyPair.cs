@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace Blockchain.Utilities
 {
     public class SharpKeyPair
     {
-        [Serializable]
         public struct Signature
         {
             public readonly byte[] PublicKey;
             public readonly string Value;
 
-            public Signature(byte[] PublicKey, string SignatureHex)
+            [JsonConstructor]
+            public Signature(byte[] PublicKey, string Value)
             {
                 this.PublicKey = PublicKey;
-                Value = SignatureHex;
+                this.Value = Value;
             }
 
             public bool Verify(string Message)

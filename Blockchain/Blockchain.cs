@@ -197,6 +197,7 @@ namespace Blockchain
             Blockchain bc = new Blockchain();
             SharpKeyPair skp = SharpKeyPair.Create();
 
+            Console.WriteLine($"Started mining at {DateTime.UtcNow}");
             while (true)
             {
                 Block b = Miner.Solve(skp, bc);

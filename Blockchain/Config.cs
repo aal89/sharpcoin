@@ -6,64 +6,45 @@ namespace Blockchain
 {
     public static class Config
     {
-        private static int MeanTimeBetweenBlocks = 10 * 60; // in seconds
+        private static readonly float MeanTimeBetweenBlocks = 10 * 60; // in seconds
         // block reward is the 'half' of ulong number in length (20 digits)
         // 'one' coin is now dividable into a billion pieces and there are
         // still 18446744073 blocks to be mined with this reward.
-        public static ulong BlockReward = 50000000000;
+        public static readonly ulong BlockReward = 50000000000;
 
-        public static int MaximumBlockSizeInBytes = 2 * 1024;
+        public static readonly int MaximumBlockSizeInBytes = 2 * 1024;
 
-        public static int SectionSize = 6;
+        public static readonly int SectionSize = 144;
 
-        public static int MaximumBlockAge = (int)new TimeSpan(2, 0, 0, 0).TotalSeconds;
+        public static readonly int MaximumBlockAge = (int)new TimeSpan(2, 0, 0, 0).TotalSeconds;
 
         public static ulong CalculateDifficulty(Blockchain Blockchain)
         {
-            ulong DefaultDifficulty = Blockchain.GetBlockByIndex(0).GetDifficulty();
-            Block[] Chain = Blockchain.GetLastSection() ?? new Block[] { };
-            List<int> TimeDifferences = new List<int> { };
+            ulong GenesisDifficulty = Blockchain.GetBlockByIndex(0).GetDifficulty();
+            Block[] Section = Blockchain.GetLastSection();
 
-            // Walk backwards through the blockchain. Saves some absolute conversions (this is
-            // because the blockchain implicitly is an ordered list).
-            for (int i = Chain.Length - 1; i > 0; i--)
+            if (Section != null)
             {
-                Block CurrentBlock = Chain[i];
-                Block PreviousBlock = Chain[i - 1];
+                List<int> TimeDifferences = new List<int> { };
 
-                TimeDifferences.Add(Convert.ToInt32(CurrentBlock.Timestamp.Subtract(PreviousBlock.Timestamp).TotalSeconds));
+                for (int i = 0; i < Section.Length - 1; i++)
+                {
+                    Block NextBlock = Section[i + 1];
+                    Block PreviousBlock = Section[i];
+
+                    TimeDifferences.Add(Convert.ToInt32(NextBlock.Timestamp.Subtract(PreviousBlock.Timestamp).TotalSeconds));
+                }
+
+                // Cap decline at max 80% (120 secs out of 600 secs).
+                int AverageTimeDifference = Math.Max(120, TimeDifferences.Reduce(R.Total, 0) / TimeDifferences.Count);
+                ulong AverageDifficulty = Section.Map(b => b.GetDifficulty()).Reduce(R.Total, GenesisDifficulty) / (ulong)Section.Length;
+                // Cap growth at max 80% (0.8).
+                float DeltaChange = Math.Min((float)0.8, (AverageTimeDifference - MeanTimeBetweenBlocks) / MeanTimeBetweenBlocks);
+
+                return (ulong)(AverageDifficulty + AverageDifficulty * DeltaChange);
             }
 
-            // if we have a full section of blocks (which is always except when the chain is shorter
-            // than this.SectionSize blocks) continue calculating the averages, otherwise return
-            // the diff of the genesis block
-            if (TimeDifferences.Count == SectionSize - 1)
-            {
-                // The average time diff can never be zero, sixty seconds is the minimum (20%). This comes
-                // down to the maximum percentile decrease in diff (lowerbound) is 80%.
-                int AverageTimeDifference = Math.Max(1, TimeDifferences.Reduce(R.Total, 0) / TimeDifferences.Count);
-                Block[] SecondLastSection = Blockchain.GetLastSection(2) ?? new Block[] { };
-                ulong AverageSecondLastDiff = SecondLastSection.Map(b => b.GetDifficulty()).Reduce(R.Total, DefaultDifficulty) / Math.Max(1, (ulong)SecondLastSection.Length);
-
-                // If the average time difference is larger than the mean time between blocks we decrease
-                // difficulty. However, is the time difference smaller than the mean time then we
-                // increase the difficulty.
-
-                // We don't need if's, the deltapercentage is either positive or negative. We do cap
-                // the maximum change to 0.8 (or 80%) (upperbound) change. This is to cut off large pauses in between
-                // blocks being mined. Normally you won't see this behaviour being coded in, but this
-                // blockchain is adapted for longer periods of not mining and then suddenly mining again.
-                // Without giving strange large swings in diff. Keep in mind that 'stabilizing' the chain
-                // will take some time after pauses.
-                float DeltaPercentage = Math.Min((float)500.8, ((float)AverageTimeDifference - (float)MeanTimeBetweenBlocks) / (float)MeanTimeBetweenBlocks);
-                Console.WriteLine(AverageSecondLastDiff);
-                Console.WriteLine(DeltaPercentage);
-                // We loose some precision with the ulong cast, but its too small to have any effect so its okay.
-                ulong TargetDiff = (ulong)(AverageSecondLastDiff + AverageSecondLastDiff * DeltaPercentage);
-                return TargetDiff != 0 ? TargetDiff : UInt64.MaxValue;
-            }
-
-            return DefaultDifficulty;
+            return GenesisDifficulty;
         }
     }
 }

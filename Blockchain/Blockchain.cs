@@ -6,6 +6,7 @@ using Blockchain.Exceptions;
 using Blockchain.Transactions;
 using Blockchain.Utilities;
 using System.Text;
+using Blockchain.TCP;
 
 namespace Blockchain
 {
@@ -19,6 +20,8 @@ namespace Blockchain
         private readonly List<Block> Collection = new List<Block> { new GenesisBlock() };
         private readonly List<Transaction> QueuedTransactions = new List<Transaction>();
         private readonly Serializer Serializer = new Serializer();
+
+        public event EventHandler BlockAdded;
 
         public Blockchain()
         {
@@ -118,6 +121,9 @@ namespace Blockchain
             {
                 File.WriteAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "blockchain", $"{Block.Index}.block"), Serializer.Serialize(Block));
             }
+
+            // Fire the block added event
+            BlockAdded?.Invoke(this, EventArgs.Empty);
         }
 
         public bool IsValidBlock(Block NewBlock)
@@ -210,6 +216,7 @@ namespace Blockchain
         static void Main(string[] args)
         {
             Blockchain bc = new Blockchain();
+            bc.BlockAdded += new TCPServer().BlockAdded;
             Console.WriteLine($"Loaded blockchain of size {bc.Size()}");
 
             Console.WriteLine($"Started mining at {DateTime.UtcNow}");

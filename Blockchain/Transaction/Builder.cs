@@ -7,13 +7,37 @@ using TransactionObject = Blockchain.Transaction;
 
 namespace Blockchain
 {
-    public static class Builder
+    public class Builder
     {
-        public static Func<(string address, long amount)[], Func<string, TransactionObject>> Make(SharpKeyPair skp, (TransactionObject tx, int index)[] senderouts)
+        private readonly SharpKeyPair skp;
+        private readonly List<(TransactionObject, int)> uouts = new List<(TransactionObject, int)>();
+        private readonly List<(string, long)> nouts = new List<(string, long)>();
+
+        public Builder(SharpKeyPair skp)
+        {
+            this.skp = skp;
+        }
+
+        public void AddInput(TransactionObject tx, int index)
+        {
+            uouts.Add((tx, index));
+        }
+
+        public void AddOutput(string address, long amount)
+        {
+            nouts.Add((address, amount));
+        }
+
+        public TransactionObject Make()
+        {
+            return Make(skp, uouts.ToArray())(nouts.ToArray())(null);
+        }
+
+        public static Func<(string address, long amount)[], Func<string, TransactionObject>> Make(SharpKeyPair skp, (TransactionObject tx, int index)[] uouts)
         {
             List<Input> ins = new List<Input>();
 
-            foreach ((TransactionObject tx, int outindex) in senderouts)
+            foreach ((TransactionObject tx, int outindex) in uouts)
             {
                 Output myoutput = tx.GetOutputByIndex(outindex);
                 Input txi = new Input
@@ -29,7 +53,7 @@ namespace Blockchain
 
             return ((string address, long amount)[] recipients) =>
             {
-                List<Output> outs = new List<Output>();
+                List<Output> nouts = new List<Output>();
 
                 foreach ((string address, long amount) in recipients)
                 {
@@ -38,7 +62,7 @@ namespace Blockchain
                         Address = address,
                         Amount = amount
                     };
-                    outs.Add(utxo);
+                    nouts.Add(utxo);
                 }
 
                 return (string id) =>
@@ -47,7 +71,7 @@ namespace Blockchain
                     // if its postive. Iff thats the case we need to add one more change output
                     // towards the creator of this tx (the skp).
 
-                    TransactionObject newtx = new TransactionObject(ins.ToArray(), outs.ToArray(), id);
+                    TransactionObject newtx = new TransactionObject(ins.ToArray(), nouts.ToArray(), id);
 
                     if (newtx.Balance() > 0)
                     {
@@ -56,8 +80,8 @@ namespace Blockchain
                             Address = skp.GetAddress(),
                             Amount = newtx.Balance()
                         };
-                        outs.Add(changeout);
-                        newtx = new TransactionObject(ins.ToArray(), outs.ToArray(), id);
+                        nouts.Add(changeout);
+                        newtx = new TransactionObject(ins.ToArray(), nouts.ToArray(), id);
                     }
 
                     newtx.Sign(skp);

@@ -12,11 +12,9 @@ namespace Blockchain
         // still 18446744073 blocks to be mined with this reward.
         public static readonly long BlockReward = 50000000000;
 
-        public static readonly int MaximumBlockSizeInBytes = 2 * 1024;
+        public static readonly int MaximumBlockSizeInBytes = 2 * 1024 * 1000;
 
         public static readonly int SectionSize = 144;
-
-        public static readonly int MaximumBlockAge = (int)new TimeSpan(2, 0, 0, 0).TotalSeconds;
 
         public static ulong CalculateDifficulty(Blockchain Blockchain)
         {

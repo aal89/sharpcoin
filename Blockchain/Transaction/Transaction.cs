@@ -44,12 +44,20 @@ namespace Blockchain
             OutputsConcatenated = Outputs.Map(Out => Out.ToString()).Reduce(R.Concat, "");
         }
 
+        public Output GetOutputByIndex(int Index)
+        {
+            return Outputs[Index];
+        }
+
         // Determines if all input and output transaction equate
         public bool Equates()
         {
-            ulong TotalInputValue = Inputs.Map(Tx => Tx.Amount).Reduce<ulong>(R.Total, 0);
-            ulong TotalOutputValue = Outputs.Map(Tx => Tx.Amount).Reduce<ulong>(R.Total, 0);
-            return TotalInputValue - TotalOutputValue == 0;
+            return Balance() == 0;
+        }
+
+        public ulong Balance()
+        {
+            return Inputs.Map(Tx => Tx.Amount).Reduce<ulong>(R.Total, 0) - Outputs.Map(Tx => Tx.Amount).Reduce<ulong>(R.Total, 0);
         }
 
         public bool Verify()

@@ -5,6 +5,7 @@ using System.Linq;
 using Blockchain.Exceptions;
 using Blockchain.Transactions;
 using Blockchain.Utilities;
+using System.Text;
 
 namespace Blockchain
 {
@@ -17,12 +18,10 @@ namespace Blockchain
 
         private readonly List<Block> Collection = new List<Block> { new GenesisBlock() };
         private readonly List<Transaction> QueuedTransactions = new List<Transaction>();
-        private readonly Serializer Serializer;
+        private readonly Serializer Serializer = new Serializer();
 
         public Blockchain()
         {
-            Serializer = new Serializer();
-
             if (!File.Exists(Path.Combine(Directory.GetCurrentDirectory(), "blockchain")))
             {
                 Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), "blockchain"));
@@ -124,27 +123,11 @@ namespace Blockchain
         public bool IsValidBlock(Block NewBlock)
         {
             Block LastBlock = GetLastBlock();
-            // Before marking a block as valid we have to go through a serie of checks. Some can be quite
-            // hard to graps initially but they all make perfect sense once you get them. We do the cheap
-            // operations first since failing on those checks after a heavy operation is a waste of the
-            // cpu cycles.
-            // 1st) Check if the index is correct.
-            // 2nd) Check if the previous hash is my last block hash.
-            // 3rd) Check if the hash of the block is correct.
-            // 4th) Check if difficulty of new block is gte to the expected difficulty.
-            // 5th) Check if the block has at least one transaction (to prevent empty blocks from being
-            // mined).
-            // 6th) Check is block size does not exceed max block size.
-            // 7th) Check if there are only one reward and one fee transaction.
-            // More expensive operations:
-            // 8th) The transaction is not already in the blockchain.
-            // 9th) Check if all included transactions are valid.
-            // 10th) The transaction has only unspent inputs.
-            // 11th) The signature of the transaction is correct.
-            // 12th) Check if the sum of all input transactions equal the sum of all output transactions
-            // + block reward.
-            // 13th) Check if there are no double spent input transactions on the block.
-            // Some of these checks you can find under the transaction validation.
+
+            if (NewBlock.Timestamp.Subtract(LastBlock.Timestamp).TotalSeconds < 0)
+            {
+                throw new BlockAssertion($"The new block is older than the last block. Timestamp last block {LastBlock.Timestamp}, timestamp new block {NewBlock.Timestamp}");
+            }
 
             if (NewBlock.Index != LastBlock.Index + 1)
             {
@@ -208,8 +191,13 @@ namespace Blockchain
                 throw new BlockAssertion($"New block tries to spend already spent transaction inputs.");
             }
 
-            // Todo: check if all inputs actually exist for each transaction
-            // Todo: check if block is not too old (check should go into the 'cheap' section)
+            if (!NewBlock.GetTransactions().FlatMap(tx => tx.Inputs).All(input => {
+                Output refOutput = GetTransactionFromChain(input.Transaction).Outputs[input.Index];
+                return refOutput.Address == input.Address && refOutput.Amount == input.Amount;
+            }))
+            {
+                throw new BlockAssertion($"One or more inputs used for a transaction on the block seem to be invalid.");
+            }
 
             return true;
         }
@@ -225,6 +213,7 @@ namespace Blockchain
             Console.WriteLine($"Loaded blockchain of size {bc.Size()}");
 
             Console.WriteLine($"Started mining at {DateTime.UtcNow}");
+
             while (true)
             {
                 Block b = Miner.Solve(SharpKeyPair.Create(), bc);

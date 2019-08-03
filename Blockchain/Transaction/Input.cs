@@ -7,7 +7,7 @@ namespace Blockchain.Transactions
     {
         public string Transaction = "";
         public int Index;
-        public ulong Amount;
+        public long Amount;
         public string Address = "";
         public SharpKeyPair.Signature Signature;
 

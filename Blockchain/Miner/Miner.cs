@@ -1,5 +1,4 @@
 ﻿using System;
-using Blockchain.Transactions;
 using Blockchain.Utilities;
 
 namespace Blockchain
@@ -33,24 +32,7 @@ namespace Blockchain
 
         public static Block Solve(SharpKeyPair skp, Blockchain bc)
         {
-            Block LastBlock = bc.GetLastBlock();
-            Block Block = new Block
-            {
-                Index = LastBlock.Index + 1,
-                PreviousHash = LastBlock.Hash
-            };
-
-            Transaction RTx = new Transaction(new Output[] { new Output {
-                Address = skp.GetAddress(),
-                Amount = Config.BlockReward
-            } });
-            RTx.Sign(skp);
-
-            Block.AddTransaction(RTx);
-
-            Block.Hash = Block.ToHash();
-
-            return Solve(Block, bc);
+            return Solve(Block.Create(skp, bc), bc);
         }
     }
 }

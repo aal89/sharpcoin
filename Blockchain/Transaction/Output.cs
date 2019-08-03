@@ -5,7 +5,7 @@ namespace Blockchain.Transactions
 {
     public class Output
     {
-        public ulong Amount = 0;
+        public long Amount = 0;
         public string Address = "";
 
         public override string ToString()

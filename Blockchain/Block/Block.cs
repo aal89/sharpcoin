@@ -68,5 +68,21 @@ namespace Blockchain
         {
             return Utilities.Hash.Sha256($"{Index}{PreviousHash}{Timestamp}{Nonce}{Version}{StringifiedTransactions}");
         }
+
+        // Creates a next block based on the chain given with a reward tx for the keypair.
+        public static Block Create(SharpKeyPair skp, Blockchain bc)
+        {
+            Block b = new Block
+            {
+                Index = bc.GetLastBlock().Index + 1,
+                PreviousHash = bc.GetLastBlock().Hash
+            };
+
+            b.AddTransaction(Builder.MakeReward(skp, Config.BlockReward));
+
+            b.Hash = b.ToHash();
+
+            return b;
+        }
     }
 }

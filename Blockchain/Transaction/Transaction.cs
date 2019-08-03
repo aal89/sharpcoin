@@ -55,9 +55,9 @@ namespace Blockchain
             return Balance() == 0;
         }
 
-        public ulong Balance()
+        public long Balance()
         {
-            return Inputs.Map(Tx => Tx.Amount).Reduce<ulong>(R.Total, 0) - Outputs.Map(Tx => Tx.Amount).Reduce<ulong>(R.Total, 0);
+            return Inputs.Map(Tx => Tx.Amount).Reduce(R.Total, 0) - Outputs.Map(Tx => Tx.Amount).Reduce(R.Total, 0);
         }
 
         public bool Verify()
@@ -75,7 +75,7 @@ namespace Blockchain
             return Inputs.Filter((Input Input) => Input.Transaction == Transaction && Input.Index == Index).ToArray().Length > 0;
         }
 
-        public bool IsRewardTransaction(ulong Equates)
+        public bool IsRewardTransaction(long Equates)
         {
             return Type == TransactionType.REWARD && Inputs.Length == 0 && Outputs.Length == 1 && Outputs[0].Amount == Equates;
         }

@@ -9,7 +9,7 @@ namespace Blockchain
 {
     public static class Builder
     {
-        public static Func<(string address, ulong amount)[], Func<string, TransactionObject>> Make(SharpKeyPair skp, (TransactionObject tx, int index)[] senderouts)
+        public static Func<(string address, long amount)[], Func<string, TransactionObject>> Make(SharpKeyPair skp, (TransactionObject tx, int index)[] senderouts)
         {
             List<Input> ins = new List<Input>();
 
@@ -20,18 +20,18 @@ namespace Blockchain
                 {
                     Transaction = tx.Id,
                     Index = outindex,
-                    Address = skp.GetAddress(),
+                    Address = myoutput.Address,
                     Amount = myoutput.Amount
                 };
                 txi.Sign(skp);
                 ins.Add(txi);
             }
 
-            return ((string address, ulong amount)[] recipients) =>
+            return ((string address, long amount)[] recipients) =>
             {
                 List<Output> outs = new List<Output>();
 
-                foreach ((string address, ulong amount) in recipients)
+                foreach ((string address, long amount) in recipients)
                 {
                     Output utxo = new Output
                     {
@@ -64,7 +64,7 @@ namespace Blockchain
 
                     if (!newtx.Equates() || !newtx.Verify())
                     {
-                        throw new BuilderException(newtx, "The constructed transactions did not properly equate or got signed right.");
+                        throw new BuilderException(newtx, "The constructed transaction is not balanced or signed right.");
                     }
 
                     return newtx;
@@ -72,15 +72,12 @@ namespace Blockchain
             };
         }
 
-        public static TransactionObject MakeReward(SharpKeyPair skp, ulong amount, string id = null)
+        public static TransactionObject MakeReward(SharpKeyPair skp, long amount, string id = null)
         {
-            Output utxo = new Output
-            {
+            TransactionObject tx = new TransactionObject(new Output[] { new Output {
                 Address = skp.GetAddress(),
                 Amount = amount
-            };
-            Output[] outs = { utxo };
-            TransactionObject tx = new TransactionObject(outs, id);
+            } });
             tx.Sign(skp);
             return tx;
         }

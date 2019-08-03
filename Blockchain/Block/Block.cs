@@ -72,6 +72,9 @@ namespace Blockchain
         // Creates a next block based on the chain given with a reward tx for the keypair.
         public static Block Create(SharpKeyPair skp, Blockchain bc)
         {
+            Serializer s = new Serializer();
+            Transaction[] queued = bc.GetQueuedTransactions();
+
             Block b = new Block
             {
                 Index = bc.GetLastBlock().Index + 1,
@@ -79,6 +82,18 @@ namespace Blockchain
             };
 
             b.AddTransaction(Builder.MakeReward(skp, Config.BlockReward));
+
+            int count = 0;
+            do
+            {
+                try
+                {
+                    b.AddTransaction(queued[count++]);
+                } catch
+                {
+                    break;
+                }
+            } while (s.Size(b) < Config.MaximumBlockSizeInBytes);
 
             b.Hash = b.ToHash();
 

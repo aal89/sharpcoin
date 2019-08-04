@@ -20,6 +20,7 @@ namespace Core
         private readonly Serializer Serializer = new Serializer();
 
         public event EventHandler BlockAdded;
+        public event EventHandler QueuedTransactionAdded;
 
         public Blockchain()
         {
@@ -29,12 +30,22 @@ namespace Core
             }
 
             DirectoryInfo Info = new DirectoryInfo(Path.Combine(Directory.GetCurrentDirectory(), "blockchain"));
-            FileInfo[] Paths = Info.GetFiles().Filter(p => p.Name.Contains(".block")).OrderBy(p => p.CreationTime).ToArray();
+            FileInfo[] Paths = Info.GetFiles()
+                .Filter(p => p.Name.Contains(".block"))
+                .OrderBy(p => p.CreationTime)
+                .ToArray();
 
-            foreach (FileInfo fi in Paths)
+            // Load only the last section of blocks, this saves time and memory
+            Paths = Paths.TakeLast(Paths.Length % Config.SectionSize + Config.SectionSize).ToArray();
+
+            for (var i = 0; i < Paths.Length; i++)
             {
+                FileInfo fi = Paths[i];
+                Console.WriteLine($"Loading: {fi.Name}");
                 byte[] RawBlock = File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "blockchain", fi.Name));
-                AddBlock(Serializer.Deserialize<Block>(RawBlock), false);
+                // we only load the last section, so the first block might get incorrectly (correctly*) invalidated
+                // we skip validation for the first block loaded from disk
+                AddBlock(Serializer.Deserialize<Block>(RawBlock), i > 0, false);
             }
         }
 
@@ -89,6 +100,9 @@ namespace Core
         public void QueueTransaction(Transaction Transaction)
         {
             QueuedTransactions.Add(Transaction);
+
+            // Fire the tx added event
+            QueuedTransactionAdded?.Invoke(Transaction, EventArgs.Empty);
         }
 
         public Transaction[] GetQueuedTransactions()
@@ -111,17 +125,18 @@ namespace Core
             return Collection.FlatMap(Block => Block.GetTransactions()).ToArray();
         }
 
-        public void AddBlock(Block Block, bool save = true)
+        public void AddBlock(Block Block, bool check = true, bool save = true)
         {
-            IsValidBlock(Block);
-            Collection.Add(Block);
+            if (check)
+                IsValidBlock(Block);
+
             if (save)
-            {
                 File.WriteAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "blockchain", $"{Block.Index}.block"), Serializer.Serialize(Block));
-            }
+
+            Collection.Add(Block);
 
             // Fire the block added event
-            BlockAdded?.Invoke(this, EventArgs.Empty);
+            BlockAdded?.Invoke(Block, EventArgs.Empty);
         }
 
         public bool IsValidBlock(Block NewBlock)

@@ -2,8 +2,9 @@
 using System.Text;
 using System.Security.Cryptography;
 using System.Linq;
+using Core.Utilities;
 
-namespace Blockchain.Utilities
+namespace Core.Crypto
 {
     public static class CryptoECDsa
     {

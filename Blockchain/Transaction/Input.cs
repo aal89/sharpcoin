@@ -1,7 +1,7 @@
-﻿using System;
-using Blockchain.Utilities;
+﻿using Core.Utilities;
+using Core.Crypto;
 
-namespace Blockchain.Transactions
+namespace Core.Transactions
 {
     public class Input
     {

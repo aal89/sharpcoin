@@ -1,4 +1,4 @@
-﻿namespace Blockchain.Utilities
+﻿namespace Core.Utilities
 {
     // All the reducers in one place
     public static class R

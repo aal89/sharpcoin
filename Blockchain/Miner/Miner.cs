@@ -1,7 +1,7 @@
 ﻿using System;
-using Blockchain.Utilities;
+using Core.Crypto;
 
-namespace Blockchain
+namespace Core
 {
     public static class Miner
     {

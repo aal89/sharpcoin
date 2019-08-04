@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Blockchain.TCP
+namespace Core.TCP
 {
     public class TCPServer
     {

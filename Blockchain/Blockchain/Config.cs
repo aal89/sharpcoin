@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Blockchain.Utilities;
+using Core.Utilities;
 
-namespace Blockchain
+namespace Core
 {
     public static class Config
     {

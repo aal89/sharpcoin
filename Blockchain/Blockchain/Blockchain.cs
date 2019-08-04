@@ -2,13 +2,11 @@
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
-using Blockchain.Exceptions;
-using Blockchain.Transactions;
-using Blockchain.Utilities;
-using System.Text;
-using Blockchain.TCP;
+using Core.Exceptions;
+using Core.Transactions;
+using Core.Utilities;
 
-namespace Blockchain
+namespace Core
 {
     public class Blockchain
     {
@@ -211,21 +209,6 @@ namespace Blockchain
         public int Size()
         {
             return Collection.Count;
-        }
-
-        static void Main(string[] args)
-        {
-            Blockchain bc = new Blockchain();
-            bc.BlockAdded += new TCPServer().BlockAdded;
-            Console.WriteLine($"Loaded blockchain of size {bc.Size()}");
-
-            Console.WriteLine($"Started mining at {DateTime.UtcNow}");
-
-            while (true)
-            {
-                Block b = Miner.Solve(SharpKeyPair.Create(), bc);
-                bc.AddBlock(b);
-            }
         }
     }
 }

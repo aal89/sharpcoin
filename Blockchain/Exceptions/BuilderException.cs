@@ -1,5 +1,7 @@
 ﻿using System;
-namespace Blockchain.Exceptions
+using Core.Transactions;
+
+namespace Core.Exceptions
 {
     public class BuilderException : Exception
     {

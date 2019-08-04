@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Linq;
 using Newtonsoft.Json;
+using Core.Utilities;
 
-namespace Blockchain.Utilities
+namespace Core.Crypto
 {
     public class SharpKeyPair
     {

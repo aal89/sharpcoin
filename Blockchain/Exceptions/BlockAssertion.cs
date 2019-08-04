@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Blockchain.Exceptions
+namespace Core.Exceptions
 {
     public class BlockAssertion: Exception
     {

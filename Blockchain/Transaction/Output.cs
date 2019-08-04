@@ -1,7 +1,4 @@
-﻿using System;
-using Blockchain.Utilities;
-
-namespace Blockchain.Transactions
+﻿namespace Core.Transactions
 {
     public class Output
     {

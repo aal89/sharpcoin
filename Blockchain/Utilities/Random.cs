@@ -1,5 +1,6 @@
 ﻿using System;
-namespace Blockchain.Utilities
+
+namespace Core.Utilities
 {
     public static class Random
     {

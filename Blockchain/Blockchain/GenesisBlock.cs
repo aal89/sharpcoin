@@ -1,8 +1,8 @@
 ﻿using System;
-using Blockchain.Transactions;
-using Blockchain.Utilities;
+using Core.Crypto;
+using Core.Transactions;
 
-namespace Blockchain
+namespace Core
 {
     public class GenesisBlock: Block
     {

@@ -10,7 +10,7 @@
     <Folder Include="Utilities\" />
     <Folder Include="Transaction\" />
     <Folder Include="Crypto\" />
-    <Folder Include="Block\" />
+    <Folder Include="Blockchain\" />
     <Folder Include="Miner\" />
     <Folder Include="TCP\" />
   </ItemGroup>

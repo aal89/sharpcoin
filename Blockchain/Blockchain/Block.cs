@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using Blockchain.Utilities;
+using Core.Utilities;
 using System.Linq;
 using Newtonsoft.Json;
+using Core.Transactions;
+using Core.Crypto;
 
-namespace Blockchain
+namespace Core
 {
     public class Block
     {

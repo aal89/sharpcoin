@@ -1,12 +1,9 @@
-﻿using System;
-using Blockchain.Transactions;
-using System.Linq;
-using Blockchain.Utilities;
-using HashUtil = Blockchain.Utilities.Hash;
-using RandomUtil = Blockchain.Utilities.Random;
+﻿using System.Linq;
+using Core.Utilities;
 using Newtonsoft.Json;
+using Core.Crypto;
 
-namespace Blockchain
+namespace Core.Transactions
 {
     public class Transaction
     {
@@ -28,7 +25,7 @@ namespace Blockchain
         [JsonConstructor]
         public Transaction(Input[] Inputs, Output[] Outputs, string Id = null)
         {
-            this.Id = Id ?? HashUtil.Sha1(RandomUtil.Bytes());
+            this.Id = Id ?? Hash.Sha1(Utilities.Random.Bytes());
             this.Inputs = Inputs;
             this.Outputs = Outputs;
             InputsConcatenated = Inputs.Map(In => In.ToString()).Reduce(R.Concat, "");
@@ -37,7 +34,7 @@ namespace Blockchain
 
         public Transaction(Output[] Outputs, string Id = null)
         {
-            this.Id = Id ?? HashUtil.Sha1(RandomUtil.Bytes());
+            this.Id = Id ?? Hash.Sha1(Utilities.Random.Bytes());
             this.Outputs = Outputs;
             Type = TransactionType.REWARD;
             InputsConcatenated = Inputs.Map(In => In.ToString()).Reduce(R.Concat, "");
@@ -62,12 +59,12 @@ namespace Blockchain
 
         public bool Verify()
         {
-            return Signature.Verify(HashUtil.Sha1(ToString())) && Inputs.All(In => In.Verify());
+            return Signature.Verify(Hash.Sha1(ToString())) && Inputs.All(In => In.Verify());
         }
 
         public void Sign(SharpKeyPair Skp)
         {
-            Signature = Skp.Sign(HashUtil.Sha1(ToString()));
+            Signature = Skp.Sign(Hash.Sha1(ToString()));
         }
 
         public bool ContainsInput(string Transaction, int Index)

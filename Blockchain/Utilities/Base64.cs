@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace Blockchain.Utilities
+namespace Core.Utilities
 {
     public static class Base64
     {

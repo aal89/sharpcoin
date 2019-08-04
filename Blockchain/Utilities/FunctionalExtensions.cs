@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Blockchain
+namespace Core
 {
     public static class FunctionalExtensions
     {

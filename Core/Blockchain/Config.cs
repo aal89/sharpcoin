@@ -16,6 +16,8 @@ namespace Core
 
         public static readonly int SectionSize = 144;
 
+        public static readonly int TcpPort = 18910;
+
         public static ulong CalculateDifficulty(Blockchain Blockchain)
         {
             ulong GenesisDifficulty = Blockchain.GetBlockByIndex(0).GetDifficulty();

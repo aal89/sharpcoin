@@ -41,7 +41,6 @@ namespace Core
             for (var i = 0; i < Paths.Length; i++)
             {
                 FileInfo fi = Paths[i];
-                Console.WriteLine($"Loading: {fi.Name}");
                 byte[] RawBlock = File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "blockchain", fi.Name));
                 // we only load the last section, so the first block might get incorrectly (correctly*) invalidated
                 // we skip validation for the first block loaded from disk

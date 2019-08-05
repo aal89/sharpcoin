@@ -11,7 +11,6 @@ namespace Core.TCP
     public class TCPServer
     {
         private TcpListener _server;
-        private bool _isRunning;
 
         public event EventHandler CommandStartMining;
 
@@ -19,16 +18,16 @@ namespace Core.TCP
         {
             _server = new TcpListener(IPAddress.Any, port);
             _server.Start();
-
-            _isRunning = true;
         }
 
         public void AwaitConnections()
         {
-            while (_isRunning)
+            while (true)
             {
+                Console.Write("Waiting for a connection... ");
                 // wait for client connection
                 TcpClient newClient = _server.AcceptTcpClient();
+                Console.WriteLine("Connected!");
 
                 // client found.
                 // create a thread to handle communication
@@ -42,27 +41,33 @@ namespace Core.TCP
             // retrieve client from parameter passed to thread
             TcpClient client = (TcpClient)obj;
 
-            // sets two streams
-            //StreamWriter sWriter = new StreamWriter(client.GetStream(), Encoding.UTF8);
-            StreamReader sReader = new StreamReader(client.GetStream(), Encoding.UTF8);
-            // you could use the NetworkStream to read and write, 
-            // but there is no forcing flush, even when requested
+            // Buffer for reading data
+            byte[] bytes = new byte[256];
 
-            bool bClientConnected = true;
-            String sData = null;
+            // Get a stream object for reading and writing
+            NetworkStream stream = client.GetStream();
 
-            while (bClientConnected)
+            int i;
+
+            while ((i = stream.Read(bytes, 0, bytes.Length)) != 0)
             {
-                // reads from stream
-                sData = sReader.ReadLine();
+                // Translate data bytes to a ASCII string.
+                string data = Encoding.ASCII.GetString(bytes, 0, i);
+                Console.WriteLine("Received: {0}", data);
 
-                // shows content on the console.
-                Console.WriteLine("Client > " + sData);
+                // Process the data sent by the client.
+                data = data.ToUpper();
 
-                // to write something back.
-                // sWriter.WriteLine("Meaningfull things here");
-                // sWriter.Flush();
+                byte[] msg = Encoding.ASCII.GetBytes(data);
+
+                // Send back a response.
+                stream.Write(msg, 0, msg.Length);
+                Console.WriteLine("Sent: {0}", data);
             }
+
+            // Shutdown and end connection
+            Console.WriteLine("Closing connection...");
+            client.Close();
         }
 
         public void BlockAdded(object sender, EventArgs e)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -10,24 +11,24 @@ namespace Core.TCP
 {
     public class TCPServer
     {
-        private TcpListener _server;
+        private readonly TcpListener server;
+        private readonly List<TcpClient> clients = new List<TcpClient>();
 
         public event EventHandler CommandStartMining;
 
         public TCPServer(int port)
         {
-            _server = new TcpListener(IPAddress.Any, port);
-            _server.Start();
+            server = new TcpListener(IPAddress.Any, port);
+            server.Start();
         }
 
         public void AwaitConnections()
         {
             while (true)
             {
-                Console.Write("Waiting for a connection... ");
                 // wait for client connection
-                TcpClient newClient = _server.AcceptTcpClient();
-                Console.WriteLine("Connected!");
+                TcpClient newClient = server.AcceptTcpClient();
+                clients.Add(newClient);
 
                 // client found.
                 // create a thread to handle communication
@@ -41,24 +42,28 @@ namespace Core.TCP
             // retrieve client from parameter passed to thread
             TcpClient client = (TcpClient)obj;
 
-            // Buffer for reading data
-            byte[] bytes = new byte[256];
+            Console.WriteLine($"Peer {client.Client.RemoteEndPoint.ToString()} connected.");
 
             // Get a stream object for reading and writing
             NetworkStream stream = client.GetStream();
+
+            // Simple TLV protocol
+            int type = stream.ReadByte();
+            int length = stream.ReadByte() + stream.ReadByte() + stream.ReadByte();
+
+            // Buffer for reading data
+            byte[] bytes = new byte[length];
 
             int i;
 
             while ((i = stream.Read(bytes, 0, bytes.Length)) != 0)
             {
-                // Translate data bytes to a ASCII string.
-                string data = Encoding.ASCII.GetString(bytes, 0, i);
+                string data = Encoding.UTF8.GetString(bytes, 0, i);
                 Console.WriteLine("Received: {0}", data);
 
-                // Process the data sent by the client.
                 data = data.ToUpper();
 
-                byte[] msg = Encoding.ASCII.GetBytes(data);
+                byte[] msg = Encoding.UTF8.GetBytes(data);
 
                 // Send back a response.
                 stream.Write(msg, 0, msg.Length);
@@ -66,7 +71,8 @@ namespace Core.TCP
             }
 
             // Shutdown and end connection
-            Console.WriteLine("Closing connection...");
+            clients.Remove(client);
+            Console.WriteLine($"Peer {client.Client.RemoteEndPoint.ToString()} closing connection...");
             client.Close();
         }
 

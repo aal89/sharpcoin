@@ -8,7 +8,7 @@ namespace Core
     public class Core
     {
         private readonly Blockchain bc;
-        private readonly TCPServer tcp;
+        //private readonly CoreServer server;
 
         public Core()
         {
@@ -19,11 +19,9 @@ namespace Core
             //Console.WriteLine($"Done. Size is {bc.Size()}.");
             // Setup tcp server
             Console.Write($"Setting up TCP server...");
-            tcp = new TCPServer(Config.TcpPort);
+            _ = new CoreServer(this);
             //bc.BlockAdded += tcp.BlockAdded;
             //bc.QueuedTransactionAdded += tcp.BlockAdded;
-
-            new Thread(new ThreadStart(tcp.AwaitConnections)).Start();
             
             Console.WriteLine("Done.");
 

@@ -1,25 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using Core.Transactions;
 
 namespace Core.TCP
 {
-    public class TCPServer
+    public abstract class TCPServer
     {
         private readonly TcpListener server;
         private readonly List<TcpClient> clients = new List<TcpClient>();
 
-        public event EventHandler CommandStartMining;
+        protected readonly int TLVHeaderSize = 4;
 
-        public TCPServer(int port)
+        protected TCPServer(int port)
         {
             server = new TcpListener(IPAddress.Any, port);
             server.Start();
+
+            new Thread(new ThreadStart(AwaitConnections)).Start();
         }
 
         public void AwaitConnections()
@@ -28,8 +28,11 @@ namespace Core.TCP
             {
                 // wait for client connection
                 TcpClient newClient = server.AcceptTcpClient();
-                clients.Add(newClient);
-
+                lock(clients)
+                {
+                    clients.Add(newClient);
+                }
+                
                 // client found.
                 // create a thread to handle communication
                 Thread t = new Thread(new ParameterizedThreadStart(HandleClient));
@@ -47,43 +50,51 @@ namespace Core.TCP
             // Get a stream object for reading and writing
             NetworkStream stream = client.GetStream();
 
-            // Simple TLV protocol
-            int type = stream.ReadByte();
-            int length = stream.ReadByte() + stream.ReadByte() + stream.ReadByte();
+            // Buffer for reading the header of the tlv protocol
+            byte[] bytes = new byte[4];
 
-            // Buffer for reading data
-            byte[] bytes = new byte[length];
-
-            int i;
-
-            while ((i = stream.Read(bytes, 0, bytes.Length)) != 0)
+            // Simple TLV protocol where first byte is type and the following 3 are for length
+            // so read 4 bytes and then in the while loop build data byte array
+            while ((_ = stream.Read(bytes, 0, TLVHeaderSize)) != 0)
             {
-                string data = Encoding.UTF8.GetString(bytes, 0, i);
-                Console.WriteLine("Received: {0}", data);
-
-                data = data.ToUpper();
-
-                byte[] msg = Encoding.UTF8.GetBytes(data);
-
-                // Send back a response.
-                stream.Write(msg, 0, msg.Length);
-                Console.WriteLine("Sent: {0}", data);
+                byte type = bytes[0];
+                int length = bytes[1] << 16 | bytes[2] << 8 | bytes[3];
+                byte[] data = new byte[length];
+                stream.Read(data, 0, data.Length);
+                Incoming(type, data, client);
             }
 
             // Shutdown and end connection
-            clients.Remove(client);
+            lock(clients)
+            {
+                clients.Remove(client);
+            }
             Console.WriteLine($"Peer {client.Client.RemoteEndPoint.ToString()} closing connection...");
             client.Close();
         }
 
-        public void BlockAdded(object sender, EventArgs e)
+        protected void Send(TcpClient client, byte type, string data)
         {
-            Console.WriteLine($"Block {(sender as Block).Index} got added to the chain.");
+            Send(client, type, Encoding.UTF8.GetBytes(data));
         }
 
-        public void QueuedTransactionAdded(object sender, EventArgs e)
+        protected void Send(TcpClient client, byte type, byte[] data)
         {
-            Console.WriteLine($"New transaction got queued {(sender as Transaction).Id}.");
+            byte[] tlvdata = new byte[data.Length + TLVHeaderSize];
+            tlvdata[0] = type++;
+            tlvdata[1] = (byte)(tlvdata.Length >> 16 & 0xff);
+            tlvdata[2] = (byte)(tlvdata.Length >> 8 & 0xff);
+            tlvdata[3] = (byte)(tlvdata.Length >> 0 & 0xff);
+
+            Array.Copy(data, 0, tlvdata, TLVHeaderSize, data.Length);
+
+            lock (client)
+            {
+                client.GetStream().Write(tlvdata);
+            }
         }
+
+        public abstract void Incoming(byte type, byte[] data, TcpClient client);
+
     }
 }

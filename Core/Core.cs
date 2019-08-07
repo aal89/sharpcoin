@@ -13,9 +13,9 @@ namespace Core
         {
             Console.WriteLine("sharpcoin v0.1 -- core by aal89");
             // Load blockchain
-            //Console.Write($"Loading blockchain...");
-            //bc = new Blockchain();
-            //Console.WriteLine($"Done. Size is {bc.Size()}.");
+            Console.Write($"Loading blockchain...");
+            bc = new Blockchain();
+            Console.WriteLine($"Done. Size is {bc.Size()}.");
             // Setup tcp server
             Console.Write($"Setting up TCP server...");
             _ = new CoreServer(this);

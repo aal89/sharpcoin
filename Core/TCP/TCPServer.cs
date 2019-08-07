@@ -73,6 +73,11 @@ namespace Core.TCP
             client.Close();
         }
 
+        protected void Send(TcpClient client, byte type)
+        {
+            Send(client, type, new byte[] { 0x99 });
+        }
+
         protected void Send(TcpClient client, byte type, string data)
         {
             Send(client, type, Encoding.UTF8.GetBytes(data));
@@ -84,9 +89,9 @@ namespace Core.TCP
 
             byte[] tlvdata = new byte[data.Length + TLVHeaderSize];
             tlvdata[0] = type++;
-            tlvdata[1] = (byte)(tlvdata.Length >> 16 & 0xff);
-            tlvdata[2] = (byte)(tlvdata.Length >> 8 & 0xff);
-            tlvdata[3] = (byte)(tlvdata.Length >> 0 & 0xff);
+            tlvdata[1] = (byte)(data.Length >> 16 & 0xff);
+            tlvdata[2] = (byte)(data.Length >> 8 & 0xff);
+            tlvdata[3] = (byte)(data.Length >> 0 & 0xff);
 
             Array.Copy(data, 0, tlvdata, TLVHeaderSize, data.Length);
 

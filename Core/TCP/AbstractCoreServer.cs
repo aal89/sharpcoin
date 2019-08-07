@@ -1,23 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net.Sockets;
-using System.Text;
 
 namespace Core.TCP
 {
     public abstract class AbstractCoreServer : TCPServer
     {
-        private readonly Core c;
+        protected readonly Core core;
 
         protected readonly Dictionary<string, byte> Opcodes = new Dictionary<string, byte>()
         {
+            { "Noop", 0x99 },
             { "CreateKeyPair", 0x00 },
-            { "CreateKeyPairResponse", 0x01 }
+            { "CreateKeyPairResponse", 0x01 },
+            { "SendBlock", 0x02 },
+            { "SendBlockResponse", 0x03 }
         };
 
-        protected AbstractCoreServer(Core c) : base(Config.TcpPort)
+        protected AbstractCoreServer(Core core) : base(Config.TcpPort)
         {
-            this.c = c;
+            this.core = core;
         }
 
         public override void Incoming(byte type, byte[] data, TcpClient client)
@@ -26,9 +27,12 @@ namespace Core.TCP
             {
                 case 0x00: CreateKeyPair(client); break;
                 case 0x01: break;
+                case 0x02: SendBlock(client, data); break;
+                case 0x03: break;
             }
         }
 
         public abstract void CreateKeyPair(TcpClient client);
+        public abstract void SendBlock(TcpClient client, byte[] data);
     }
 }

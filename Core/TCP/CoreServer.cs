@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Net.Sockets;
 using Core.Crypto;
+using Core.Utilities;
 
 namespace Core.TCP
 {
     public class CoreServer : AbstractCoreServer
     {
-        public CoreServer(Core c) : base(c) { }
+        private readonly Serializer serializer = new Serializer();
+
+        public CoreServer(Core core) : base(core) { }
 
         public override void CreateKeyPair(TcpClient client)
         {
@@ -17,6 +20,14 @@ namespace Core.TCP
             Array.Copy(skp.PrivateKey, 0, rawkeypair, skp.PublicKey.Length, skp.PrivateKey.Length);
 
             Send(client, Opcodes["CreateKeyPairResponse"], rawkeypair);
+        }
+
+        public override void SendBlock(TcpClient client, byte[] data)
+        {
+            int index = BitConverter.ToInt32(data, 0);
+            byte[] compressedBlock = serializer.Serialize(core.bc.GetBlockByIndex(index));
+
+            Send(client, Opcodes["SendBlockResponse"], compressedBlock);
         }
     }
 }

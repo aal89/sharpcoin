@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using Core.Crypto;
 using Core.TCP;
 
@@ -7,7 +6,7 @@ namespace Core
 {
     public class Core
     {
-        private readonly Blockchain bc;
+        public readonly Blockchain bc;
         //private readonly CoreServer server;
 
         public Core()
@@ -22,7 +21,7 @@ namespace Core
             _ = new CoreServer(this);
             //bc.BlockAdded += tcp.BlockAdded;
             //bc.QueuedTransactionAdded += tcp.BlockAdded;
-            
+
             Console.WriteLine("Done.");
 
             Console.WriteLine($"Ready and awaiting connections on 0.0.0.0:{Config.TcpPort}");

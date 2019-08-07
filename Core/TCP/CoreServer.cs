@@ -23,7 +23,7 @@ namespace Core.TCP
             Send(client, Opcodes["CreateKeyPairResponse"], rawkeypair);
         }
 
-        public override void SendBlock(TcpClient client, byte[] data)
+        public override void RequestBlock(TcpClient client, byte[] data)
         {
             try
             {
@@ -35,11 +35,26 @@ namespace Core.TCP
 
                 Console.WriteLine($"[CoreServer] Sending block {index} to {client.Client.RemoteEndPoint.ToString()}.");
 
-                Send(client, Opcodes["SendBlockResponse"], compressedBlock);
+                Send(client, Opcodes["RequestBlockResponse"], compressedBlock);
             } catch
             {
-                // Return 'empty' response in case of all errors.
-                Send(client, Opcodes["SendBlockResponse"]);
+                Send(client, Opcodes["RequestBlockResponse"], NOOP());
+            }
+        }
+
+        public override void AcceptBlock(TcpClient client, byte[] data)
+        {
+            try
+            {
+                Block block = serializer.Deserialize<Block>(data);
+
+                if (core.bc.GetBlockByHash(block.Hash) != null)
+                    core.bc.AddBlock(block);
+
+                Send(client, Opcodes["AcceptBlockResponse"], OK());
+            } catch
+            {
+                Send(client, Opcodes["AcceptBlockResponse"], NOOP());
             }
         }
     }

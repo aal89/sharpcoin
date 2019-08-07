@@ -24,9 +24,8 @@ namespace Core.TCP
                 Console.WriteLine($"[CoreServer] Sending block {index} to {client.Client.RemoteEndPoint.ToString()}.");
 
                 Send(client, Opcodes["RequestBlockResponse"], compressedBlock);
-            } catch(Exception e)
+            } catch
             {
-                Console.WriteLine(e.Message);
                 Send(client, Opcodes["RequestBlockResponse"], NOOP());
             }
         }

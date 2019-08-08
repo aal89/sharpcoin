@@ -6,16 +6,7 @@ namespace Core.TCP
     public abstract class AbstractCoreServer : TCPServer
     {
         protected readonly Core core;
-
-        protected readonly Dictionary<string, byte> Opcodes = new Dictionary<string, byte>()
-        {
-            { "Ok", 0x98 },
-            { "Noop", 0x99 },
-            { "RequestBlock", 0x01 },
-            { "RequestBlockResponse", 0x02 },
-            { "AcceptBlock", 0x03 },
-            { "AcceptBlockResponse", 0x04 },
-        };
+        protected readonly Dictionary<string, byte> Opcodes = Operation.Codes;
 
         protected AbstractCoreServer(Core core) : base(Config.TcpPort)
         {

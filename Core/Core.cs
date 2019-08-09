@@ -25,6 +25,11 @@ namespace Core
             Console.WriteLine("Done.");
 
             Console.WriteLine($"Ready and awaiting connections on 0.0.0.0:{Config.TcpPort}");
+
+            Console.WriteLine($"Connecting to self...");
+
+            CoreClient cc = new CoreClient(this, "127.0.0.1");
+            cc.RequestBlock(30);
         }
 
         public void Mine()

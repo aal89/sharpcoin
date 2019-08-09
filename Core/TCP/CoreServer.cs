@@ -37,9 +37,13 @@ namespace Core.TCP
                 Block block = serializer.Deserialize<Block>(data);
 
                 if (core.bc.GetBlockByHash(block.Hash) == null)
+                {
                     core.bc.AddBlock(block);
-
-                Send(client, Opcodes["AcceptBlockResponse"], Operation.OK());
+                    Send(client, Opcodes["AcceptBlockResponse"], Operation.OK());
+                } else
+                {
+                    Send(client, Opcodes["AcceptBlockResponse"], Operation.NOOP());
+                }
             } catch
             {
                 Send(client, Opcodes["AcceptBlockResponse"], Operation.NOOP());

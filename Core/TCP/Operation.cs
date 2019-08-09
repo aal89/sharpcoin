@@ -23,5 +23,15 @@ namespace Core.TCP
         {
             return new byte[] { Codes["Noop"] };
         }
+
+        public static bool IsOK(byte[] data)
+        {
+            return data.Length > 0 && data[0] == Codes["Ok"];
+        }
+
+        public static bool IsNOOP(byte[] data)
+        {
+            return data.Length > 0 && data[0] == Codes["Noop"];
+        }
     }
 }

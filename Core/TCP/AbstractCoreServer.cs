@@ -24,16 +24,6 @@ namespace Core.TCP
             }
         }
 
-        protected byte[] OK()
-        {
-            return new byte[] { Opcodes["Ok"] };
-        }
-
-        protected byte[] NOOP()
-        {
-            return new byte[] { Opcodes["Noop"] };
-        }
-
         public abstract void RequestBlock(TcpClient client, byte[] data);
         public abstract void AcceptBlock(TcpClient client, byte[] data);
     }

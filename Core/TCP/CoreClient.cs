@@ -15,20 +15,20 @@ namespace Core.TCP
             Send(Operation.Codes["AcceptBlock"], serializer.Serialize(block));
         }
 
-        public override void AcceptBlockResponse(byte[] data) { }
+        protected override void AcceptBlockResponse(byte[] data) { }
 
         public override void RequestBlock(int index)
         {
             Send(Operation.Codes["RequestBlock"], BitConverter.GetBytes(index).Reverse().ToArray());
         }
 
-        public override void RequestBlockResponse(byte[] data)
+        protected override void RequestBlockResponse(byte[] data)
         {
-            if (data != NOOP())
+            if (data != Operation.NOOP())
             {
                 Block block = serializer.Deserialize<Block>(data);
-                Console.WriteLine($"Received block: {block.Index}");
-                //core.bc.AddBlock(block);
+                if (core.bc.GetBlockByHash(block.Hash) == null)
+                    core.bc.AddBlock(block);
             }
         }
     }

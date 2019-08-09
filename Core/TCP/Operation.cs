@@ -13,5 +13,15 @@ namespace Core.TCP
             { "AcceptBlock", 0x03 },
             { "AcceptBlockResponse", 0x04 },
         };
+
+        public static byte[] OK()
+        {
+            return new byte[] { Codes["Ok"] };
+        }
+
+        public static byte[] NOOP()
+        {
+            return new byte[] { Codes["Noop"] };
+        }
     }
 }

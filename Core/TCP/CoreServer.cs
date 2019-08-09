@@ -26,7 +26,7 @@ namespace Core.TCP
                 Send(client, Opcodes["RequestBlockResponse"], compressedBlock);
             } catch
             {
-                Send(client, Opcodes["RequestBlockResponse"], NOOP());
+                Send(client, Opcodes["RequestBlockResponse"], Operation.NOOP());
             }
         }
 
@@ -36,13 +36,13 @@ namespace Core.TCP
             {
                 Block block = serializer.Deserialize<Block>(data);
 
-                if (core.bc.GetBlockByHash(block.Hash) != null)
+                if (core.bc.GetBlockByHash(block.Hash) == null)
                     core.bc.AddBlock(block);
 
-                Send(client, Opcodes["AcceptBlockResponse"], OK());
+                Send(client, Opcodes["AcceptBlockResponse"], Operation.OK());
             } catch
             {
-                Send(client, Opcodes["AcceptBlockResponse"], NOOP());
+                Send(client, Opcodes["AcceptBlockResponse"], Operation.NOOP());
             }
         }
     }

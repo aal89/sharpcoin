@@ -22,6 +22,8 @@ namespace Core.TCP
                 case 0x02: RequestBlockResponse(data); break;
                 case 0x03: break;
                 case 0x04: AcceptBlockResponse(data); break;
+                case 0x05: break;
+                case 0x06: RequestPeersResponse(data); break;
             }
         }
 
@@ -29,5 +31,7 @@ namespace Core.TCP
         protected abstract void RequestBlockResponse(byte[] data);
         public abstract void AcceptBlock(Block block);
         protected abstract void AcceptBlockResponse(byte[] data);
+        public abstract void RequestPeers();
+        protected abstract void RequestPeersResponse(byte[] data);
     }
 }

@@ -24,12 +24,22 @@ namespace Core.TCP
 
         protected override void RequestBlockResponse(byte[] data)
         {
-            if (data != Operation.NOOP())
+            if (!Operation.IsNOOP(data))
             {
                 Block block = serializer.Deserialize<Block>(data);
                 if (core.bc.GetBlockByHash(block.Hash) == null)
                     core.bc.AddBlock(block);
             }
+        }
+
+        public override void RequestPeers()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void RequestPeersResponse(byte[] data)
+        {
+            throw new NotImplementedException();
         }
     }
 }

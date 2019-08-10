@@ -49,5 +49,10 @@ namespace Core.TCP
                 Send(client, Opcodes["AcceptBlockResponse"], Operation.NOOP());
             }
         }
+
+        public override void RequestPeers(TcpClient client, byte[] data)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

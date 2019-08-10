@@ -12,6 +12,8 @@ namespace Core.TCP
             { "RequestBlockResponse", 0x02 },
             { "AcceptBlock", 0x03 },
             { "AcceptBlockResponse", 0x04 },
+            { "RequestPeers", 0x05 },
+            { "RequestPeersResponse", 0x06 },
         };
 
         public static byte[] OK()

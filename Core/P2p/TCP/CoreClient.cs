@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
 using Core.Utilities;
 
 namespace Core.TCP
@@ -39,7 +40,8 @@ namespace Core.TCP
 
         protected override void RequestPeersResponse(byte[] data)
         {
-            // Todo: add peers to file so that the PeerManager can load them in later on.
+            string rawpeers = Encoding.UTF8.GetString(data);
+            string[] peers = rawpeers.Split(",");
         }
     }
 }

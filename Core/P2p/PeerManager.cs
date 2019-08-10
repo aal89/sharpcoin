@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using Core.TCP;
 using System.Linq;
+using System.IO;
 
 namespace Core.P2p
 {
@@ -10,23 +11,42 @@ namespace Core.P2p
     {
         private static readonly HashSet<CoreClient> peers = new HashSet<CoreClient>();
 
+        private static readonly string peersPath = Path.Combine(Directory.GetCurrentDirectory(), "peers.txt");
+
         // Todo: save/update and filter list of (working) peers
         public PeerManager(Core core)
         {
-            // Todo: load peers from disk
-            string[] ips = { "10.90.80.10" };
-            foreach(string ip in ips)
+            if (!File.Exists(peersPath))
+            {
+                File.Create(peersPath).Dispose();
+            }
+
+            string[] ips = File.ReadAllLines(peersPath);
+
+            foreach (string ip in ips)
             {
                 try
                 {
                     CoreClient c = new CoreClient(core, ip);
-                    Console.WriteLine("here");
                     peers.Add(c);
-                } catch(SocketException se)
+                } catch
                 {
-                    // Todo: remove ip from list
-                    Console.WriteLine("timedout");
+                    Console.WriteLine($"Failed to connect to {ip}, removing from peer list.");
                 }
+            }
+
+            SavePeers(true);
+        }
+
+        public static void SavePeers(bool overwrite = false)
+        {
+            if (overwrite)
+            {
+                File.WriteAllLines(peersPath, GetPeers());
+            } else
+            {
+                // Todo:
+                File.AppendAllLines(peersPath, GetPeers())
             }
         }
 

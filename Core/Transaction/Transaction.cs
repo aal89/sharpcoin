@@ -28,8 +28,8 @@ namespace Core.Transactions
             this.Id = Id ?? Hash.Sha1(Utilities.Random.Bytes());
             this.Inputs = Inputs;
             this.Outputs = Outputs;
-            InputsConcatenated = Inputs.Map(In => In.ToString()).Reduce(R.Concat, "");
-            OutputsConcatenated = Outputs.Map(Out => Out.ToString()).Reduce(R.Concat, "");
+            InputsConcatenated = Inputs.Map(In => In.ToString()).Reduce(R.Concat(), "");
+            OutputsConcatenated = Outputs.Map(Out => Out.ToString()).Reduce(R.Concat(), "");
         }
 
         public Transaction(Output[] Outputs, string Id = null)
@@ -37,8 +37,8 @@ namespace Core.Transactions
             this.Id = Id ?? Hash.Sha1(Utilities.Random.Bytes());
             this.Outputs = Outputs;
             Type = TransactionType.REWARD;
-            InputsConcatenated = Inputs.Map(In => In.ToString()).Reduce(R.Concat, "");
-            OutputsConcatenated = Outputs.Map(Out => Out.ToString()).Reduce(R.Concat, "");
+            InputsConcatenated = Inputs.Map(In => In.ToString()).Reduce(R.Concat(), "");
+            OutputsConcatenated = Outputs.Map(Out => Out.ToString()).Reduce(R.Concat(), "");
         }
 
         public Output GetOutputByIndex(int Index)

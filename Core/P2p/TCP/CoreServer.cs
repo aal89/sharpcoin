@@ -53,7 +53,7 @@ namespace Core.TCP
 
         public override void RequestPeers(TcpClient client, byte[] data)
         {
-            string peers = PeerManager.GetPeers().Reduce(R.ConcatCommaDelimited, "");
+            string peers = PeerManager.GetPeers().Reduce(R.Concat(","), "");
             Send(client, Operation.Codes["RequestPeersResponse"], peers);
         }
     }

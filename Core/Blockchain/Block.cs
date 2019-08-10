@@ -31,7 +31,7 @@ namespace Core
         public Block(List<Transaction> Transactions)
         {
             this.Transactions = Transactions;
-            StringifiedTransactions = Transactions.Map(Tx => Tx.ToString()).Reduce(R.Concat, "");
+            StringifiedTransactions = Transactions.Map(Tx => Tx.ToString()).Reduce(R.Concat(), "");
             Hash = ToHash();
         }
 
@@ -48,7 +48,7 @@ namespace Core
         public void AddTransaction(Transaction Transaction)
         {
             Transactions.Add(Transaction);
-            StringifiedTransactions = Transactions.Map(Tx => Tx.ToString()).Reduce(R.Concat, "");
+            StringifiedTransactions = Transactions.Map(Tx => Tx.ToString()).Reduce(R.Concat(), "");
         }
 
         public Transaction[] GetTransactions()

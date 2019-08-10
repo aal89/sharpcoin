@@ -2,6 +2,7 @@
 using System.Net.Sockets;
 using System.Linq;
 using Core.Utilities;
+using Core.P2p;
 
 namespace Core.TCP
 {
@@ -52,7 +53,8 @@ namespace Core.TCP
 
         public override void RequestPeers(TcpClient client, byte[] data)
         {
-            throw new NotImplementedException();
+            string peers = PeerManager.GetPeers().Reduce(R.ConcatCommaDelimited, "");
+            Send(client, Operation.Codes["RequestPeersResponse"], peers);
         }
     }
 }

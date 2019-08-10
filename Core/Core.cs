@@ -1,5 +1,6 @@
 ﻿using System;
 using Core.Crypto;
+using Core.P2p;
 using Core.TCP;
 
 namespace Core
@@ -28,7 +29,7 @@ namespace Core
 
             Console.WriteLine($"Connecting to self...");
 
-            CoreClient cc = new CoreClient(this, "127.0.0.1");
+            PeerManager pm = new PeerManager(this);
         }
 
         public void Mine()

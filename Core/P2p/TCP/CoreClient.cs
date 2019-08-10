@@ -34,12 +34,12 @@ namespace Core.TCP
 
         public override void RequestPeers()
         {
-            throw new NotImplementedException();
+            Send(Operation.Codes["RequestPeers"], Operation.NOOP());
         }
 
         protected override void RequestPeersResponse(byte[] data)
         {
-            throw new NotImplementedException();
+            // Todo: add peers to file so that the PeerManager can load them in later on.
         }
     }
 }

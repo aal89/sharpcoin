@@ -6,11 +6,13 @@ namespace Core.TCP
 {
     public abstract class AbstractCoreClient : TCPClient
     {
+        public string Ip;
         protected readonly Core core;
         protected readonly Dictionary<string, byte> Opcodes = Operation.Codes;
 
         protected AbstractCoreClient(Core core, string server) : base(server, Config.TcpPort)
         {
+            Ip = server;
             this.core = core;
         }
 

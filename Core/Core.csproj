@@ -12,7 +12,8 @@
     <Folder Include="Crypto\" />
     <Folder Include="Blockchain\" />
     <Folder Include="Miner\" />
-    <Folder Include="TCP\" />
+    <Folder Include="P2p\" />
+    <Folder Include="P2p\TCP\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Security.Cryptography.Cng" Version="4.5.0" />

@@ -3,6 +3,7 @@ using System.Net.Sockets;
 using System.Linq;
 using Core.Utilities;
 using Core.P2p;
+using System.Text;
 
 namespace Core.TCP
 {
@@ -55,6 +56,12 @@ namespace Core.TCP
         {
             string peers = PeerManager.GetPeersAsIps().Reduce(R.Concat(","), "");
             Send(client, Operation.Codes["RequestPeersResponse"], peers);
+        }
+
+        public override void AcceptPeers(TcpClient client, byte[] data)
+        {
+            string[] peers = Encoding.UTF8.GetString(data).Split(",");
+            PeerManager.SavePeers(peers);
         }
     }
 }

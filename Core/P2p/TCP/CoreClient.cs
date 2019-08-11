@@ -44,5 +44,13 @@ namespace Core.TCP
             string[] peers = Encoding.UTF8.GetString(data).Split(",");
             PeerManager.SavePeers(peers);
         }
+
+        public override void AcceptPeers()
+        {
+            string peers = PeerManager.GetPeersAsIps().Reduce(R.Concat(","), "");
+            Send(Operation.Codes["AcceptPeers"], peers);
+        }
+
+        protected override void AcceptPeersResponse(byte[] data) { }
     }
 }

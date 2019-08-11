@@ -35,5 +35,7 @@ namespace Core.TCP
         protected abstract void AcceptBlockResponse(byte[] data);
         public abstract void RequestPeers();
         protected abstract void RequestPeersResponse(byte[] data);
+        public abstract void AcceptPeers();
+        protected abstract void AcceptPeersResponse(byte[] data);
     }
 }

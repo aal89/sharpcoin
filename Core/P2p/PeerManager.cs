@@ -33,7 +33,7 @@ namespace Core.P2p
                 }
             }
 
-            SavePeers(GetPeers(), true);
+            SavePeers(GetPeersAsIps(), true);
 
             // Final step: initiate the server
             _ = new CoreServer(core);
@@ -74,7 +74,12 @@ namespace Core.P2p
             }
         }
 
-        public static string[] GetPeers()
+        public static CoreClient[] GetPeers()
+        {
+            return peers.ToArray();
+        }
+
+        public static string[] GetPeersAsIps()
         {
             return peers.Map(client => client.Ip).ToArray();
         }

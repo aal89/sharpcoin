@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net.Sockets;
 using Core.TCP;
 using System.Linq;
 using System.IO;
@@ -13,7 +12,6 @@ namespace Core.P2p
 
         private static readonly string peersPath = Path.Combine(Directory.GetCurrentDirectory(), "peers.txt");
 
-        // Todo: save/update and filter list of (working) peers
         public PeerManager(Core core)
         {
             if (!File.Exists(peersPath))
@@ -35,18 +33,20 @@ namespace Core.P2p
                 }
             }
 
-            SavePeers(true);
+            SavePeers(GetPeers(), true);
+
+            // Final step: initiate the server
+            _ = new CoreServer(core);
         }
 
-        public static void SavePeers(bool overwrite = false)
+        public static void SavePeers(string[] peers, bool overwrite = false)
         {
             if (overwrite)
             {
-                File.WriteAllLines(peersPath, GetPeers());
+                File.WriteAllLines(peersPath, peers);
             } else
             {
-                // Todo:
-                File.AppendAllLines(peersPath, GetPeers())
+                File.AppendAllLines(peersPath, peers);
             }
         }
 
@@ -58,7 +58,7 @@ namespace Core.P2p
             }
         }
 
-        public static void FetchBlock(int index)
+        public static void FetchRemoteBlock(int index)
         {
             foreach (CoreClient c in peers)
             {
@@ -66,7 +66,7 @@ namespace Core.P2p
             }
         }
 
-        public static void FetchPeers()
+        public static void FetchRemotePeers()
         {
             foreach (CoreClient c in peers)
             {

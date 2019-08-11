@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
+using Core.P2p;
 using Core.Utilities;
 
 namespace Core.TCP
@@ -40,8 +41,8 @@ namespace Core.TCP
 
         protected override void RequestPeersResponse(byte[] data)
         {
-            string rawpeers = Encoding.UTF8.GetString(data);
-            string[] peers = rawpeers.Split(",");
+            string[] peers = Encoding.UTF8.GetString(data).Split(",");
+            PeerManager.SavePeers(peers);
         }
     }
 }

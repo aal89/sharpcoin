@@ -2,39 +2,34 @@
 using Core.Crypto;
 using Core.P2p;
 using Core.TCP;
+using Core.Utilities;
 
 namespace Core
 {
     public class Core
     {
         public readonly Blockchain bc;
-        //private readonly CoreServer server;
+
+        private readonly Logger Log = new Logger("Core");
 
         public Core()
         {
-            Console.WriteLine("sharpcoin v0.1 -- core by aal89");
+            Log.NewLine("sharpcoin v0.1 -- core by aal89");
             // Load blockchain
-            Console.Write($"Loading blockchain...");
+            Log.Line($"Loading blockchain...");
             bc = new Blockchain();
-            Console.WriteLine($"Done. Size is {bc.Size()}.");
+            Log.Append($"Done. Size is {bc.Size()}.");
             // Setup tcp server
-            Console.Write($"Setting up TCP server...");
-            _ = new CoreServer(this);
-            //bc.BlockAdded += tcp.BlockAdded;
-            //bc.QueuedTransactionAdded += tcp.BlockAdded;
+            Log.Line($"Setting up peer manager...");
+            _ = new PeerManager(this);
+            Log.Append("Done.");
 
-            Console.WriteLine("Done.");
-
-            Console.WriteLine($"Ready and awaiting connections on 0.0.0.0:{Config.TcpPort}");
-
-            Console.WriteLine($"Connecting to self...");
-
-            PeerManager pm = new PeerManager(this);
+            Log.NewLine($"Ready and awaiting connections on 0.0.0.0:{Config.TcpPort}");
         }
 
         public void Mine()
         {
-            Console.WriteLine($"Started mining at {DateTime.UtcNow}");
+            Log.NewLine($"Started mining at {DateTime.UtcNow}");
 
             while (true)
             {

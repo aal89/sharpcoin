@@ -9,7 +9,6 @@ namespace Core.P2p
     public class PeerManager
     {
         private static readonly HashSet<CoreClient> peers = new HashSet<CoreClient>();
-
         private static readonly string peersPath = Path.Combine(Directory.GetCurrentDirectory(), "peers.txt");
 
         public PeerManager(Core core)

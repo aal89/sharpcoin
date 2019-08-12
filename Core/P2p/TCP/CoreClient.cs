@@ -45,9 +45,8 @@ namespace Core.TCP
             PeerManager.SavePeers(peers);
         }
 
-        public override void AcceptPeers()
+        public override void AcceptPeers(string peers)
         {
-            string peers = PeerManager.GetPeersAsIps().Reduce(R.Concat(","), "");
             Send(Operation.Codes["AcceptPeers"], peers);
         }
 

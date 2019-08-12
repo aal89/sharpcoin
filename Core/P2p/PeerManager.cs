@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Core.TCP;
 using System.Linq;
 using System.IO;
+using Core.Utilities;
 
 namespace Core.P2p
 {
@@ -38,16 +39,7 @@ namespace Core.P2p
             _ = new CoreServer(core);
         }
 
-        public static void SavePeers(string[] peers, bool overwrite = false)
-        {
-            if (overwrite)
-            {
-                File.WriteAllLines(peersPath, peers);
-            } else
-            {
-                File.AppendAllLines(peersPath, peers);
-            }
-        }
+        // Peer operations
 
         public static void BroadcastBlock(Block block)
         {
@@ -65,11 +57,33 @@ namespace Core.P2p
             }
         }
 
+        public static void BroadcastPeers()
+        {
+            foreach (CoreClient c in peers)
+            {
+                c.AcceptPeers(GetPeersAsIps().Reduce(R.Concat(","), ""));
+            }
+        }
+
         public static void FetchRemotePeers()
         {
             foreach (CoreClient c in peers)
             {
                 c.RequestPeers();
+            }
+        }
+
+        // 'Default' class operations
+
+        public static void SavePeers(string[] peers, bool overwrite = false)
+        {
+            if (overwrite)
+            {
+                File.WriteAllLines(peersPath, peers);
+            }
+            else
+            {
+                File.AppendAllLines(peersPath, peers);
             }
         }
 

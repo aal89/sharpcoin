@@ -26,16 +26,24 @@ namespace Core.TCP
                 case 0x04: AcceptBlockResponse(data); break;
                 case 0x05: break;
                 case 0x06: RequestPeersResponse(data); break;
+                case 0x07: break;
+                case 0x08: AcceptPeersResponse(data); break;
             }
         }
 
+        // Request = to request some octects at a remote.
+        // Accept = to let a remote accept some octets.
+        // Each type has a response.
         public abstract void RequestBlock(int index);
         protected abstract void RequestBlockResponse(byte[] data);
+
         public abstract void AcceptBlock(Block block);
         protected abstract void AcceptBlockResponse(byte[] data);
+
         public abstract void RequestPeers();
         protected abstract void RequestPeersResponse(byte[] data);
-        public abstract void AcceptPeers();
+
+        public abstract void AcceptPeers(string peers);
         protected abstract void AcceptPeersResponse(byte[] data);
     }
 }

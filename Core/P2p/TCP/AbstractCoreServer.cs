@@ -28,6 +28,8 @@ namespace Core.TCP
             }
         }
 
+        // Request = to request some octects at a remote.
+        // Accept = to let a remote accept some octets.
         public abstract void RequestBlock(TcpClient client, byte[] data);
         public abstract void AcceptBlock(TcpClient client, byte[] data);
         public abstract void RequestPeers(TcpClient client, byte[] data);

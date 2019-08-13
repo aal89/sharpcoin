@@ -11,9 +11,12 @@ namespace Core.P2p
     {
         private static readonly HashSet<CoreClient> peers = new HashSet<CoreClient>();
         private static readonly string peersPath = Path.Combine(Directory.GetCurrentDirectory(), "peers.txt");
+        private static ILoggable log;
 
-        public PeerManager(Core core)
+        public PeerManager(Core core, ILoggable log = null)
         {
+            PeerManager.log = log ?? new NullLogger();
+
             if (!File.Exists(peersPath))
             {
                 File.Create(peersPath).Dispose();
@@ -29,7 +32,7 @@ namespace Core.P2p
                     peers.Add(c);
                 } catch
                 {
-                    Console.WriteLine($"Failed to connect to {ip}, removing from peer list.");
+                    log.NewLine($"Failed to connect to {ip}, removing from peer list.");
                 }
             }
 
@@ -43,6 +46,7 @@ namespace Core.P2p
 
         public static void BroadcastBlock(Block block)
         {
+            log.NewLine($"Broadcasting block {block.Index}.");
             foreach(CoreClient c in peers)
             {
                 c.AcceptBlock(block);
@@ -51,6 +55,7 @@ namespace Core.P2p
 
         public static void FetchRemoteBlock(int index)
         {
+            log.NewLine($"Fetching block at remotes {index}.");
             foreach (CoreClient c in peers)
             {
                 c.RequestBlock(index);
@@ -59,6 +64,7 @@ namespace Core.P2p
 
         public static void BroadcastPeers()
         {
+            log.NewLine($"Broadcasting peers.");
             foreach (CoreClient c in peers)
             {
                 c.AcceptPeers(GetPeersAsIps().Reduce(R.Concat(","), ""));
@@ -67,13 +73,14 @@ namespace Core.P2p
 
         public static void FetchRemotePeers()
         {
+            log.NewLine($"Fetching peers at remotes.");
             foreach (CoreClient c in peers)
             {
                 c.RequestPeers();
             }
         }
 
-        // 'Default' class operations
+        // Default class operations
 
         public static void SavePeers(string[] peers, bool overwrite = false)
         {

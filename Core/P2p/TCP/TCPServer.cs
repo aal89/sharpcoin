@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using Core.Utilities;
 
 namespace Core.TCP
 {
@@ -11,11 +12,13 @@ namespace Core.TCP
     {
         private readonly TcpListener server;
         private readonly List<TcpClient> clients = new List<TcpClient>();
+        private readonly ILoggable log;
 
         protected readonly int TLVHeaderSize = 4;
 
-        protected TCPServer(int port)
+        protected TCPServer(int port, ILoggable log = null)
         {
+            this.log = log ?? new NullLogger();
             server = new TcpListener(IPAddress.Any, port);
             server.Start();
 
@@ -45,7 +48,7 @@ namespace Core.TCP
             // retrieve client from parameter passed to thread
             TcpClient client = (TcpClient)obj;
 
-            Console.WriteLine($"Peer {client.Client.RemoteEndPoint.ToString()} connected.");
+            log.NewLine($"Remote {client.Client.RemoteEndPoint.ToString()} connected.");
 
             // Get a stream object for reading and writing
             NetworkStream stream = client.GetStream();
@@ -69,7 +72,7 @@ namespace Core.TCP
             {
                 clients.Remove(client);
             }
-            Console.WriteLine($"Peer {client.Client.RemoteEndPoint.ToString()} closing connection...");
+            log.NewLine($"Remote {client.Client.RemoteEndPoint.ToString()} closing connection...");
             client.Close();
         }
 

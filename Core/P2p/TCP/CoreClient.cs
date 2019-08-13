@@ -29,8 +29,7 @@ namespace Core.TCP
             if (!Operation.IsNOOP(data))
             {
                 Block block = serializer.Deserialize<Block>(data);
-                if (core.bc.GetBlockByHash(block.Hash) == null)
-                    core.bc.AddBlock(block);
+                core.bc.AddBlock(block);
             }
         }
 

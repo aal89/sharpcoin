@@ -1,7 +1,6 @@
 ﻿using System;
 using Core.Crypto;
 using Core.P2p;
-using Core.TCP;
 using Core.Utilities;
 
 namespace Core
@@ -10,7 +9,7 @@ namespace Core
     {
         public readonly Blockchain bc;
 
-        private readonly Logger Log = new Logger("Core");
+        private readonly ILoggable Log = new Logger("Core");
 
         public Core()
         {

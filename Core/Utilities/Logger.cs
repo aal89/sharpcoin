@@ -2,7 +2,7 @@
 
 namespace Core.Utilities
 {
-    public class Logger
+    public class Logger : ILoggable
     {
         private readonly string prefix;
 

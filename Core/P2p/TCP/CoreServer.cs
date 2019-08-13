@@ -25,7 +25,7 @@ namespace Core.TCP
                     data = data.Reverse().ToArray();
 
                 int index = BitConverter.ToInt32(data, 0);
-                byte[] compressedBlock = serializer.Serialize(core.bc.GetBlockByIndex(index) ?? core.bc.GetBlockByIndex(0));
+                byte[] compressedBlock = serializer.Serialize(core.Blockchain.GetBlockByIndex(index) ?? core.Blockchain.GetBlockByIndex(0));
 
                 log.NewLine($"Sending block {index} to {client.Client.RemoteEndPoint.ToString()}.");
 
@@ -42,9 +42,9 @@ namespace Core.TCP
             {
                 Block block = serializer.Deserialize<Block>(data);
 
-                if (core.bc.GetBlockByHash(block.Hash) == null)
+                if (core.Blockchain.GetBlockByHash(block.Hash) == null)
                 {
-                    core.bc.AddBlock(block);
+                    core.Blockchain.AddBlock(block);
                     Send(client, Opcodes["AcceptBlockResponse"], Operation.OK());
                 } else
                 {

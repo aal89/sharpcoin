@@ -7,7 +7,8 @@ namespace Core
 {
     public class Core
     {
-        public readonly Blockchain bc;
+        public readonly Blockchain Blockchain;
+        public readonly PeerManager PeerManager;
 
         private readonly ILoggable Log = new Logger("Core");
 
@@ -16,11 +17,11 @@ namespace Core
             Log.NewLine("sharpcoin v0.1 -- core by aal89");
             // Load blockchain
             Log.Line($"Loading blockchain...");
-            bc = new Blockchain();
-            Log.Append($"Done. Size is {bc.Size()}.");
+            Blockchain = new Blockchain();
+            Log.Append($"Done. Size is {Blockchain.Size()}.");
             // Setup peer manager (server&client)
             Log.Line($"Setting up peer manager...");
-            _ = new PeerManager(this, new Logger("PeerManager"));
+            PeerManager = new PeerManager(this, new Logger("PeerManager"));
             Log.Append("Done.");
 
             Log.NewLine($"Ready and awaiting connections on 0.0.0.0:{Config.TcpPort}");
@@ -32,8 +33,8 @@ namespace Core
 
             while (true)
             {
-                Block b = Miner.Solve(SharpKeyPair.Create(), bc);
-                bc.AddBlock(b);
+                Block b = Miner.Solve(SharpKeyPair.Create(), Blockchain);
+                Blockchain.AddBlock(b);
             }
         }
 

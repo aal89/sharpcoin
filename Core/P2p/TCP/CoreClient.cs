@@ -29,7 +29,7 @@ namespace Core.TCP
             if (!Operation.IsNOOP(data))
             {
                 Block block = serializer.Deserialize<Block>(data);
-                core.bc.AddBlock(block);
+                core.Blockchain.AddBlock(block);
             }
         }
 

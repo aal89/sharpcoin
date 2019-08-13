@@ -18,9 +18,9 @@ namespace Core
             Log.Line($"Loading blockchain...");
             bc = new Blockchain();
             Log.Append($"Done. Size is {bc.Size()}.");
-            // Setup tcp server
+            // Setup peer manager (server&client)
             Log.Line($"Setting up peer manager...");
-            _ = new PeerManager(this);
+            _ = new PeerManager(this, new Logger("PeerManager"));
             Log.Append("Done.");
 
             Log.NewLine($"Ready and awaiting connections on 0.0.0.0:{Config.TcpPort}");

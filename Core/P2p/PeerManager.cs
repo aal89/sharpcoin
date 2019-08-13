@@ -39,7 +39,7 @@ namespace Core.P2p
             SavePeers(GetPeersAsIps(), true);
 
             // Final step: initiate the server
-            _ = new CoreServer(core);
+            _ = new CoreServer(core, new Logger("CoreServer"));
         }
 
         // Peer operations

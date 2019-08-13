@@ -9,9 +9,13 @@ namespace Core.TCP
 {
     public class CoreServer : AbstractCoreServer
     {
+        private readonly ILoggable log;
         private readonly Serializer serializer = new Serializer();
 
-        public CoreServer(Core core) : base(core) { }
+        public CoreServer(Core core, ILoggable log = null) : base(core)
+        {
+            this.log = log ?? new NullLogger();
+        }
 
         public override void RequestBlock(TcpClient client, byte[] data)
         {
@@ -23,7 +27,7 @@ namespace Core.TCP
                 int index = BitConverter.ToInt32(data, 0);
                 byte[] compressedBlock = serializer.Serialize(core.bc.GetBlockByIndex(index) ?? core.bc.GetBlockByIndex(0));
 
-                Console.WriteLine($"[CoreServer] Sending block {index} to {client.Client.RemoteEndPoint.ToString()}.");
+                log.NewLine($"Sending block {index} to {client.Client.RemoteEndPoint.ToString()}.");
 
                 Send(client, Opcodes["RequestBlockResponse"], compressedBlock);
             } catch

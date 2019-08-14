@@ -82,15 +82,24 @@ namespace Core.P2p
 
         // Default class operations
 
+        public static void SavePeers(string peer)
+        {
+            SavePeers(new string[] { peer });
+        }
+
+        private static readonly object savepeers_operation = new object();
         public static void SavePeers(string[] peers, bool overwrite = false)
         {
-            if (overwrite)
+            lock (savepeers_operation)
             {
-                File.WriteAllLines(peersPath, peers);
-            }
-            else
-            {
-                File.AppendAllLines(peersPath, peers);
+                if (overwrite)
+                {
+                    File.WriteAllLines(peersPath, peers);
+                }
+                else
+                {
+                    File.AppendAllLines(peersPath, peers);
+                }
             }
         }
 

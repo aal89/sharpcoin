@@ -41,7 +41,10 @@ namespace Core.TCP
         protected override void RequestPeersResponse(byte[] data)
         {
             string[] peers = Encoding.UTF8.GetString(data).Split(",");
-            PeerManager.SavePeers(peers);
+            foreach (string peer in peers)
+            {
+                PeerManager.AddPeer(peer);
+            }
         }
 
         public override void AcceptPeers(string peers)

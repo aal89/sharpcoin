@@ -12,10 +12,12 @@ namespace Core.P2p
         private static readonly HashSet<CoreClient> peers = new HashSet<CoreClient>();
         private static readonly string peersPath = Path.Combine(Directory.GetCurrentDirectory(), "peers.txt");
         private static ILoggable log;
+        private static Core core;
 
         public PeerManager(Core core, ILoggable log = null)
         {
             PeerManager.log = log ?? new NullLogger();
+            PeerManager.core = core;
 
             if (!File.Exists(peersPath))
             {
@@ -36,7 +38,7 @@ namespace Core.P2p
                 }
             }
 
-            SavePeers(GetPeersAsIps(), true);
+            SavePeers(GetPeersAsIps());
 
             // Final step: initiate the server
             _ = new CoreServer(core, new Logger("CoreServer"));
@@ -82,25 +84,11 @@ namespace Core.P2p
 
         // Default class operations
 
-        public static void SavePeers(string peer)
+        public static void AddPeer(string peer, bool saveOnly = false)
         {
+            if (!saveOnly)
+                peers.Add(new CoreClient(core, peer));
             SavePeers(new string[] { peer });
-        }
-
-        private static readonly object savepeers_operation = new object();
-        public static void SavePeers(string[] peers, bool overwrite = false)
-        {
-            lock (savepeers_operation)
-            {
-                if (overwrite)
-                {
-                    File.WriteAllLines(peersPath, peers);
-                }
-                else
-                {
-                    File.AppendAllLines(peersPath, peers);
-                }
-            }
         }
 
         public static CoreClient[] GetPeers()
@@ -111,6 +99,15 @@ namespace Core.P2p
         public static string[] GetPeersAsIps()
         {
             return peers.Map(client => client.Ip).ToArray();
+        }
+
+        private static readonly object savepeers_operation = new object();
+        private static void SavePeers(string[] newpeers)
+        {
+            lock (savepeers_operation)
+            {
+                File.WriteAllLines(peersPath, newpeers);
+            }
         }
     }
 }

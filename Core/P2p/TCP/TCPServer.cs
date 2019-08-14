@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using Core.P2p;
 using Core.Utilities;
 
 namespace Core.TCP
@@ -31,7 +32,7 @@ namespace Core.TCP
             {
                 // wait for client connection
                 TcpClient newClient = server.AcceptTcpClient();
-                lock(clients)
+                lock (clients)
                 {
                     clients.Add(newClient);
                 }
@@ -48,7 +49,10 @@ namespace Core.TCP
             // retrieve client from parameter passed to thread
             TcpClient client = (TcpClient)obj;
 
-            log.NewLine($"Remote {client.Client.RemoteEndPoint.ToString()} connected.");
+            log.NewLine($"Remote {client.Ip()} connected.");
+
+            // Save this client as new peer, next startup this peer might possibly be chosen
+            PeerManager.AddPeer(client.Ip(), true);
 
             // Get a stream object for reading and writing
             NetworkStream stream = client.GetStream();

@@ -65,7 +65,10 @@ namespace Core.TCP
         public override void AcceptPeers(TcpClient client, byte[] data)
         {
             string[] peers = Encoding.UTF8.GetString(data).Split(",");
-            PeerManager.SavePeers(peers);
+            foreach (string peer in peers)
+            {
+                PeerManager.AddPeer(peer);
+            }
         }
     }
 }

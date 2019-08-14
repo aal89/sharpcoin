@@ -31,6 +31,10 @@ namespace Core
             Blockchain.QueuedTransactionAdded += Blockchain_QueuedTransactionAdded;
             Log.Append("Done.");
 
+            // test
+            //PeerManager.AddPeer("127.0.0.1");
+            // -test
+
             Log.NewLine("Initialized succesfully!");
         }
 

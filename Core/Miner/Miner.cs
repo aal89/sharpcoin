@@ -24,7 +24,7 @@ namespace Core
                 Block.Hash = Block.ToHash();
             }
 
-            log.NewLine($"Solved block {Block.Index} with nonce {Block.Nonce} ({Block.Hash.Substring(0, 10)}...) at {DateTime.UtcNow} in {(int)DateTime.UtcNow.Subtract(started).TotalMinutes} mins! Target diff was: {TargetDiff}.");
+            log.NewLine($"Solved block {Block.Index} with nonce {Block.Nonce} ({Block.Hash.Substring(0, 10)}...) in {(int)DateTime.UtcNow.Subtract(started).TotalMinutes} mins! Target diff was: {TargetDiff}.");
 
             return Block;
         }

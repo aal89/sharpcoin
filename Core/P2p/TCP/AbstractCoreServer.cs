@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Net.Sockets;
+using Core.Utilities;
 
 namespace Core.TCP
 {
@@ -8,7 +9,7 @@ namespace Core.TCP
         protected readonly Core core;
         protected readonly Dictionary<string, byte> Opcodes = Operation.Codes;
 
-        protected AbstractCoreServer(Core core) : base(Config.TcpPort)
+        protected AbstractCoreServer(Core core, ILoggable log = null) : base(Config.TcpPort, log)
         {
             this.core = core;
         }

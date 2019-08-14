@@ -12,7 +12,7 @@ namespace Core.TCP
         private readonly ILoggable log;
         private readonly Serializer serializer = new Serializer();
 
-        public CoreServer(Core core, ILoggable log = null) : base(core)
+        public CoreServer(Core core, ILoggable log = null) : base(core, log)
         {
             this.log = log ?? new NullLogger();
         }

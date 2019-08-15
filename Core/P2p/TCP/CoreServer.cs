@@ -70,5 +70,15 @@ namespace Core.TCP
                 PeerManager.AddPeer(peer);
             }
         }
+
+        public override void RequestTransactions(TcpClient client, byte[] data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void AcceptTransactions(TcpClient client, byte[] data)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -53,5 +53,25 @@ namespace Core.TCP
         }
 
         protected override void AcceptPeersResponse(byte[] data) { }
+
+        public override void RequestTransactions(string txs)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void RequestTransactionsResponse(byte[] data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void AcceptTransactions(string txs)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void AcceptTransactionsResponse(byte[] data)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

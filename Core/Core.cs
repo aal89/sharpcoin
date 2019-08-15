@@ -41,6 +41,7 @@ namespace Core
         private void Blockchain_QueuedTransactionAdded(object sender, EventArgs e)
         {
             Transaction t = (Transaction)sender;
+            PeerManager.BroadcastTransaction(t);
         }
 
         private void Blockchain_BlockAdded(object sender, EventArgs e)

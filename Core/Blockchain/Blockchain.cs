@@ -16,7 +16,7 @@ namespace Core
         }
 
         private readonly List<Block> Collection = new List<Block> { new GenesisBlock() };
-        private readonly List<Transaction> QueuedTransactions = new List<Transaction>();
+        private readonly HashSet<Transaction> QueuedTransactions = new HashSet<Transaction>();
         private readonly Serializer Serializer = new Serializer();
 
         public event EventHandler BlockAdded;
@@ -111,7 +111,7 @@ namespace Core
 
         public Transaction GetQueuedTransactionById(string Id)
         {
-            return QueuedTransactions.Find(Tx => Tx.Id == Id);
+            return QueuedTransactions.ToList().Find(Tx => Tx.Id == Id);
         }
 
         public Transaction GetTransactionFromChain(string Id)

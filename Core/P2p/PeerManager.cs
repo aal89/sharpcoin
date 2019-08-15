@@ -4,6 +4,7 @@ using Core.TCP;
 using System.Linq;
 using System.IO;
 using Core.Utilities;
+using Core.Transactions;
 
 namespace Core.P2p
 {
@@ -79,6 +80,24 @@ namespace Core.P2p
             foreach (CoreClient c in peers)
             {
                 c.RequestPeers();
+            }
+        }
+
+        public static void BroadcastTransaction(Transaction t)
+        {
+            log.NewLine($"Broadcasting transaction.");
+            foreach (CoreClient c in peers)
+            {
+                c.AcceptTransaction(t);
+            }
+        }
+
+        public static void FetchRemoteTransaction(string id)
+        {
+            log.NewLine($"Fetching transaction at remotes.");
+            foreach (CoreClient c in peers)
+            {
+                c.RequestTransaction(id);
             }
         }
 

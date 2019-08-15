@@ -16,10 +16,10 @@ namespace Core.TCP
             { "RequestPeersResponse", 0x06 },
             { "AcceptPeers", 0x07 },
             { "AcceptPeersResponse", 0x08 },
-            { "RequestTransactions", 0x09 },
-            { "RequestTransactionsResponse", 0x0a },
-            { "AcceptTransactions", 0x0b },
-            { "AcceptTransactionsResponse", 0x0c }
+            { "RequestTransaction", 0x09 },
+            { "RequestTransactionResponse", 0x0a },
+            { "AcceptTransaction", 0x0b },
+            { "AcceptTransactionResponse", 0x0c }
         };
 
         public static byte[] OK()

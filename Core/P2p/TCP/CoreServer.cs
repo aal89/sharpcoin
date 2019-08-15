@@ -4,6 +4,7 @@ using System.Linq;
 using Core.Utilities;
 using Core.P2p;
 using System.Text;
+using Core.Transactions;
 
 namespace Core.TCP
 {
@@ -42,14 +43,8 @@ namespace Core.TCP
             {
                 Block block = serializer.Deserialize<Block>(data);
 
-                if (core.Blockchain.GetBlockByHash(block.Hash) == null)
-                {
-                    core.Blockchain.AddBlock(block);
-                    Send(client, Opcodes["AcceptBlockResponse"], Operation.OK());
-                } else
-                {
-                    Send(client, Opcodes["AcceptBlockResponse"], Operation.NOOP());
-                }
+                core.Blockchain.AddBlock(block);
+                Send(client, Opcodes["AcceptBlockResponse"], Operation.OK());
             } catch
             {
                 Send(client, Opcodes["AcceptBlockResponse"], Operation.NOOP());
@@ -71,14 +66,18 @@ namespace Core.TCP
             }
         }
 
-        public override void RequestTransactions(TcpClient client, byte[] data)
+        public override void RequestTransaction(TcpClient client, byte[] data)
         {
-            throw new NotImplementedException();
+            string id = Encoding.UTF8.GetString(data);
+            Transaction tx = core.Blockchain.GetQueuedTransactionById(id);
+            Send(client, Operation.Codes["RequestTransactionResponse"], serializer.Serialize(tx));
         }
 
-        public override void AcceptTransactions(TcpClient client, byte[] data)
+        public override void AcceptTransaction(TcpClient client, byte[] data)
         {
-            throw new NotImplementedException();
+            Transaction tx = serializer.Deserialize<Transaction>(data);
+            core.Blockchain.QueueTransaction(tx);
+            Send(client, Operation.Codes["AcceptTransactionResponse"], Operation.OK());
         }
     }
 }

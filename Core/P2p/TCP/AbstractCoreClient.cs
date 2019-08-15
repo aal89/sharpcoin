@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
+using Core.Transactions;
 
 namespace Core.TCP
 {
@@ -29,9 +30,9 @@ namespace Core.TCP
                 case 0x07: break;
                 case 0x08: AcceptPeersResponse(data); break;
                 case 0x09: break;
-                case 0x0a: RequestTransactionsResponse(data); break;
+                case 0x0a: RequestTransactionResponse(data); break;
                 case 0x0b: break;
-                case 0x0c: AcceptTransactionsResponse(data); break;
+                case 0x0c: AcceptTransactionResponse(data); break;
             }
         }
 
@@ -50,10 +51,10 @@ namespace Core.TCP
         public abstract void AcceptPeers(string peers);
         protected abstract void AcceptPeersResponse(byte[] data);
 
-        public abstract void RequestTransactions(string txs);
-        protected abstract void RequestTransactionsResponse(byte[] data);
+        public abstract void RequestTransaction(string id);
+        protected abstract void RequestTransactionResponse(byte[] data);
 
-        public abstract void AcceptTransactions(string txs);
-        protected abstract void AcceptTransactionsResponse(byte[] data);
+        public abstract void AcceptTransaction(Transaction tx);
+        protected abstract void AcceptTransactionResponse(byte[] data);
     }
 }

@@ -26,9 +26,9 @@ namespace Core.TCP
                 case 0x06: break;
                 case 0x07: AcceptPeers(client, data); break;
                 case 0x08: break;
-                case 0x09: RequestTransactions(client, data); break;
+                case 0x09: RequestTransaction(client, data); break;
                 case 0x0a: break;
-                case 0x0b: AcceptTransactions(client, data); break;
+                case 0x0b: AcceptTransaction(client, data); break;
                 case 0x0c: break;
             }
         }
@@ -39,7 +39,7 @@ namespace Core.TCP
         public abstract void AcceptBlock(TcpClient client, byte[] data);
         public abstract void RequestPeers(TcpClient client, byte[] data);
         public abstract void AcceptPeers(TcpClient client, byte[] data);
-        public abstract void RequestTransactions(TcpClient client, byte[] data);
-        public abstract void AcceptTransactions(TcpClient client, byte[] data);
+        public abstract void RequestTransaction(TcpClient client, byte[] data);
+        public abstract void AcceptTransaction(TcpClient client, byte[] data);
     }
 }

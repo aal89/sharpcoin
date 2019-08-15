@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text;
 using Core.P2p;
+using Core.Transactions;
 using Core.Utilities;
 
 namespace Core.TCP
@@ -54,24 +55,21 @@ namespace Core.TCP
 
         protected override void AcceptPeersResponse(byte[] data) { }
 
-        public override void RequestTransactions(string txs)
+        public override void RequestTransaction(string id)
         {
-            throw new NotImplementedException();
+            Send(Operation.Codes["RequestTransaction"], id);
         }
 
-        protected override void RequestTransactionsResponse(byte[] data)
+        protected override void RequestTransactionResponse(byte[] data)
         {
-            throw new NotImplementedException();
+            core.Blockchain.QueueTransaction(serializer.Deserialize<Transaction>(data));
         }
 
-        public override void AcceptTransactions(string txs)
+        public override void AcceptTransaction(Transaction tx)
         {
-            throw new NotImplementedException();
+            Send(Operation.Codes["AcceptTransactions"], serializer.Serialize(tx));
         }
 
-        protected override void AcceptTransactionsResponse(byte[] data)
-        {
-            throw new NotImplementedException();
-        }
+        protected override void AcceptTransactionResponse(byte[] data) { }
     }
 }

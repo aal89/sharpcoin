@@ -90,7 +90,10 @@ namespace Core
             {
                 try
                 {
-                    b.AddTransaction(queued[count++]);
+                    Transaction tx = queued[count++];
+                    // Only add verified and valid transactions to the block
+                    if (tx.Verify() && bc.IsValidTransaction(tx))
+                        b.AddTransaction(tx);
                 } catch
                 {
                     break;

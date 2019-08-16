@@ -199,22 +199,29 @@ namespace Core
                 throw new BlockAssertion($"New block contains invalid transaction (inputs do not equate with outputs or signature invalid).");
             }
 
-            // Double spending inputs check. Get one list of all transaction inputs of the new block and check
-            // if each one Input does not occur in transactions on the chain
+            // Double spending inputs check and validate referenced outputs.
 
-            if (GetTransactions()
-                .FlatMap(Tx => Tx.Inputs)
-                .Any(Input => NewBlock.GetTransactions().Any(Tx => Tx.ContainsInput(Input.Transaction, Input.Index))))
+            if(!NewBlock.GetTransactions().All(IsValidTransaction))
             {
-                throw new BlockAssertion($"New block tries to spend already spent transaction inputs.");
+                throw new BlockAssertion($"New block tries to spend already spent transaction inputs or the referenced outputs in the inputs are invalid.");
             }
 
-            if (!NewBlock.GetTransactions().FlatMap(tx => tx.Inputs).All(input => {
-                Output refOutput = GetTransactionFromChain(input.Transaction).Outputs[input.Index];
-                return refOutput.Address == input.Address && refOutput.Amount == input.Amount;
-            }))
+            return true;
+        }
+
+        // Verifies the transaction does not try to double spend and all the inputs are correctly referenced
+        public bool IsValidTransaction(Transaction tx)
+        {
+            // Double spend check
+            if (GetTransactions().FlatMap(Tx => Tx.Inputs).Any(tx.ContainsInput))
             {
-                throw new BlockAssertion($"One or more inputs used for a transaction on the block seem to be invalid.");
+                return false;
+            }
+
+            // Referenced output check
+            if (!tx.Inputs.All(input => GetTransactionFromChain(input.Transaction).Outputs[input.Index].Corresponds(input)))
+            {
+                return false;
             }
 
             return true;

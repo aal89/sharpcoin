@@ -24,7 +24,7 @@ namespace Core
             // Setup peer manager (server&client)
             Log.Line($"Setting up peer manager...");
             PeerManager = new PeerManager(this, new Logger("PeerManager"));
-            Log.Append($"Done. Awaiting connections on 0.0.0.0:{Config.TcpPort}");
+            Log.Append($"Done. Awaiting connections on 0.0.0.0:{Config.TcpPort}.");
             // Setup event listeners
             Log.Line("Setting up event listeners...");
             Blockchain.BlockAdded += Blockchain_BlockAdded;

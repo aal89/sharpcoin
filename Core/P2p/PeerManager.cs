@@ -106,7 +106,7 @@ namespace Core.P2p
         public static void AddPeer(string peer, bool saveOnly = false)
         {
             if (!saveOnly)
-                peers.Add(new CoreClient(core, peer));
+                peers.Add(new CoreClient(core, peer, log));
             SavePeers(new string[] { peer });
         }
 

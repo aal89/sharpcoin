@@ -10,15 +10,28 @@ namespace Core.TCP
     public class CoreClient : AbstractCoreClient
     {
         private readonly Serializer serializer = new Serializer();
+        private readonly string server;
+        private readonly ILoggable log;
 
-        public CoreClient(Core core, string server) : base(core, server) { }
+        public CoreClient(Core core, string server, ILoggable log = null) : base(core, server)
+        {
+            this.log = log ?? new NullLogger();
+            this.server = server;
+
+            this.log.NewLine($"Connected to {server} succesfully.");
+        }
 
         public override void AcceptBlock(Block block)
         {
+            log.NewLine($"Sending block {block.Index} to peer {server}");
             Send(Operation.Codes["AcceptBlock"], serializer.Serialize(block));
         }
 
-        protected override void AcceptBlockResponse(byte[] data) { }
+        protected override void AcceptBlockResponse(byte[] data)
+        {
+            string status = Operation.IsOK(data) ? "accepted" : "rejected";
+            log.NewLine($"Block got {status} by peer {server}");
+        }
 
         public override void RequestBlock(int index)
         {

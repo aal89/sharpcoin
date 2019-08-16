@@ -5,6 +5,7 @@ using Core.Utilities;
 using Core.P2p;
 using System.Text;
 using Core.Transactions;
+using Core.Exceptions;
 
 namespace Core.TCP
 {
@@ -45,8 +46,9 @@ namespace Core.TCP
 
                 core.Blockchain.AddBlock(block);
                 Send(client, Opcodes["AcceptBlockResponse"], Operation.OK());
-            } catch
+            } catch(BlockAssertion ba)
             {
+                log.NewLine(ba.Message);
                 Send(client, Opcodes["AcceptBlockResponse"], Operation.NOOP());
             }
         }

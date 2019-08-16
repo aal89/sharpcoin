@@ -203,7 +203,7 @@ namespace Core
 
             if(!NewBlock.GetTransactions().All(IsValidTransaction))
             {
-                throw new BlockAssertion($"New block tries to spend already spent transaction inputs or the referenced outputs in the inputs are invalid.");
+                throw new BlockAssertion($"New block tries to spend already spent inputs or the referenced outputs in the inputs are invalid.");
             }
 
             return true;

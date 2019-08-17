@@ -55,7 +55,7 @@ namespace Core.TCP
 
         public override void RequestPeers(TcpClient client, byte[] data)
         {
-            string peers = PeerManager.GetPeersAsIps().Reduce(R.Concat(","), "");
+			string peers = PeerManager.GetPeersAsIps().Stringified(",");
             Send(client, Operation.Codes["RequestPeersResponse"], peers);
         }
 

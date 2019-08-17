@@ -17,8 +17,6 @@ namespace Core
         public uint Nonce;
         public byte Version = 0x00;
 
-        private string StringifiedTransactions = "";
-
         [JsonProperty]
         private readonly List<Transaction> Transactions = new List<Transaction>();
 
@@ -31,7 +29,6 @@ namespace Core
         public Block(List<Transaction> Transactions)
         {
             this.Transactions = Transactions;
-            StringifiedTransactions = Transactions.Stringified();
             Hash = ToHash();
         }
 
@@ -48,7 +45,6 @@ namespace Core
         public void AddTransaction(Transaction Transaction)
         {
             Transactions.Add(Transaction);
-            StringifiedTransactions = Transactions.Stringified();
         }
 
         public Transaction[] GetTransactions()
@@ -68,7 +64,7 @@ namespace Core
 
         public string ToHash()
         {
-            return Utilities.Hash.Sha256($"{Index}{PreviousHash}{Timestamp}{Nonce}{Version}{StringifiedTransactions}");
+            return Utilities.Hash.Sha256($"{Index}{PreviousHash}{Timestamp}{Nonce}{Version}{Transactions.Stringified()}");
         }
 
         // Creates a next block based on the chain given with a reward tx for the keypair.

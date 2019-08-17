@@ -64,7 +64,7 @@ namespace Core
 
         public string ToHash()
         {
-            return Utilities.Hash.Sha256($"{Index}{PreviousHash}{Timestamp}{Nonce}{Version}{Transactions.Stringified()}");
+            return Utilities.Hash.Sha256($"{Index}{PreviousHash}{Timestamp.ToString("MM/dd/yyyy HH:mm:ss")}{Nonce}{Version}{Transactions.Stringified()}");
         }
 
         // Creates a next block based on the chain given with a reward tx for the keypair.

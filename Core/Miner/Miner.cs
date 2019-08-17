@@ -18,7 +18,7 @@ namespace Core
             {
                 hashes++;
 
-                Block.Timestamp = DateTime.Parse(DateTime.UtcNow.ToString());
+                Block.Timestamp = DateTime.Parse(DateTime.UtcNow.ToString("MM/dd/yyyy HH:mm:ss"));
 
                 Block.Nonce++;
                 Block.Hash = Block.ToHash();

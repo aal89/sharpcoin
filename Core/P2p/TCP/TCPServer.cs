@@ -58,7 +58,7 @@ namespace Core.TCP
             NetworkStream stream = client.GetStream();
 
             // Buffer for reading the header of the tlv protocol
-            byte[] bytes = new byte[4];
+            byte[] bytes = new byte[TLVHeaderSize];
 
             // Simple TLV protocol where first byte is type and the following 3 are for length
             // so read 4 bytes and then in the while loop build data byte array
@@ -76,7 +76,7 @@ namespace Core.TCP
             {
                 clients.Remove(client);
             }
-            log.NewLine($"Remote {client.Client.RemoteEndPoint.ToString()} closing connection...");
+            log.NewLine($"Remote {client.Client.RemoteEndPoint.ToString()} closing connection.");
             client.Close();
         }
 
@@ -88,7 +88,7 @@ namespace Core.TCP
         protected void Send(TcpClient client, byte type, byte[] data)
         {
             byte[] tlvdata = new byte[data.Length + TLVHeaderSize];
-            tlvdata[0] = type++;
+            tlvdata[0] = type;
             tlvdata[1] = (byte)(data.Length >> 16 & 0xff);
             tlvdata[2] = (byte)(data.Length >> 8 & 0xff);
             tlvdata[3] = (byte)(data.Length >> 0 & 0xff);

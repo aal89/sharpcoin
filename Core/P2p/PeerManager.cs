@@ -31,7 +31,7 @@ namespace Core.P2p
             {
                 try
                 {
-                    CoreClient c = new CoreClient(core, ip);
+                    CoreClient c = new CoreClient(core, ip, new Logger($"Peer {ip}"));
                     peers.Add(c);
                 } catch
                 {
@@ -105,9 +105,16 @@ namespace Core.P2p
 
         public static void AddPeer(string peer, bool saveOnly = false)
         {
-            if (!saveOnly)
-                peers.Add(new CoreClient(core, peer, log));
-            SavePeers(new string[] { peer });
+            try
+            {
+                if (!saveOnly)
+                    peers.Add(new CoreClient(core, peer, new Logger($"Peer {peer}")));
+                SavePeers(new string[] { peer });
+            }
+            catch
+            {
+                log.NewLine($"Failed to connect to {peer}, removing from peer list.");
+            }
         }
 
         public static CoreClient[] GetPeers()

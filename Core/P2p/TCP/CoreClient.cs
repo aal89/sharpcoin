@@ -18,7 +18,7 @@ namespace Core.TCP
             this.log = log ?? new NullLogger();
             this.server = server;
 
-            this.log.NewLine($"Connected to {server} succesfully.");
+            this.log.NewLine($"Connected successfully.");
         }
 
         public override void AcceptBlock(Block block)

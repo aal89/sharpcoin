@@ -1,6 +1,5 @@
 ﻿using System;
 using Core.Crypto;
-using Core.Utilities;
 
 namespace Core
 {
@@ -8,23 +7,14 @@ namespace Core
     {
         public static Block Solve(Block Block, Blockchain bc)
         {
-            ILoggable log = new Logger("Miner");
-
-            DateTime started = DateTime.UtcNow;
             ulong TargetDiff = bc.GetDifficulty();
-            int hashes = 0;
 
             while (Block.GetDifficulty() > TargetDiff)
             {
-                hashes++;
-
                 Block.Timestamp = DateTime.Parse(DateTime.UtcNow.ToString("MM/dd/yyyy HH:mm:ss"));
-
                 Block.Nonce++;
                 Block.Hash = Block.ToHash();
             }
-
-            log.NewLine($"Solved block {Block.Index} with nonce {Block.Nonce} ({Block.Hash.Substring(0, 10)}...) in {(int)DateTime.UtcNow.Subtract(started).TotalMinutes} mins! Target diff was: {TargetDiff}.");
 
             return Block;
         }

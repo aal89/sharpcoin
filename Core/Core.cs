@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using Core.Crypto;
 using Core.P2p;
 using Core.Transactions;
@@ -12,6 +13,9 @@ namespace Core
         public readonly PeerManager PeerManager;
 
         private readonly ILoggable Log = new Logger("Core");
+
+        private Thread MineThread;
+        private bool IsMining;
 
         public Core()
         {
@@ -48,15 +52,35 @@ namespace Core
             PeerManager.BroadcastBlock(b);
         }
 
-        public void Mine()
+        public void Mine(object skp)
         {
-            Log.NewLine($"Started mining at {DateTime.UtcNow}");
-
-            while (true)
+            while (IsMining)
             {
-                Block b = Miner.Solve(SharpKeyPair.Create(), Blockchain);
+                DateTime started = DateTime.UtcNow;
+                Log.NewLine($"Started mining at {started}.");
+
+                Block b = Miner.Solve((SharpKeyPair)skp, Blockchain);
+                Log.NewLine($"Solved block {b.Index} with nonce {b.Nonce} ({b.Hash.Substring(0, 10)}) in {(int)DateTime.UtcNow.Subtract(started).TotalMinutes} mins! Target diff was: {Blockchain.GetDifficulty()}.");
+
                 Blockchain.AddBlock(b);
             }
+            Log.NewLine($"Stopped mining at {DateTime.UtcNow}.");
+        }
+
+        public void StartMining(SharpKeyPair skp)
+        {
+            if (!IsMining)
+            {
+                MineThread = new Thread(new ParameterizedThreadStart(Mine));
+                MineThread.Start(skp);
+            }
+            IsMining = true;
+        }
+
+        public void StopMining()
+        {
+            IsMining = false;
+            MineThread.Abort();
         }
 
         static void Main() => new Core();

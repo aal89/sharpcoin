@@ -24,13 +24,20 @@ namespace Core.TCP
 
             // Simple TLV protocol where first byte is type and the following 3 are for length
             // so read 4 bytes and then in the while loop build data byte array
-            while ((_ = stream.Read(bytes, 0, TLVHeaderSize)) != 0)
+            try
             {
-                byte type = bytes[0];
-                int length = bytes[1] << 16 | bytes[2] << 8 | bytes[3];
-                byte[] data = new byte[length];
-                stream.Read(data, 0, data.Length);
-                Incoming(type, data);
+                while ((_ = stream.Read(bytes, 0, TLVHeaderSize)) != 0)
+                {
+                    byte type = bytes[0];
+                    int length = bytes[1] << 16 | bytes[2] << 8 | bytes[3];
+                    byte[] data = new byte[length];
+                    stream.Read(data, 0, data.Length);
+                    Incoming(type, data);
+                }
+            } catch
+            {
+                Close();
+                Dispose();
             }
         }
 

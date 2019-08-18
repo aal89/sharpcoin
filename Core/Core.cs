@@ -1,7 +1,6 @@
 ﻿using System;
 using Core.Crypto;
 using Core.P2p;
-using Core.TCP;
 using Core.Transactions;
 using Core.Utilities;
 
@@ -22,20 +21,19 @@ namespace Core
             Blockchain = new Blockchain();
             Log.Append($"Done. Size is {Blockchain.Size()}.");
             // Setup peer manager (server&client)
-            Log.Line($"Setting up peer manager...");
+            Log.NewLine($"Setting up peer manager...");
             PeerManager = new PeerManager(this, new Logger("PeerManager"));
-            Log.Append($"Done. Awaiting connections on 0.0.0.0:{Config.TcpPort}.");
+            Log.NewLine($"Done. Awaiting connections on 0.0.0.0:{Config.TcpPort}.");
             // Setup event listeners
             Log.Line("Setting up event listeners...");
             Blockchain.BlockAdded += Blockchain_BlockAdded;
             Blockchain.QueuedTransactionAdded += Blockchain_QueuedTransactionAdded;
             Log.Append("Done.");
 
-            // test
-            //PeerManager.AddPeer("127.0.0.1");
-            // -test
+            Log.NewLine("Initialized successfully!");
 
-            Log.NewLine("Initialized succesfully!");
+            //PeerManager.AddPeer("192.168.1.31");
+            //PeerManager.BroadcastBlock(Blockchain.GetBlockByIndex(1));
         }
 
         private void Blockchain_QueuedTransactionAdded(object sender, EventArgs e)

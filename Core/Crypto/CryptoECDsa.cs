@@ -51,7 +51,6 @@ namespace Core.Crypto
             using (ECDsa dsa = ECDsa.Create(new ECParameters
             {
                 Curve = ECCurve.NamedCurves.nistP256,
-                D = new byte[PublicKey.X.Length],
                 Q = new ECPoint
                 {
                     X = PublicKey.X,

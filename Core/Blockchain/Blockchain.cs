@@ -96,12 +96,15 @@ namespace Core
             return Config.CalculateDifficulty(this);
         }
 
-        public void QueueTransaction(Transaction Transaction)
+        public void QueueTransaction(Transaction tx)
         {
-            QueuedTransactions.Add(Transaction);
+            if (IsValidTransaction(tx) && tx.Verify())
+            {
+                QueuedTransactions.Add(tx);
 
-            // Fire the tx added event
-            QueuedTransactionAdded?.Invoke(Transaction, EventArgs.Empty);
+                // Fire the tx added event
+                QueuedTransactionAdded?.Invoke(tx, EventArgs.Empty);
+            }
         }
 
         public Transaction[] GetQueuedTransactions()

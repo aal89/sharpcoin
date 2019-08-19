@@ -25,7 +25,12 @@ namespace Core.P2p
                 File.Create(peersPath).Dispose();
             }
 
-            string[] ips = File.ReadAllLines(peersPath);
+            // Take some unique random ips from all the saved peers to connect to initially.
+            string[] ips = File.ReadAllLines(peersPath)
+                .Distinct()
+                .OrderBy(x => new System.Random().Next())
+                .Take(Config.MaximumOutgoingConnections)
+                .ToArray();
 
             foreach (string ip in ips)
             {

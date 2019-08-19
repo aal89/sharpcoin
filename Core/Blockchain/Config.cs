@@ -7,12 +7,12 @@ namespace Core
     public static class Config
     {
         private static readonly float MeanTimeBetweenBlocks = 10 * 60; // in seconds
-        // block reward is the 'half' of ulong number in length (20 digits)
-        // 'one' coin is now dividable into a billion pieces and there are
-        // still 18446744073 blocks to be mined with this reward.
+
         public static readonly long BlockReward = 50000000000;
 
         public static readonly int MaximumBlockSizeInBytes = 2 * 1024 * 1000;
+
+        public static readonly int MaximumOutgoingConnections = 20;
 
         public static readonly int SectionSize = 144;
 

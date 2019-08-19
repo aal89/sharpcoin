@@ -5,10 +5,8 @@ namespace Core
 {
     public static class Miner
     {
-        public static Block Solve(Block Block, Blockchain bc)
+        public static Block Solve(Block Block, ulong TargetDiff)
         {
-            ulong TargetDiff = bc.GetDifficulty();
-
             while (Block.GetDifficulty() > TargetDiff)
             {
                 Block.Timestamp = DateTime.Parse(DateTime.UtcNow.ToString("MM/dd/yyyy HH:mm:ss"));
@@ -21,7 +19,7 @@ namespace Core
 
         public static Block Solve(SharpKeyPair skp, Blockchain bc)
         {
-            return Solve(Block.Create(skp, bc), bc);
+            return Solve(Block.Create(skp, bc), bc.GetDifficulty());
         }
     }
 }

@@ -57,12 +57,21 @@ namespace Core
             while (IsMining)
             {
                 DateTime started = DateTime.UtcNow;
-                Log.NewLine($"Started mining at {started}.");
+                Log.NewLine($"Started mining at {started}. Attempting to solve block {Blockchain.GetLastBlock().Index + 1}.");
 
                 Block b = Miner.Solve((SharpKeyPair)skp, Blockchain);
                 Log.NewLine($"Solved block {b.Index} with nonce {b.Nonce} ({b.Hash.Substring(0, 10)}) in {(int)DateTime.UtcNow.Subtract(started).TotalMinutes} mins! Target diff was: {Blockchain.GetDifficulty()}.");
 
-                Blockchain.AddBlock(b);
+                try
+                {
+                    Blockchain.AddBlock(b);
+                } catch
+                {
+                    // If we cannot add the block just solved that means the block came in from a peer
+                    // earlier than we could solve it. Ignore this block and mine the next one.
+                    Log.NewLine($"Adding mined block {b.Index} failed. Skipping.");
+                }
+                
             }
             Log.NewLine($"Stopped mining at {DateTime.UtcNow}.");
         }
@@ -71,10 +80,10 @@ namespace Core
         {
             if (!IsMining)
             {
+                IsMining = true;
                 MineThread = new Thread(new ParameterizedThreadStart(Mine));
                 MineThread.Start(skp);
             }
-            IsMining = true;
         }
 
         public void StopMining()

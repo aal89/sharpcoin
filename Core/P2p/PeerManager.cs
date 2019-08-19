@@ -10,7 +10,7 @@ namespace Core.P2p
 {
     public class PeerManager
     {
-        private static readonly HashSet<CoreClient> peers = new HashSet<CoreClient>();
+        private static readonly HashSet<CoreClient> peers = new HashSet<CoreClient>(new CoreClientComparer());
         private static readonly string peersPath = Path.Combine(Directory.GetCurrentDirectory(), "peers.txt");
         private static ILoggable log;
         private static Core core;
@@ -112,7 +112,7 @@ namespace Core.P2p
         {
             try
             {
-                if (!saveOnly)
+                if (!saveOnly && peers.Count < Config.MaximumOutgoingConnections)
                     peers.Add(new CoreClient(core, peer, new Logger($"Peer {peer}")));
                 SavePeers(new string[] { peer });
             }

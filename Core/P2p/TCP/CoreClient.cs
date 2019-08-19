@@ -10,7 +10,7 @@ namespace Core.TCP
     public class CoreClient : AbstractCoreClient
     {
         private readonly Serializer serializer = new Serializer();
-        private readonly string server;
+        public readonly string server;
         private readonly ILoggable Log;
 
         public CoreClient(Core core, string server, ILoggable log = null) : base(core, server)

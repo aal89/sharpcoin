@@ -15,10 +15,10 @@ namespace Core.TCP
 
         public CoreClient(Core core, string server, ILoggable log = null) : base(core, server)
         {
-            this.Log = log ?? new NullLogger();
+            Log = log ?? new NullLogger();
             this.server = server;
 
-            this.Log.NewLine($"Connected successfully.");
+            Log.NewLine($"Connected successfully.");
         }
 
         public override void AcceptBlock(Block block)

@@ -195,5 +195,29 @@ namespace Core.P2p.Tcpn
         }
 
         // =====
+
+        public override void RequestBlockchainSize()
+        {
+            Log.NewLine($"Requesting blockchain size at peer.");
+            Send(Operation.Codes["RequestBlockchainSize"], Operation.NOOP());
+        }
+
+        protected override void ServeRequestBlockchainSize()
+        {
+            Log.NewLine($"Sending blockchain size to peer.");
+            Send(Operation.Codes["RequestBlockchainSize"], BitConverter.GetBytes(core.Blockchain.Size()).Reverse().ToArray());
+        }
+
+        protected override void RequestBlockchainSizeResponse(byte[] data)
+        {
+            if (BitConverter.IsLittleEndian)
+                data = data.Reverse().ToArray();
+
+            int size = BitConverter.ToInt32(data, 0);
+
+            Log.NewLine($"Blockchain size at peer is {size}.");
+        }
+
+        // =====
     }
 }

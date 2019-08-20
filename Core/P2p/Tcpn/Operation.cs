@@ -19,7 +19,9 @@ namespace Core.Tcpn
             { "RequestTransaction", 0x09 },
             { "RequestTransactionResponse", 0x0a },
             { "AcceptTransaction", 0x0b },
-            { "AcceptTransactionResponse", 0x0c }
+            { "AcceptTransactionResponse", 0x0c },
+            { "RequestBlockchainSize", 0x0d },
+            { "RequestBlockchainSizeResponse", 0x0e }
         };
 
         public static byte[] OK()

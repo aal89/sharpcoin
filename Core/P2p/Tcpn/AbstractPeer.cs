@@ -31,6 +31,8 @@ namespace Core.P2p.Tcpn
                 case 0x0a: RequestTransactionResponse(data); break;
                 case 0x0b: ServeAcceptTransaction(data); break;
                 case 0x0c: AcceptTransactionResponse(data); break;
+                case 0x0d: ServeRequestBlockchainSize(); break;
+                case 0x0e: RequestBlockchainSizeResponse(data); break;
             }
         }
 
@@ -62,5 +64,9 @@ namespace Core.P2p.Tcpn
         public abstract void AcceptTransaction(Transaction tx);
         protected abstract void ServeAcceptTransaction(byte[] data);
         protected abstract void AcceptTransactionResponse(byte[] data);
+
+        public abstract void RequestBlockchainSize();
+        protected abstract void ServeRequestBlockchainSize();
+        protected abstract void RequestBlockchainSizeResponse(byte[] data);
     }
 }

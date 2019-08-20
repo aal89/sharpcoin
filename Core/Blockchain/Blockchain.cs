@@ -127,18 +127,22 @@ namespace Core
             return Collection.FlatMap(Block => Block.GetTransactions()).ToArray();
         }
 
+        private readonly object addblock_operation = new object();
         public void AddBlock(Block Block, bool check = true, bool save = true)
         {
-            if (check)
-                IsValidBlock(Block);
+            lock (addblock_operation)
+            {
+                if (check)
+                    IsValidBlock(Block);
 
-            if (save)
-                File.WriteAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "blockchain", $"{Block.Index}.block"), Serializer.Serialize(Block));
+                if (save)
+                    File.WriteAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "blockchain", $"{Block.Index}.block"), Serializer.Serialize(Block));
 
-            Collection.Add(Block);
+                Collection.Add(Block);
 
-            // Fire the block added event
-            BlockAdded?.Invoke(Block, EventArgs.Empty);
+                // Fire the block added event
+                BlockAdded?.Invoke(Block, EventArgs.Empty);
+            }
         }
 
         public bool IsValidBlock(Block NewBlock)

@@ -83,10 +83,8 @@ namespace Core.P2p.Tcpn
             try
             {
                 Block block = serializer.Deserialize<Block>(data);
-                core.Blockchain.AddBlock(block);
-
                 Log.NewLine($"Accepting block {block.Index} from peer.");
-
+                core.Blockchain.AddBlock(block);
                 Send(Opcodes["AcceptBlockResponse"], Operation.OK());
             }
             catch
@@ -162,8 +160,8 @@ namespace Core.P2p.Tcpn
         protected override void ServeRequestTransaction(byte[] data)
         {
             string id = Encoding.UTF8.GetString(data);
+            Log.NewLine($"Sending transaction {id} to peer.");
             Transaction tx = core.Blockchain.GetQueuedTransactionById(id);
-            Log.NewLine($"Sending transaction {tx.Id} to peer.");
             Send(Operation.Codes["RequestTransactionResponse"], serializer.Serialize(tx));
         }
 

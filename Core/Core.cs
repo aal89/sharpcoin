@@ -12,7 +12,7 @@ namespace Core
         public readonly Blockchain Blockchain;
         public readonly PeerManager PeerManager;
 
-        private readonly ILoggable Log = new Logger("Core");
+        public readonly ILoggable Log = new Logger("Core");
 
         private Thread MineThread;
         private bool IsMining;
@@ -37,7 +37,10 @@ namespace Core
             Log.NewLine("Initialized successfully!");
 
             //PeerManager.AddPeer("192.168.1.31");
-            //PeerManager.BroadcastBlock(Blockchain.GetBlockByIndex(1));
+            //for (int i = 1; i < Blockchain.Size(); i++)
+            //{
+            //    PeerManager.BroadcastBlock(Blockchain.GetBlockByIndex(i));
+            //}
         }
 
         private void Blockchain_QueuedTransactionAdded(object sender, EventArgs e)

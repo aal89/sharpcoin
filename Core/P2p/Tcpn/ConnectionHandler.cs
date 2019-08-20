@@ -2,23 +2,29 @@
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using Core.Utilities;
 
-namespace Core.TCP
+namespace Core.P2p.Tcpn
 {
-    public abstract class TCPClient: TcpClient
+    public abstract class ConnectionHandler
     {
+        public readonly string Ip;
         protected readonly int TLVHeaderSize = 4;
+        protected readonly TcpClient client;
+        private readonly ILoggable Log;
 
-        protected TCPClient(string server, int port) : base(server, port)
+        protected ConnectionHandler(TcpClient client, ILoggable log)
         {
+            Ip = client.Ip();
+            Log = log ?? new NullLogger();
+            this.client = client;
             new Thread(new ThreadStart(AwaitCommunication)).Start();
         }
 
         public void AwaitCommunication()
         {
             // Get a stream object for reading and writing
-            NetworkStream stream = GetStream();
-
+            NetworkStream stream = client.GetStream();
             // Buffer for reading the header of the tlv protocol
             byte[] bytes = new byte[4];
 
@@ -34,11 +40,14 @@ namespace Core.TCP
                     stream.Read(data, 0, data.Length);
                     Incoming(type, data);
                 }
-            } catch
-            {
-                Close();
-                Dispose();
             }
+            catch
+            {
+                client.Close();
+                client.Dispose();
+            }
+
+            Log.NewLine($"Peer {Ip} disconnected.");
         }
 
         protected void Send(byte type, string data)
@@ -56,7 +65,10 @@ namespace Core.TCP
 
             Array.Copy(data, 0, tlvdata, TLVHeaderSize, data.Length);
 
-            GetStream().Write(tlvdata);
+            if (client.Connected)
+            {
+                client.GetStream().Write(tlvdata);
+            }
         }
 
         public abstract void Incoming(byte type, byte[] data);

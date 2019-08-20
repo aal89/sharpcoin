@@ -13,7 +13,7 @@
     <Folder Include="Blockchain\" />
     <Folder Include="Miner\" />
     <Folder Include="P2p\" />
-    <Folder Include="P2p\TCP\" />
+    <Folder Include="P2p\Tcpn\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Security.Cryptography.Cng" Version="4.5.0" />

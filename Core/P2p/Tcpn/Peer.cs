@@ -135,7 +135,7 @@ namespace Core.P2p.Tcpn
 
         protected override void ServeAcceptPeers(byte[] data)
         {
-            string[] peers = Encoding.UTF8.GetString(data).Split(",");
+            string[] peers = Encoding.UTF8.GetString(data).Split(",").Filter(ip => ip != IpAddr.Mine()).ToArray();
             Log.NewLine($"Accepting {peers.Length} new or existing peers from peer.");
             foreach (string peer in peers)
             {

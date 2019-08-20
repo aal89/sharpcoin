@@ -12,7 +12,7 @@ namespace Core
 
         public static readonly int MaximumBlockSizeInBytes = 2 * 1024 * 1000;
 
-        public static readonly int MaximumOutgoingConnections = 20;
+        public static readonly int MaximumConnections = 20;
 
         public static readonly int SectionSize = 144;
 

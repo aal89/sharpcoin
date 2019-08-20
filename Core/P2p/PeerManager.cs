@@ -27,7 +27,7 @@ namespace Core.P2p
             // Take some unique random ips from all the saved peers to connect to initially.
             string[] ips = File.ReadAllLines(peersPath)
                 .Distinct()
-                .Take(Config.MaximumOutgoingConnections)
+                .Take(Config.MaximumConnections)
                 .ToArray()
                 .Shuffle();
 
@@ -114,8 +114,9 @@ namespace Core.P2p
             {
                 try
                 {
-                    if (!saveOnly && peers.Count < Config.MaximumOutgoingConnections)
-                        peers.Add(Peer.Create(core, ip));
+                    if (!saveOnly && peers.Count < Config.MaximumConnections)
+                        if (peers.Add(Peer.Create(core, ip)))
+                            BroadcastPeers();
                     SavePeers(new string[] { ip });
                 }
                 catch
@@ -129,7 +130,7 @@ namespace Core.P2p
         {
             lock (addpeers_operation)
             {
-                if (!saveOnly && peers.Count < Config.MaximumOutgoingConnections)
+                if (!saveOnly && peers.Count < Config.MaximumConnections)
                     peers.Add(p);
                 SavePeers(new string[] { p.Ip });
             }

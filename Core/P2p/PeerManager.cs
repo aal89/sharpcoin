@@ -74,7 +74,7 @@ namespace Core.P2p
             log.NewLine($"Broadcasting peers.");
             foreach (Peer p in peers)
             {
-                p.AcceptPeers(GetPeersAsIps().Reduce(R.Concat(","), ""));
+                p.AcceptPeers(GetPeersAsIps().Stringified(","));
             }
         }
 

@@ -11,12 +11,12 @@ namespace Core.P2p
     {
         private static readonly HashSet<Peer> peers = new HashSet<Peer>(new PeerComparer());
         private static readonly string peersPath = Path.Combine(Directory.GetCurrentDirectory(), "peers.txt");
-        private static ILoggable log;
+        private static ILoggable Log;
         private static Core core;
 
         public PeerManager(Core core, ILoggable log = null)
         {
-            PeerManager.log = log ?? new NullLogger();
+            PeerManager.Log = log ?? new NullLogger();
             PeerManager.core = core;
 
             if (!File.Exists(peersPath))
@@ -53,7 +53,7 @@ namespace Core.P2p
 
         public static void BroadcastBlock(Block block)
         {
-            log.NewLine($"Broadcasting block {block.Index}.");
+            Log.NewLine($"Broadcasting block {block.Index}.");
             foreach(Peer p in peers)
             {
                 p.AcceptBlock(block);
@@ -62,7 +62,7 @@ namespace Core.P2p
 
         public static void FetchRemoteBlock(int index)
         {
-            log.NewLine($"Fetching block at remotes {index}.");
+            Log.NewLine($"Fetching block at remotes {index}.");
             foreach (Peer p in peers)
             {
                 p.RequestBlock(index);
@@ -71,7 +71,7 @@ namespace Core.P2p
 
         public static void BroadcastPeers()
         {
-            log.NewLine($"Broadcasting peers.");
+            Log.NewLine($"Broadcasting peers.");
             foreach (Peer p in peers)
             {
                 p.AcceptPeers(GetPeersAsIps().Stringified(","));
@@ -80,7 +80,7 @@ namespace Core.P2p
 
         public static void FetchRemotePeers()
         {
-            log.NewLine($"Fetching peers at remotes.");
+            Log.NewLine($"Fetching peers at remotes.");
             foreach (Peer p in peers)
             {
                 p.RequestPeers();
@@ -89,7 +89,7 @@ namespace Core.P2p
 
         public static void BroadcastTransaction(Transaction t)
         {
-            log.NewLine($"Broadcasting transaction.");
+            Log.NewLine($"Broadcasting transaction.");
             foreach (Peer p in peers)
             {
                 p.AcceptTransaction(t);
@@ -98,7 +98,7 @@ namespace Core.P2p
 
         public static void FetchRemoteTransaction(string id)
         {
-            log.NewLine($"Fetching transaction at remotes.");
+            Log.NewLine($"Fetching transaction at remotes.");
             foreach (Peer p in peers)
             {
                 p.RequestTransaction(id);
@@ -124,7 +124,7 @@ namespace Core.P2p
                 }
                 catch
                 {
-                    log.NewLine($"Failed to connect to {ip}, removing from peer list.");
+                    Log.NewLine($"Failed to connect to {ip}, removing from peer list.");
                     return false;
                 }
             }

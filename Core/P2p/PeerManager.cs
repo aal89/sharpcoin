@@ -105,6 +105,15 @@ namespace Core.P2p
             }
         }
 
+        public static void FetchBlockchainSize()
+        {
+            Log.NewLine($"Fetching blockchain sizes at remotes.");
+            foreach (Peer p in peers)
+            {
+                p.RequestBlockchainSize();
+            }
+        }
+
         // Default class operations
 
         private static readonly object addpeers_operation = new object();

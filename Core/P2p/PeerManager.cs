@@ -115,6 +115,7 @@ namespace Core.P2p
                 try
                 {
                     Peer p = Peer.Create(core, ip);
+                    p.ClosedConn += Peer_ClosedConn;
 
                     if (AddPeer(p, saveOnly))
                         return true;
@@ -134,6 +135,7 @@ namespace Core.P2p
             lock (addpeers_operation)
             {
                 SavePeers(new string[] { p.Ip });
+                p.ClosedConn += Peer_ClosedConn;
                 if (!saveOnly && !HasMaximumConnections() && peers.Add(p))
                 {
                     BroadcastPeers();
@@ -141,6 +143,11 @@ namespace Core.P2p
                 }
                 return false;
             }
+        }
+
+        private static void Peer_ClosedConn(object sender, System.EventArgs e)
+        {
+            peers.Remove((Peer)sender);
         }
 
         public static Peer[] GetPeers()

@@ -10,7 +10,7 @@ namespace Core.P2p.Tcpn
         protected readonly Core core;
         protected readonly Dictionary<string, byte> Opcodes = Operation.Codes;
 
-        protected AbstractPeer(Core core, TcpClient client) : base(client, core.Log)
+        protected AbstractPeer(Core core, TcpClient client) : base(client)
         {
             this.core = core;
         }

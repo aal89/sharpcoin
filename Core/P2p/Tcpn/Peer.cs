@@ -13,11 +13,21 @@ namespace Core.P2p.Tcpn
         private readonly Serializer serializer = new Serializer();
         private readonly ILoggable Log;
 
+        public event EventHandler ClosedConn;
+
         private Peer(Core core, TcpClient client, ILoggable log = null): base(core, client)
         {
             Log = log ?? new NullLogger();
 
             Log.NewLine($"Connected successfully.");
+        }
+
+        protected override void ClosedConnection()
+        {
+            Log.NewLine($"Disconnected.");
+            ClosedConn?.Invoke(this, EventArgs.Empty);
+            client.Close();
+            client.Dispose();
         }
 
         public static Peer Create(Core core, string ip)
@@ -118,7 +128,7 @@ namespace Core.P2p.Tcpn
         protected override void RequestPeersResponse(byte[] data)
         {
             string[] peers = Encoding.UTF8.GetString(data).Split(",");
-            Log.NewLine($"Peer responded with {peers.Length} new or existing peers.");
+            Log.NewLine($"Peer responded with {peers.Length} peers.");
             foreach (string peer in peers)
             {
                 PeerManager.AddPeer(peer);
@@ -136,7 +146,7 @@ namespace Core.P2p.Tcpn
         protected override void ServeAcceptPeers(byte[] data)
         {
             string[] peers = Encoding.UTF8.GetString(data).Split(",").Filter(ip => ip != IpAddr.Mine()).ToArray();
-            Log.NewLine($"Accepting {peers.Length} new or existing peers from peer.");
+            Log.NewLine($"Accepting {peers.Length} peers from peer.");
             foreach (string peer in peers)
             {
                 PeerManager.AddPeer(peer);

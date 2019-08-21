@@ -11,12 +11,10 @@ namespace Core.P2p.Tcpn
         public readonly string Ip;
         protected readonly int TLVHeaderSize = 4;
         protected readonly TcpClient client;
-        private readonly ILoggable Log;
 
-        protected ConnectionHandler(TcpClient client, ILoggable log)
+        protected ConnectionHandler(TcpClient client)
         {
             Ip = client.Ip();
-            Log = log ?? new NullLogger();
             this.client = client;
             new Thread(new ThreadStart(AwaitCommunication)).Start();
         }
@@ -47,8 +45,10 @@ namespace Core.P2p.Tcpn
                 client.Dispose();
             }
 
-            Log.NewLine($"Peer {Ip} disconnected.");
+            ClosedConnection();
         }
+
+        protected abstract void ClosedConnection();
 
         protected void Send(byte type, string data)
         {

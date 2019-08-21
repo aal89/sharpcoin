@@ -12,12 +12,12 @@ namespace Core.P2p
         private static readonly HashSet<Peer> peers = new HashSet<Peer>(new PeerComparer());
         private static readonly string peersPath = Path.Combine(Directory.GetCurrentDirectory(), "peers.txt");
         private static ILoggable Log;
-        private static Core core;
+        private static Core Core;
 
         public PeerManager(Core core, ILoggable log = null)
         {
-            PeerManager.Log = log ?? new NullLogger();
-            PeerManager.core = core;
+            Log = log ?? new NullLogger();
+            Core = core;
 
             if (!File.Exists(peersPath))
             {
@@ -114,7 +114,7 @@ namespace Core.P2p
             {
                 try
                 {
-                    Peer p = Peer.Create(core, ip);
+                    Peer p = Peer.Create(Core, ip);
                     p.ClosedConn += Peer_ClosedConn;
 
                     if (AddPeer(p, saveOnly))

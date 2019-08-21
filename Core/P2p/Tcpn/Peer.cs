@@ -26,8 +26,6 @@ namespace Core.P2p.Tcpn
         {
             Log.NewLine($"Disconnected.");
             ClosedConn?.Invoke(this, EventArgs.Empty);
-            client.Close();
-            client.Dispose();
         }
 
         public static Peer Create(Core core, string ip)

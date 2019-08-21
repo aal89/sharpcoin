@@ -46,6 +46,8 @@ namespace Core.P2p.Tcpn
             }
 
             ClosedConnection();
+            client.Close();
+            client.Dispose();
         }
 
         protected abstract void ClosedConnection();

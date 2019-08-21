@@ -108,31 +108,38 @@ namespace Core.P2p
         // Default class operations
 
         private static readonly object addpeers_operation = new object();
-        public static void AddPeer(string ip, bool saveOnly = false)
+        public static bool AddPeer(string ip, bool saveOnly = false)
         {
             lock (addpeers_operation)
             {
                 try
                 {
-                    if (!saveOnly && peers.Count < Config.MaximumConnections)
-                        if (peers.Add(Peer.Create(core, ip)))
-                            BroadcastPeers();
-                    SavePeers(new string[] { ip });
+                    Peer p = Peer.Create(core, ip);
+
+                    if (AddPeer(p, saveOnly))
+                        return true;
+
+                    return false;
                 }
                 catch
                 {
                     log.NewLine($"Failed to connect to {ip}, removing from peer list.");
+                    return false;
                 }
             }
         }
 
-        public static void AddPeer(Peer p, bool saveOnly = false)
+        public static bool AddPeer(Peer p, bool saveOnly = false)
         {
             lock (addpeers_operation)
             {
-                if (!saveOnly && peers.Count < Config.MaximumConnections)
-                    peers.Add(p);
                 SavePeers(new string[] { p.Ip });
+                if (!saveOnly && !HasMaximumConnections() && peers.Add(p))
+                {
+                    BroadcastPeers();
+                    return true;
+                }
+                return false;
             }
         }
 
@@ -146,6 +153,10 @@ namespace Core.P2p
             return peers.Map(p => p.Ip).ToArray();
         }
 
+        public static bool HasMaximumConnections()
+        {
+            return peers.Count >= Config.MaximumConnections;
+        }
         
         private static void SavePeers(string[] newpeers)
         {

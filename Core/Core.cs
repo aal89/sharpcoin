@@ -76,7 +76,7 @@ namespace Core
                     Blockchain.AddBlock(b);
                 } catch
                 {
-                    Log.NewLine($"Adding mined block {b.Index} failed. Skipping.");
+                    Log.NewLine($"Adding mined block failed. Skipping.");
                 }
                 
             }

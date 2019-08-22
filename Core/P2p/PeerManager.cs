@@ -35,7 +35,7 @@ namespace Core.P2p
                 AddPeer(ip);
 
             // Final step: initiate the server
-            _ = new TcpServer(core, Config.TcpPort);
+            _ = new TcpServer(Config.TcpPort);
         }
 
         // Peer operations

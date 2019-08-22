@@ -9,11 +9,9 @@ namespace Core.P2p.Tcpn
     public class TcpServer
     {
         private readonly TcpListener server;
-        private readonly Core core;
 
-        public TcpServer(Core core, int port)
+        public TcpServer(int port)
         {
-            this.core = core;
             server = new TcpListener(IPAddress.Any, port);
             server.Start();
 
@@ -26,16 +24,7 @@ namespace Core.P2p.Tcpn
             {
                 // wait for client connection
                 TcpClient client = server.AcceptTcpClient();
-
-                try
-                {
-                    Peer p = Peer.Create(core, client);
-                    PeerManager.AddPeer(p);
-                }
-                catch
-                {
-                    PeerManager.AddPeer(client.Ip(), true);
-                }
+                PeerManager.AddPeer(client.Ip());
             }
         }
     }

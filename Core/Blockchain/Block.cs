@@ -8,7 +8,7 @@ using Core.Crypto;
 
 namespace Core
 {
-    public class Block
+    public class Block: IEquatable<Block>
     {
         public int Index;
         public string PreviousHash = "";
@@ -99,6 +99,11 @@ namespace Core
             b.Hash = b.ToHash();
 
             return b;
+        }
+
+        public bool Equals(Block other)
+        {
+            return other != null && Hash == other.Hash;
         }
     }
 }

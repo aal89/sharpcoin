@@ -32,18 +32,7 @@ namespace Core.P2p
                 .Shuffle();
 
             foreach (string ip in ips)
-            {
-                try
-                {
-                    Peer p = Peer.Create(core, ip);
-                    peers.Add(p);
-                } catch
-                {
-                    log.NewLine($"Failed to connect to {ip}, removing from peer list.");
-                }
-            }
-
-            SavePeers(GetPeersAsIps());
+                AddPeer(ip);
 
             // Final step: initiate the server
             _ = new TcpServer(core, Config.TcpPort);
@@ -51,39 +40,20 @@ namespace Core.P2p
 
         // Peer operations
 
+        public static void PeerConnected(Peer p)
+        {
+            Log.NewLine("Savind new peer list and initiating contact.");
+            SavePeers(GetPeersAsIps().Distinct().ToArray());
+            p.AcceptPeers(GetPeersAsIps().Stringified(","));
+            p.RequestBlockchainSize();
+        }
+
         public static void BroadcastBlock(Block block)
         {
             Log.NewLine($"Broadcasting block {block.Index}.");
             foreach(Peer p in peers)
             {
                 p.AcceptBlock(block);
-            }
-        }
-
-        public static void FetchRemoteBlock(int index)
-        {
-            Log.NewLine($"Fetching block at remotes {index}.");
-            foreach (Peer p in peers)
-            {
-                p.RequestBlock(index);
-            }
-        }
-
-        public static void BroadcastPeers()
-        {
-            Log.NewLine($"Broadcasting peers.");
-            foreach (Peer p in peers)
-            {
-                p.AcceptPeers(GetPeersAsIps().Stringified(","));
-            }
-        }
-
-        public static void FetchRemotePeers()
-        {
-            Log.NewLine($"Fetching peers at remotes.");
-            foreach (Peer p in peers)
-            {
-                p.RequestPeers();
             }
         }
 
@@ -96,58 +66,36 @@ namespace Core.P2p
             }
         }
 
-        public static void FetchRemoteTransaction(string id)
-        {
-            Log.NewLine($"Fetching transaction at remotes.");
-            foreach (Peer p in peers)
-            {
-                p.RequestTransaction(id);
-            }
-        }
-
-        public static void FetchBlockchainSize()
-        {
-            Log.NewLine($"Fetching blockchain sizes at remotes.");
-            foreach (Peer p in peers)
-            {
-                p.RequestBlockchainSize();
-            }
-        }
-
         // Default class operations
 
         private static readonly object addpeers_operation = new object();
-        public static bool AddPeer(string ip, bool saveOnly = false)
+        public static bool AddPeer(string ip)
         {
             lock (addpeers_operation)
             {
                 try
                 {
-                    Peer p = Peer.Create(Core, ip);
-                    p.ClosedConn += Peer_ClosedConn;
-
-                    if (AddPeer(p, saveOnly))
+                    if (AddPeer(Peer.Create(Core, ip)))
                         return true;
 
                     return false;
                 }
                 catch
                 {
-                    Log.NewLine($"Failed to connect to {ip}, removing from peer list.");
+                    Log.NewLine($"Failed to connect to {ip}.");
                     return false;
                 }
             }
         }
 
-        public static bool AddPeer(Peer p, bool saveOnly = false)
+        public static bool AddPeer(Peer p)
         {
             lock (addpeers_operation)
             {
-                SavePeers(new string[] { p.Ip });
                 p.ClosedConn += Peer_ClosedConn;
-                if (!saveOnly && !HasMaximumConnections() && peers.Add(p))
+                if (!HasMaximumConnections() && peers.Add(p))
                 {
-                    BroadcastPeers();
+                    PeerConnected(p);
                     return true;
                 }
                 return false;

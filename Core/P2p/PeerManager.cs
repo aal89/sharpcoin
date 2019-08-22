@@ -75,7 +75,7 @@ namespace Core.P2p
             {
                 try
                 {
-                    if (AddPeer(Peer.Create(Core, ip)))
+                    if (!HasPeer(ip) && !HasMaximumConnections() && AddPeer(Peer.Create(Core, ip)))
                         return true;
 
                     return false;
@@ -88,18 +88,23 @@ namespace Core.P2p
             }
         }
 
-        public static bool AddPeer(Peer p)
+        private static bool AddPeer(Peer p)
         {
             lock (addpeers_operation)
             {
                 p.ClosedConn += Peer_ClosedConn;
-                if (!HasMaximumConnections() && peers.Add(p))
+                if (peers.Add(p))
                 {
                     PeerConnected(p);
                     return true;
                 }
                 return false;
             }
+        }
+
+        public static bool HasPeer(string ip)
+        {
+            return peers.Any(peer => peer.Ip == ip);
         }
 
         private static void Peer_ClosedConn(object sender, System.EventArgs e)

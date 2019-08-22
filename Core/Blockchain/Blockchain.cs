@@ -158,9 +158,12 @@ namespace Core
         {
             Block LastBlock = GetLastBlock();
 
+            if (NewBlock == null)
+                throw new BlockAssertion($"New block was null.");
+
             if (NewBlock.Timestamp.Subtract(LastBlock.Timestamp).TotalSeconds < 0)
             {
-                throw new BlockAssertion($"The new block is older than the last block. Timestamp last block {LastBlock.Timestamp}, timestamp new block {NewBlock.Timestamp}");
+                throw new BlockAssertion($"The new block is older than the last block. Timestamp last block {LastBlock.Timestamp}, timestamp new block {NewBlock.Timestamp}.");
             }
 
             if (NewBlock.Index != LastBlock.Index + 1)

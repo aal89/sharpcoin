@@ -12,10 +12,11 @@ namespace Core
         public readonly Blockchain Blockchain;
         public readonly PeerManager PeerManager;
 
-        public readonly ILoggable Log = new Logger("Core");
+        private readonly ILoggable Log = new Logger("Core");
 
         private Thread MineThread;
         private bool IsMining;
+        private SharpKeyPair MineRewardKeyPair;
 
         public Core()
         {
@@ -37,10 +38,6 @@ namespace Core
             Log.NewLine("Initialized successfully!");
 
             //PeerManager.AddPeer("192.168.1.31");
-            //for (int i = 1; i < Blockchain.Size(); i++)
-            //{
-            //    PeerManager.BroadcastBlock(Blockchain.GetBlockByIndex(i));
-            //}
         }
 
         private void Blockchain_QueuedTransactionAdded(object sender, EventArgs e)
@@ -52,7 +49,14 @@ namespace Core
         private void Blockchain_BlockAdded(object sender, EventArgs e)
         {
             Block b = (Block)sender;
+            // Broadcast block to all peers
             PeerManager.BroadcastBlock(b);
+            // Iff were mining; stop and start again
+            if (IsMining)
+            {
+                StopMining();
+                StartMining(MineRewardKeyPair);
+            }
         }
 
         public void Mine(object skp)
@@ -62,16 +66,16 @@ namespace Core
                 DateTime started = DateTime.UtcNow;
                 Log.NewLine($"Started mining at {started}. Attempting to solve block {Blockchain.GetLastBlock().Index + 1}.");
 
-                Block b = Miner.Solve((SharpKeyPair)skp, Blockchain);
-                Log.NewLine($"Solved block {b.Index} with nonce {b.Nonce} ({b.Hash.Substring(0, 10)}) in {(int)DateTime.UtcNow.Subtract(started).TotalMinutes} mins! Target diff was: {Blockchain.GetDifficulty()}.");
+                Block b = Miner.Solve((SharpKeyPair)skp, Blockchain, IsMining);
+
+                if (b != null)
+                    Log.NewLine($"Solved block {b.Index} with nonce {b.Nonce} ({b.Hash.Substring(0, 10)}) in {(int)DateTime.UtcNow.Subtract(started).TotalMinutes} mins! Target diff was: {Blockchain.GetDifficulty()}.");
 
                 try
                 {
                     Blockchain.AddBlock(b);
                 } catch
                 {
-                    // If we cannot add the block just solved that means the block came in from a peer
-                    // earlier than we could solve it. Ignore this block and mine the next one.
                     Log.NewLine($"Adding mined block {b.Index} failed. Skipping.");
                 }
                 
@@ -81,7 +85,7 @@ namespace Core
 
         public void StartMining(SharpKeyPair skp)
         {
-            if (!IsMining)
+            if (!IsMining && MineRewardKeyPair != null)
             {
                 IsMining = true;
                 MineThread = new Thread(new ParameterizedThreadStart(Mine));

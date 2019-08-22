@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using Core.Tcpn;
 using Core.Transactions;
 using Core.Utilities;
@@ -36,6 +37,26 @@ namespace Core.P2p.Tcpn
         public static Peer Create(Core core, TcpClient client)
         {
             return new Peer(core, client, new Logger($"Peer {client.Ip()}"));
+        }
+
+        public readonly object synchchain_operation = new object();
+        public void SynchChain(int peerSize)
+        {
+            Log.NewLine($"Synching chain.");
+            lock (synchchain_operation)
+            {
+                // When synching with a peer we try to pull some extra blocks. This is to prevent
+                // orphan blocks that we may have to be overwritten with blocks from the
+                // peer as its chain is longer. Bringing us into synch again.
+                // Note: this does require us to remove the last x blocks from our chain first.
+                int reducedSize = Math.Max(0, core.Blockchain.Size() - peerSize);
+
+                while (core.Blockchain.Size() != reducedSize)
+                    core.Blockchain.RemoveBlock(core.Blockchain.GetLastBlock());
+
+                for (int i = reducedSize; i < peerSize; i++)
+                    RequestBlock(i);
+            }
         }
 
         // =====
@@ -222,8 +243,12 @@ namespace Core.P2p.Tcpn
                 data = data.Reverse().ToArray();
 
             int size = BitConverter.ToInt32(data, 0);
+            int mysize = core.Blockchain.Size();
 
-            Log.NewLine($"Blockchain size at peer is {size}.");
+            Log.NewLine($"Blockchain size at peer is {size}. My size {mysize}.");
+
+            if (size > mysize && !Monitor.IsEntered(synchchain_operation))
+                SynchChain(size);
         }
 
         // =====

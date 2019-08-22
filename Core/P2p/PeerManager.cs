@@ -27,9 +27,10 @@ namespace Core.P2p
             // Take some unique random ips from all the saved peers to connect to initially.
             string[] ips = File.ReadAllLines(peersPath)
                 .Distinct()
-                .Take(Config.MaximumConnections)
                 .ToArray()
-                .Shuffle();
+                .Shuffle()
+                .Take(Config.MaximumConnections)
+                .ToArray();
 
             foreach (string ip in ips)
                 AddPeer(ip);

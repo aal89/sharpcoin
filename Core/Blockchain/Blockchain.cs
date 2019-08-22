@@ -127,6 +127,15 @@ namespace Core
             return Collection.FlatMap(Block => Block.GetTransactions()).ToArray();
         }
 
+        private readonly object removeblock_operation = new object();
+        public void RemoveBlock(Block Block)
+        {
+            lock (removeblock_operation)
+            {
+                Collection.Remove(Block);
+            }
+        }
+
         private readonly object addblock_operation = new object();
         public void AddBlock(Block Block, bool check = true, bool save = true)
         {

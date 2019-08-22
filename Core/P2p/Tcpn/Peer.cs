@@ -49,7 +49,7 @@ namespace Core.P2p.Tcpn
                 // orphan blocks that we may have to be overwritten with blocks from the
                 // peer as its chain is longer. Bringing us into synch again.
                 // Note: this does require us to remove the last x blocks from our chain first.
-                int reducedSize = Math.Max(0, core.Blockchain.Size() - peerSize);
+                int reducedSize = Math.Max(1, core.Blockchain.Size() - peerSize);
 
                 while (core.Blockchain.Size() != reducedSize)
                     core.Blockchain.RemoveBlock(core.Blockchain.GetLastBlock());
@@ -234,7 +234,7 @@ namespace Core.P2p.Tcpn
         protected override void ServeRequestBlockchainSize()
         {
             Log.NewLine($"Sending blockchain size.");
-            Send(Operation.Codes["RequestBlockchainSize"], BitConverter.GetBytes(core.Blockchain.Size()).Reverse().ToArray());
+            Send(Operation.Codes["RequestBlockchainSizeResponse"], BitConverter.GetBytes(core.Blockchain.Size()).Reverse().ToArray());
         }
 
         protected override void RequestBlockchainSizeResponse(byte[] data)

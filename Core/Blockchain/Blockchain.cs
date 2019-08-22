@@ -32,7 +32,7 @@ namespace Core
             DirectoryInfo Info = new DirectoryInfo(Path.Combine(Directory.GetCurrentDirectory(), "blockchain"));
             FileInfo[] Paths = Info.GetFiles()
                 .Filter(p => p.Name.Contains(".block"))
-                .OrderBy(p => p.CreationTime)
+                .OrderBy(p => Int32.Parse(p.Name.Substring(0, p.Name.IndexOf(".", StringComparison.Ordinal))))
                 .ToArray();
 
             // Load only the last section of blocks, this saves time and memory
@@ -138,7 +138,7 @@ namespace Core
                 if (save)
                     File.WriteAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "blockchain", $"{Block.Index}.block"), Serializer.Serialize(Block));
 
-                Collection.Add(Block);
+                Collection.Replace(Block.Index, Block);
 
                 // Fire the block added event
                 BlockAdded?.Invoke(Block, EventArgs.Empty);

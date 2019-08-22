@@ -138,7 +138,7 @@ namespace Core
                 if (save)
                     File.WriteAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "blockchain", $"{Block.Index}.block"), Serializer.Serialize(Block));
 
-                Collection.Replace(Block.Index, Block);
+                Collection.Add(Block);
 
                 // Fire the block added event
                 BlockAdded?.Invoke(Block, EventArgs.Empty);

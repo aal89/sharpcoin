@@ -4,6 +4,7 @@ using System.IO;
 using Core.Utilities;
 using Core.Transactions;
 using Core.P2p.Tcpn;
+using System.Net.Sockets;
 
 namespace Core.P2p
 {
@@ -76,14 +77,27 @@ namespace Core.P2p
             {
                 try
                 {
-                    if (!HasPeer(ip) && !HasMaximumConnections() && AddPeer(Peer.Create(Core, ip)))
-                        return true;
-
-                    return false;
+                    return !HasPeer(ip) && !HasMaximumConnections() && AddPeer(Peer.Create(Core, ip));
                 }
                 catch
                 {
                     Log.NewLine($"Failed to connect to {ip}.");
+                    return false;
+                }
+            }
+        }
+
+        public static bool AddPeer(TcpClient tcpc)
+        {
+            lock (addpeers_operation)
+            {
+                try
+                {
+                    return !HasPeer(tcpc.Ip()) && !HasMaximumConnections() && AddPeer(Peer.Create(Core, tcpc));
+                }
+                catch
+                {
+                    Log.NewLine($"Failed to connect to {tcpc.Ip()}.");
                     return false;
                 }
             }

@@ -1,8 +1,6 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using Core.Utilities;
 
 namespace Core.P2p.Tcpn
 {
@@ -24,7 +22,8 @@ namespace Core.P2p.Tcpn
             {
                 // wait for client connection
                 TcpClient client = server.AcceptTcpClient();
-                PeerManager.AddPeer(client.Ip());
+                if (!PeerManager.AddPeer(client))
+                    client.Close();
             }
         }
     }

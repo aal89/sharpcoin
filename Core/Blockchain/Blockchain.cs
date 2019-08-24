@@ -44,7 +44,7 @@ namespace Core
                 byte[] RawBlock = File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "blockchain", fi.Name));
                 // we only load the last section, so the first block might get incorrectly (correctly*) invalidated
                 // we skip validation for the first block loaded from disk
-                AddBlock(Serializer.Deserialize<Block>(RawBlock), i > 0, false);
+                AddBlock(Serializer.Deserialize<Block>(RawBlock), i > 0, false, false);
             }
         }
 
@@ -137,7 +137,7 @@ namespace Core
         }
 
         private readonly object addblock_operation = new object();
-        public void AddBlock(Block Block, bool check = true, bool save = true)
+        public void AddBlock(Block Block, bool check = true, bool save = true, bool triggerEvent = true)
         {
             lock (addblock_operation)
             {
@@ -150,7 +150,8 @@ namespace Core
                 Collection.Add(Block);
 
                 // Fire the block added event
-                BlockAdded?.Invoke(Block, EventArgs.Empty);
+                if (triggerEvent)
+                    BlockAdded?.Invoke(Block, EventArgs.Empty);
             }
         }
 

@@ -57,7 +57,10 @@ namespace Core.P2p.Tcpn
                     core.Blockchain.RemoveBlock(core.Blockchain.GetLastBlock());
 
                 for (int i = reducedSize; i < peerSize; i++)
+                {
+                    Thread.Sleep(1000);
                     RequestBlock(i);
+                }
             }
         }
 
@@ -97,7 +100,7 @@ namespace Core.P2p.Tcpn
             {
                 Block block = serializer.Deserialize<Block>(data);
                 Log.NewLine($"Got block {block.Index}.");
-                core.Blockchain.AddBlock(block);
+                core.Blockchain.AddBlock(block, true, true, false);
             }
         }
 

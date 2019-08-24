@@ -24,19 +24,17 @@ namespace Core
             Log.Line($"Loading blockchain...");
             Blockchain = new Blockchain();
             Log.Append($"Done. Size is {Blockchain.Size()}.");
-            // Setup peer manager (server&client)
-            Log.NewLine($"Setting up peer manager...");
-            PeerManager = new PeerManager(this, new Logger("PeerManager"));
-            Log.NewLine($"Done. Awaiting connections on 0.0.0.0:{Config.TcpPort}.");
             // Setup event listeners
             Log.Line("Setting up event listeners...");
             Blockchain.BlockAdded += Blockchain_BlockAdded;
             Blockchain.QueuedTransactionAdded += Blockchain_QueuedTransactionAdded;
             Log.Append("Done.");
 
-            Log.NewLine("Initialized successfully!");
+            // Setup peer manager (server&client)
+            Log.NewLine($"Setting up peer manager.");
+            PeerManager = new PeerManager(this, new Logger("PeerManager"));
 
-            //PeerManager.AddPeer("192.168.1.31");
+            //PeerManager.AddPeer("192.168.178.50");
         }
 
         private void Blockchain_QueuedTransactionAdded(object sender, EventArgs e)

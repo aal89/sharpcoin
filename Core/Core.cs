@@ -16,7 +16,6 @@ namespace Core
 
         private Thread MineThread;
         private bool IsMining;
-        private SharpKeyPair MineRewardKeyPair;
 
         public Core()
         {
@@ -55,7 +54,6 @@ namespace Core
             if (IsMining)
             {
                 StopMining();
-                StartMining(MineRewardKeyPair);
             }
         }
 
@@ -85,7 +83,7 @@ namespace Core
 
         public void StartMining(SharpKeyPair skp)
         {
-            if (!IsMining && MineRewardKeyPair != null)
+            if (!IsMining)
             {
                 IsMining = true;
                 MineThread = new Thread(new ParameterizedThreadStart(Mine));

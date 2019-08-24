@@ -31,7 +31,9 @@ namespace Core.P2p.Tcpn
 
         public static Peer Create(Core core, string ip)
         {
-            return Create(core, new TcpClient(ip, Config.TcpPort));
+            TcpClient tcp = new TcpClient();
+            tcp.ConnectAsync(ip, Config.TcpPort).Wait(Config.TcpConnectTimeout);
+            return Create(core, tcp);
         }
 
         public static Peer Create(Core core, TcpClient client)

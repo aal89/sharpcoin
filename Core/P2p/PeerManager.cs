@@ -44,7 +44,7 @@ namespace Core.P2p
 
         public static void PeerConnected(Peer p)
         {
-            Log.NewLine("Savind new peer list and initiating contact.");
+            Log.NewLine("Saving new peer list and initiating contact.");
             SavePeers(GetPeersAsIps().Distinct().ToArray());
             p.AcceptPeers(GetPeersAsIps().Stringified(","));
             p.RequestBlockchainSize();
@@ -144,7 +144,7 @@ namespace Core.P2p
         
         private static void SavePeers(string[] newpeers)
         {
-            File.WriteAllLines(peersPath, newpeers);
+            File.AppendAllLines(peersPath, newpeers);
         }
     }
 }

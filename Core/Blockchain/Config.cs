@@ -20,6 +20,8 @@ namespace Core
 
         public static readonly int TcpConnectTimeout = 5000;
 
+        public static readonly int PeerInterval = 15 * 60 * 1000; // in ms
+
         public static ulong CalculateDifficulty(Blockchain Blockchain)
         {
             ulong GenesisDifficulty = Blockchain.GetBlockByIndex(0).GetDifficulty();

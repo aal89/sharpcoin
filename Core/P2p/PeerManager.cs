@@ -5,6 +5,7 @@ using Core.Utilities;
 using Core.Transactions;
 using Core.P2p.Tcpn;
 using System.Net.Sockets;
+using System.Timers;
 
 namespace Core.P2p
 {
@@ -12,8 +13,11 @@ namespace Core.P2p
     {
         private static readonly HashSet<Peer> peers = new HashSet<Peer>(new PeerComparer());
         private static readonly string peersPath = Path.Combine(Directory.GetCurrentDirectory(), "peers.txt");
+
         private static ILoggable Log;
         private static Core Core;
+
+        private static Timer Interval;
 
         public PeerManager(Core core, ILoggable log = null)
         {
@@ -36,18 +40,23 @@ namespace Core.P2p
             foreach (string ip in ips)
                 AddPeer(ip);
 
+            Interval = new Timer(Config.PeerInterval);
+            Interval.Elapsed += OnTimedEvent;
+            Interval.AutoReset = true;
+            Interval.Enabled = true;
+
             // Final step: initiate the server
             _ = new TcpServer(Config.TcpPort);
         }
 
         // Peer operations
 
-        public static void PeerConnected(Peer p)
+        private static void OnTimedEvent(object source, ElapsedEventArgs e)
         {
-            Log.NewLine("Saving new peer list and initiating contact.");
-            SavePeers(GetPeersAsIps().Distinct().ToArray());
-            p.AcceptPeers(GetPeersAsIps().Stringified(","));
-            p.RequestBlockchainSize();
+            // On each timed event we share our list of peers and check if the blockchain
+            // is in synch.
+            RequestBlockchainSizeAtPeers();
+            BroadcastPeers();
         }
 
         public static void BroadcastBlock(Block block)
@@ -65,6 +74,24 @@ namespace Core.P2p
             foreach (Peer p in peers)
             {
                 p.AcceptTransaction(t);
+            }
+        }
+
+        public static void BroadcastPeers()
+        {
+            Log.NewLine("Broadcasting peers.");
+            foreach (Peer p in peers)
+            {
+                p.AcceptPeers(GetPeersAsIps().Stringified(","));
+            }
+        }
+
+        public static void RequestBlockchainSizeAtPeers()
+        {
+            Log.NewLine($"Requesting blockchain sizes at peers.");
+            foreach (Peer p in peers)
+            {
+                p.RequestBlockchainSize();
             }
         }
 
@@ -110,7 +137,8 @@ namespace Core.P2p
                 p.ClosedConn += Peer_ClosedConn;
                 if (peers.Add(p))
                 {
-                    PeerConnected(p);
+                    // Save all peers to a file
+                    SavePeers(GetPeersAsIps().Distinct().ToArray());
                     return true;
                 }
                 return false;

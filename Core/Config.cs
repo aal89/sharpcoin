@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Core.Utilities;
+using Blockchain = Core.Blockchain.Blockchain;
 
 namespace Core
 {
@@ -21,6 +22,8 @@ namespace Core
         public static readonly int TcpConnectTimeout = 5000;
 
         public static readonly int PeerInterval = 15 * 60 * 1000; // in ms
+
+        public static readonly string BlockchainDirectory = "blockchain";
 
         public static ulong CalculateDifficulty(Blockchain Blockchain)
         {

@@ -2,7 +2,7 @@
 using Core.Crypto;
 using Core.Transactions;
 
-namespace Core
+namespace Core.Blockchain
 {
     public class GenesisBlock: Block
     {

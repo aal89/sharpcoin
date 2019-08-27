@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 using Core.Transactions;
 using Core.Crypto;
 
-namespace Core
+namespace Core.Blockchain
 {
     public class Block: IEquatable<Block>
     {

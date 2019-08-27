@@ -6,7 +6,7 @@ using Core.Exceptions;
 using Core.Transactions;
 using Core.Utilities;
 
-namespace Core
+namespace Core.Blockchain
 {
     public class Blockchain
     {
@@ -15,7 +15,7 @@ namespace Core
         private readonly HashSet<Transaction> QueuedTransactions = new HashSet<Transaction>(new TransactionComparer());
         private readonly Serializer Serializer = new Serializer();
 
-        private readonly string BlockchainDirectory = Path.Combine(Directory.GetCurrentDirectory(), "blockchain");
+        private readonly string BlockchainDirectory = Path.Combine(Directory.GetCurrentDirectory(), Config.BlockchainDirectory);
 
         public event EventHandler BlockAdded;
         public event EventHandler QueuedTransactionAdded;

@@ -10,47 +10,59 @@ namespace Core
 {
     public class Blockchain
     {
-        public enum Order
-        {
-            FIRST, LAST
-        }
+        private readonly Block Genesis = new GenesisBlock();
 
-        private readonly List<Block> Collection = new List<Block> { new GenesisBlock() };
-        private readonly HashSet<Transaction> QueuedTransactions = new HashSet<Transaction>();
+        private readonly HashSet<Transaction> QueuedTransactions = new HashSet<Transaction>(new TransactionComparer());
         private readonly Serializer Serializer = new Serializer();
+
+        private readonly string BlockchainDirectory = Path.Combine(Directory.GetCurrentDirectory(), "blockchain");
 
         public event EventHandler BlockAdded;
         public event EventHandler QueuedTransactionAdded;
 
         public Blockchain()
         {
-            if (!File.Exists(Path.Combine(Directory.GetCurrentDirectory(), "blockchain")))
+            if (!File.Exists(BlockchainDirectory))
+                Directory.CreateDirectory(BlockchainDirectory);
+
+            Validate();
+        }
+
+        private DirectoryInfo DirectoryInfo()
+        {
+            return new DirectoryInfo(BlockchainDirectory);
+        }
+
+        private void WriteBlock(Block Block)
+        {
+            File.WriteAllBytes(Path.Combine(BlockchainDirectory, $"{Block.Index}.block"), Serializer.Serialize(Block));
+        }
+
+        private Block ReadBlock(int index)
+        {
+            try
             {
-                Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), "blockchain"));
+                return Serializer.Deserialize<Block>(File.ReadAllBytes(Path.Combine(BlockchainDirectory, $"{index}.block")));
             }
-
-            DirectoryInfo Info = new DirectoryInfo(Path.Combine(Directory.GetCurrentDirectory(), "blockchain"));
-            FileInfo[] Paths = Info.GetFiles()
-                .Filter(p => p.Name.Contains(".block"))
-                .OrderBy(p => Int32.Parse(p.Name.Substring(0, p.Name.IndexOf(".", StringComparison.Ordinal))))
-                .ToArray();
-
-            // Load only the last section of blocks, this saves time and memory
-            Paths = Paths.TakeLast(Paths.Length % Config.SectionSize + Config.SectionSize).ToArray();
-
-            for (var i = 0; i < Paths.Length; i++)
+            catch
             {
-                FileInfo fi = Paths[i];
-                byte[] RawBlock = File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "blockchain", fi.Name));
-                // we only load the last section, so the first block might get incorrectly (correctly*) invalidated
-                // we skip validation for the first block loaded from disk
-                AddBlock(Serializer.Deserialize<Block>(RawBlock), i > 0, false, false);
+                return null;
             }
         }
 
-        public Block[] GetBlocks()
+        private void DeleteBlock(Block Block)
         {
-            return Collection.ToArray();
+            File.Delete(Path.Combine(BlockchainDirectory, $"{Block.Index}.block"));
+        }
+
+        public bool Validate()
+        {
+            for (var i = 1; i < Size(); i++)
+            {
+                bool IsFirstBlock = i == 1;
+                AddBlock(ReadBlock(i), IsFirstBlock ? Genesis : ReadBlock(i - 1), false, false);
+            }
+            return true;
         }
 
         // kind of obscure naming, but the blockchain is split up in parts of x
@@ -58,37 +70,29 @@ namespace Core
         // diff is recalculated every 2016 blocks (+- 2 weeks).
         public Block[] GetLastSection(int n = 1)
         {
-            if (Collection.Count >= Config.SectionSize * n)
+            int BlockchainSize = Size();
+            if (BlockchainSize >= Config.SectionSize * n)
             {
-                // Collection.Count is effectively the same as the block index
-                int PreviousSectionIndex = Collection.Count - (Collection.Count % Config.SectionSize) - Config.SectionSize * n;
-                return Collection.GetRange(PreviousSectionIndex, Config.SectionSize).ToArray();
+                // BlockchainSize is effectively the same as the block index
+                int PreviousSectionIndex = BlockchainSize - (BlockchainSize % Config.SectionSize) - Config.SectionSize * n;
+                Block[] BlockSection = new Block[Config.SectionSize];
+
+                for (int i = PreviousSectionIndex; i < PreviousSectionIndex + Config.SectionSize; i++)
+                    BlockSection[i - PreviousSectionIndex] = ReadBlock(i);
+
+                return BlockSection;
             }
             return null;
         }
 
-        public Block[] GetBlocks(int n, Order take = Order.FIRST)
-        {
-            if (take == Order.FIRST)
-            {
-                return Collection.Take(n).ToArray();
-            }
-            return Collection.TakeLast(n).ToArray();
-        }
-
         public Block GetBlockByIndex(int Index)
         {
-            return Collection.Find(Block => Block.Index == Index);
-        }
-
-        public Block GetBlockByHash(string Hash)
-        {
-            return Collection.Find(Block => Block.Hash == Hash);
+            return ReadBlock(Index) ?? Genesis;
         }
 
         public Block GetLastBlock()
         {
-            return Collection.Last();
+            return ReadBlock(Size());
         }
 
         public ulong GetDifficulty()
@@ -98,10 +102,8 @@ namespace Core
 
         public void QueueTransaction(Transaction tx)
         {
-            if (IsValidTransaction(tx) && tx.Verify())
+            if (IsValidTransaction(tx) && tx.Verify() && QueuedTransactions.Add(tx))
             {
-                QueuedTransactions.Add(tx);
-
                 // Fire the tx added event
                 QueuedTransactionAdded?.Invoke(tx, EventArgs.Empty);
             }
@@ -122,32 +124,24 @@ namespace Core
             return Collection.FlatMap(Block => Block.GetTransactions()).Filter(Tx => Tx.Id == Id).FirstOrDefault();
         }
 
-        public Transaction[] GetTransactions()
-        {
-            return Collection.FlatMap(Block => Block.GetTransactions()).ToArray();
-        }
-
         private readonly object removeblock_operation = new object();
         public void RemoveBlock(Block Block)
         {
             lock (removeblock_operation)
             {
-                Collection.Remove(Block);
+                DeleteBlock(Block);
             }
         }
 
         private readonly object addblock_operation = new object();
-        public void AddBlock(Block Block, bool check = true, bool save = true, bool triggerEvent = true)
+        public void AddBlock(Block Block, Block PreviousBlock, bool save = true, bool triggerEvent = true)
         {
             lock (addblock_operation)
             {
-                if (check)
-                    IsValidBlock(Block);
+                IsValidBlock(Block, PreviousBlock);
 
                 if (save)
-                    File.WriteAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "blockchain", $"{Block.Index}.block"), Serializer.Serialize(Block));
-
-                Collection.Add(Block);
+                    WriteBlock(Block);
 
                 // Fire the block added event
                 if (triggerEvent)
@@ -155,26 +149,24 @@ namespace Core
             }
         }
 
-        public bool IsValidBlock(Block NewBlock)
+        public bool IsValidBlock(Block NewBlock, Block PreviousBlock)
         {
-            Block LastBlock = GetLastBlock();
+            if (NewBlock == null || PreviousBlock == null)
+                throw new BlockAssertion($"New or previous block is null.");
 
-            if (NewBlock == null)
-                throw new BlockAssertion($"New block was null.");
-
-            if (NewBlock.Timestamp.Subtract(LastBlock.Timestamp).TotalSeconds < 0)
+            if (NewBlock.Timestamp.Subtract(PreviousBlock.Timestamp).TotalSeconds < 0)
             {
-                throw new BlockAssertion($"The new block is older than the last block. Timestamp last block {LastBlock.Timestamp}, timestamp new block {NewBlock.Timestamp}.");
+                throw new BlockAssertion($"The new block is older than the last block. Timestamp last block {PreviousBlock.Timestamp}, timestamp new block {NewBlock.Timestamp}.");
             }
 
-            if (NewBlock.Index != LastBlock.Index + 1)
+            if (NewBlock.Index != PreviousBlock.Index + 1)
             {
-                throw new BlockAssertion($"Not consecutive blocks. Expected new block index to be {LastBlock.Index + 1}, but got {NewBlock.Index}.");
+                throw new BlockAssertion($"Not consecutive blocks. Expected new block index to be {PreviousBlock.Index + 1}, but got {NewBlock.Index}.");
             }
 
-            if (NewBlock.PreviousHash != LastBlock.Hash)
+            if (NewBlock.PreviousHash != PreviousBlock.Hash)
             {
-                throw new BlockAssertion($"New block points to a different block. Previous hash of new block is {NewBlock.PreviousHash}, while hash of last block is {LastBlock.Hash}.");
+                throw new BlockAssertion($"New block points to a different block. Previous hash of new block is {NewBlock.PreviousHash}, while hash of last block is {PreviousBlock.Hash}.");
             }
 
             if (NewBlock.Hash != NewBlock.ToHash())
@@ -233,12 +225,14 @@ namespace Core
         public bool IsValidTransaction(Transaction tx)
         {
             // Double spend check
+            // todo: keep index of all unspent inputs
             if (GetTransactions().FlatMap(Tx => Tx.Inputs).Any(tx.ContainsInput))
             {
                 return false;
             }
 
             // Referenced output check
+            // todo: keep index of all txs
             if (!tx.Inputs.All(input => GetTransactionFromChain(input.Transaction).Outputs[input.Index].Corresponds(input)))
             {
                 return false;
@@ -249,7 +243,7 @@ namespace Core
 
         public int Size()
         {
-            return Collection.Count;
+            return DirectoryInfo().GetFiles().Filter(i => i.Name.Contains(".block")).Count();
         }
     }
 }

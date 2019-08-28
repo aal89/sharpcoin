@@ -28,33 +28,6 @@ namespace Core
             Validate();
         }
 
-        private DirectoryInfo DirectoryInfo()
-        {
-            return new DirectoryInfo(BlockchainDirectory);
-        }
-
-        private void WriteBlock(Block Block)
-        {
-            File.WriteAllBytes(Path.Combine(BlockchainDirectory, $"{Block.Index}.block"), Serializer.Serialize(Block));
-        }
-
-        private Block ReadBlock(int index)
-        {
-            try
-            {
-                return Serializer.Deserialize<Block>(File.ReadAllBytes(Path.Combine(BlockchainDirectory, $"{index}.block")));
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        private void DeleteBlock(Block Block)
-        {
-            File.Delete(Path.Combine(BlockchainDirectory, $"{Block.Index}.block"));
-        }
-
         public bool Validate()
         {
             for (var i = 1; i < Size(); i++)
@@ -239,6 +212,33 @@ namespace Core
             }
 
             return true;
+        }
+
+        private DirectoryInfo DirectoryInfo()
+        {
+            return new DirectoryInfo(BlockchainDirectory);
+        }
+
+        private void WriteBlock(Block Block)
+        {
+            File.WriteAllBytes(Path.Combine(BlockchainDirectory, $"{Block.Index}.block"), Serializer.Serialize(Block));
+        }
+
+        private Block ReadBlock(int index)
+        {
+            try
+            {
+                return Serializer.Deserialize<Block>(File.ReadAllBytes(Path.Combine(BlockchainDirectory, $"{index}.block")));
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private void DeleteBlock(Block Block)
+        {
+            File.Delete(Path.Combine(BlockchainDirectory, $"{Block.Index}.block"));
         }
 
         public int Size()

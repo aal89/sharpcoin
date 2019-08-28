@@ -4,7 +4,7 @@ using Core.Transactions;
 using Core.Utilities;
 using System.IO;
 
-namespace Core.Blockchain.Indexes
+namespace Core.Indexes
 {
     public class Transactions: Dictionary<string, int>
     {

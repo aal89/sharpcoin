@@ -6,7 +6,7 @@ using Core.Exceptions;
 using Core.Transactions;
 using Core.Utilities;
 
-namespace Core.Blockchain
+namespace Core
 {
     public class Blockchain
     {

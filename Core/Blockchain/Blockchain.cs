@@ -28,12 +28,10 @@ namespace Core
             Validate();
         }
 
-        public bool Validate()
+        public void Validate()
         {
             for (var i = 1; i < Size(); i++)
                 IsValidBlock(ReadBlock(i), i == 1 ? Genesis : ReadBlock(i - 1));
-
-            return true;
         }
 
         // kind of obscure naming, but the blockchain is split up in parts of x

@@ -1,5 +1,5 @@
 ﻿using System;
-namespace Core.Blockchain.Indexes
+namespace Core.Indexes
 {
     public class UnspentInputs
     {

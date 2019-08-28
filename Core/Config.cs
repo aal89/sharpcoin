@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Core.Utilities;
-using Blockchain = Core.Blockchain.Blockchain;
 
 namespace Core
 {

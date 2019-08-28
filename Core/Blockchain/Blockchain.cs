@@ -17,6 +17,8 @@ namespace Core
 
         private readonly string BlockchainDirectory = Path.Combine(Directory.GetCurrentDirectory(), Config.BlockchainDirectory);
 
+        // todo: implement indexes
+
         public event EventHandler BlockAdded;
         public event EventHandler QueuedTransactionAdded;
 
@@ -89,6 +91,7 @@ namespace Core
 
         public Transaction GetTransactionFromChain(string Id)
         {
+            // todo
             return null;
             //return Collection.FlatMap(Block => Block.GetTransactions()).Filter(Tx => Tx.Id == Id).FirstOrDefault();
         }
@@ -109,6 +112,8 @@ namespace Core
             {
                 IsValidBlock(Block, PreviousBlock);
                 WriteBlock(Block);
+
+                // todo: remove all txs from queued txs found in the newly added block
 
                 if (TriggerEvent)
                     BlockAdded?.Invoke(Block, EventArgs.Empty);

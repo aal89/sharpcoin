@@ -100,7 +100,7 @@ namespace Core.P2p.Tcpn
             {
                 Block block = serializer.Deserialize<Block>(data);
                 Log.NewLine($"Got block {block.Index}.");
-                core.Blockchain.AddBlock(block, true, true, false);
+                core.Blockchain.AddBlock(block, null, false);
             }
         }
 

@@ -58,16 +58,13 @@ namespace Core
         public bool Validate()
         {
             for (var i = 1; i < Size(); i++)
-            {
-                bool IsFirstBlock = i == 1;
-                AddBlock(ReadBlock(i), IsFirstBlock ? Genesis : ReadBlock(i - 1), false, false);
-            }
+                IsValidBlock(ReadBlock(i), i == 1 ? Genesis : ReadBlock(i - 1));
+
             return true;
         }
 
         // kind of obscure naming, but the blockchain is split up in parts of x
-        // blocks this is used to recalculate the diff. In bitcoin the blockchain
-        // diff is recalculated every 2016 blocks (+- 2 weeks).
+        // blocks this is used to recalculate the diff.
         public Block[] GetLastSection(int n = 1)
         {
             int BlockchainSize = Size();
@@ -135,24 +132,24 @@ namespace Core
         }
 
         private readonly object addblock_operation = new object();
-        public void AddBlock(Block Block, Block PreviousBlock, bool save = true, bool triggerEvent = true)
+        public void AddBlock(Block Block, Block PreviousBlock = null, bool TriggerEvent = true)
         {
             lock (addblock_operation)
             {
                 IsValidBlock(Block, PreviousBlock);
+                WriteBlock(Block);
 
-                if (save)
-                    WriteBlock(Block);
-
-                // Fire the block added event
-                if (triggerEvent)
+                if (TriggerEvent)
                     BlockAdded?.Invoke(Block, EventArgs.Empty);
             }
         }
 
-        public bool IsValidBlock(Block NewBlock, Block PreviousBlock)
+        public bool IsValidBlock(Block NewBlock, Block PreviousBlock = null)
         {
-            if (NewBlock == null || PreviousBlock == null)
+            if (PreviousBlock == null)
+                PreviousBlock = GetLastBlock();
+
+            if (NewBlock == null)
                 throw new BlockAssertion($"New or previous block is null.");
 
             if (NewBlock.Timestamp.Subtract(PreviousBlock.Timestamp).TotalSeconds < 0)

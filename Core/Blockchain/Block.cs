@@ -72,11 +72,12 @@ namespace Core
         {
             Serializer s = new Serializer();
             Transaction[] queued = bc.GetQueuedTransactions();
+            Block LastBlock = bc.GetLastBlock();
 
             Block b = new Block
             {
-                Index = bc.GetLastBlock().Index + 1,
-                PreviousHash = bc.GetLastBlock().Hash
+                Index = LastBlock.Index + 1,
+                PreviousHash = LastBlock.Hash
             };
 
             b.AddTransaction(Builder.MakeReward(skp, Config.BlockReward));

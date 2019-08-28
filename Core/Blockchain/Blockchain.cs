@@ -121,7 +121,8 @@ namespace Core
 
         public Transaction GetTransactionFromChain(string Id)
         {
-            return Collection.FlatMap(Block => Block.GetTransactions()).Filter(Tx => Tx.Id == Id).FirstOrDefault();
+            return null;
+            //return Collection.FlatMap(Block => Block.GetTransactions()).Filter(Tx => Tx.Id == Id).FirstOrDefault();
         }
 
         private readonly object removeblock_operation = new object();
@@ -226,10 +227,12 @@ namespace Core
         {
             // Double spend check
             // todo: keep index of all unspent inputs
-            if (GetTransactions().FlatMap(Tx => Tx.Inputs).Any(tx.ContainsInput))
-            {
-                return false;
-            }
+            // if(!tx.Inputs.All(in => utxos.Contains(in)))
+            //      do-shit
+            //if (GetTransactions().FlatMap(Tx => Tx.Inputs).Any(tx.ContainsInput))
+            //{
+            //    return false;
+            //}
 
             // Referenced output check
             // todo: keep index of all txs

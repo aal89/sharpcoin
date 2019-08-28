@@ -6,32 +6,42 @@ using System.IO;
 
 namespace Core.Indexes
 {
-    public class Transactions: Dictionary<string, int>
+    // Index<Transaction, string, int> = The index is for Transaction objects and we find them by the Id field which is a string, what it maps to is the block index which is an int.
+    public class Transactions: Index<Transaction, string, int>
     {
-        private readonly string BlockchainDirectory;
+        private readonly string DataDirectory;
         private readonly Blockchain Blockchain;
         private readonly Serializer serializer = new Serializer();
 
-        public Transactions(Blockchain Blockchain, string BlockchainDirectory)
+        public Transactions(Blockchain Blockchain, string DataDirectory)
         {
-            this.BlockchainDirectory = BlockchainDirectory;
+            this.DataDirectory = DataDirectory;
             this.Blockchain = Blockchain;
         }
 
-        public Transaction GetTransactionById(string Id)
+        public override Transaction Get(string Id)
         {
             return Blockchain.GetBlockByIndex(this[Id]).GetTransactions().Filter(tx => tx.Id == Id).FirstOrDefault();
         }
 
-        public new void Add(string key, int value)
+        public override string FilePath()
         {
-            base.Add(key, value);
-            Save();
+            return Path.Combine(Directory.GetCurrentDirectory(), DataDirectory, "txs.index");
         }
 
-        private void Save()
+        public override void Save()
         {
-            File.WriteAllBytes(Path.Combine(Directory.GetCurrentDirectory(), BlockchainDirectory), serializer.Serialize(this));
+            File.WriteAllBytes(FilePath(), serializer.Serialize(this));
+        }
+
+        public override void Read()
+        {
+            Transactions txIndex = serializer.Deserialize<Transactions>(File.ReadAllBytes(FilePath()));
+
+            foreach (KeyValuePair<string, int> entry in txIndex)
+            {
+                Add(entry.Key, entry.Value);
+            }
         }
     }
 }

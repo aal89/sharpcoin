@@ -19,6 +19,18 @@ namespace Core.Indexes
             return Find(output => output.Address == Id.Address && output.Amount == Id.Amount);
         }
 
+        public Output Shift(Output Id)
+        {
+            if (Get(Id) != null)
+            {
+                int index = FindIndex(output => output.Address == Id.Address && output.Amount == Id.Amount);
+                Output o = this[index];
+                RemoveAt(index);
+                return o;
+            }
+            return null;
+        }
+
         public override string FilePath()
         {
             return Path.Combine(Directory.GetCurrentDirectory(), DataDirectory, "utxo.index");

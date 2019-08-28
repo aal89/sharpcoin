@@ -4,6 +4,7 @@ using Core.Utilities;
 
 namespace Core.Indexes
 {
+    // Essentially just a list of Outputs, but then with file operations
     public class UnspentOutputs: Index<Output>
     {
         private readonly string DataDirectory;

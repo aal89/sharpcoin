@@ -21,9 +21,8 @@ namespace Core
         {
             Log.NewLine("sharpcoin v0.1 -- core by aal89");
             // Load blockchain
-            Log.Line($"Loading blockchain...");
-            Blockchain = new Blockchain();
-            Log.Append($"Done. Size is {Blockchain.Size()}.");
+            Log.NewLine($"Initializing blockchain.");
+            Blockchain = new Blockchain(new Logger("Blockchain"));
             // Setup event listeners
             Log.Line("Setting up event listeners...");
             Blockchain.BlockAdded += Blockchain_BlockAdded;

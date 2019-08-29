@@ -10,30 +10,47 @@ namespace Core
 {
     public class Blockchain
     {
-        private readonly Block Genesis = new GenesisBlock();
+        private readonly ILoggable Log;
 
+        private readonly Block Genesis = new GenesisBlock();
         private readonly HashSet<Transaction> QueuedTransactions = new HashSet<Transaction>(new TransactionComparer());
         private readonly Serializer Serializer = new Serializer();
 
         private readonly string BlockchainDirectory = Path.Combine(Directory.GetCurrentDirectory(), Config.BlockchainDirectory);
 
-        // todo: implement indexes
+        private readonly Indexes.Transactions Transactions;
+        private readonly Indexes.UnspentOutputs UnspentOutputs;
 
         public event EventHandler BlockAdded;
         public event EventHandler QueuedTransactionAdded;
 
-        public Blockchain()
+        public Blockchain(ILoggable Log = null)
         {
+            this.Log = Log ?? new NullLogger();
+
             if (!File.Exists(BlockchainDirectory))
                 Directory.CreateDirectory(BlockchainDirectory);
 
+            
             Validate();
+            
+            Transactions = new Indexes.Transactions(this, Config.BlockchainDirectory);
+            Log.NewLine($"Loading txs index.");
+            Transactions.Read();
+            UnspentOutputs = new Indexes.UnspentOutputs(Config.BlockchainDirectory);
+            Log.NewLine($"Loading utxo index.");
+            UnspentOutputs.Read();
         }
 
         public void Validate()
         {
+            Log.NewLine("Validating blockchain.");
             for (var i = 1; i < Size(); i++)
+            {
                 IsValidBlock(ReadBlock(i), i == 1 ? Genesis : ReadBlock(i - 1));
+                Log.NewLine($"Block {i} is valid!");
+            }
+            Log.NewLine($"Valid! Size is {Size()}.");
         }
 
         // kind of obscure naming, but the blockchain is split up in parts of x
@@ -89,13 +106,6 @@ namespace Core
             return QueuedTransactions.ToList().Find(Tx => Tx.Id == Id);
         }
 
-        public Transaction GetTransactionFromChain(string Id)
-        {
-            // todo
-            return null;
-            //return Collection.FlatMap(Block => Block.GetTransactions()).Filter(Tx => Tx.Id == Id).FirstOrDefault();
-        }
-
         private readonly object removeblock_operation = new object();
         public void RemoveBlock(Block Block)
         {
@@ -110,10 +120,24 @@ namespace Core
         {
             lock (addblock_operation)
             {
+                // Check block
                 IsValidBlock(Block, PreviousBlock);
+
+                // Write block out to disk
                 WriteBlock(Block);
 
-                // todo: remove all txs from queued txs found in the newly added block
+                // Remove all queued transactions that got included in the valid block
+                QueuedTransactions.RemoveWhere(tx => Block.GetTransactions().Any(btx => btx.Id == tx.Id));
+
+                // Remove all unspent outputs from the index that got used for this blocks transactions.
+                // todo
+
+                // Create indexes for all the new data this block adds
+                foreach (Transaction tx in Block.GetTransactions())
+                    Transactions.Add(tx.Id, Block.Index);
+
+                foreach (Output output in Block.GetTransactions().FlatMap(tx => tx.Outputs))
+                    UnspentOutputs.Add(output);
 
                 if (TriggerEvent)
                     BlockAdded?.Invoke(Block, EventArgs.Empty);
@@ -175,7 +199,7 @@ namespace Core
 
             // Somewhat more expensive operations
 
-            if (NewBlock.GetTransactions().Any(Tx => GetTransactionFromChain(Tx.Id) != null))
+            if (NewBlock.GetTransactions().Any(Tx => Transactions.Get(Tx.Id) != null))
             {
                 throw new BlockAssertion($"New block contains duplicate transactions.");
             }
@@ -199,17 +223,14 @@ namespace Core
         public bool IsValidTransaction(Transaction tx)
         {
             // Double spend check
-            // todo: keep index of all unspent inputs
-            // if(!tx.Inputs.All(in => utxos.Contains(in)))
-            //      do-shit
-            //if (GetTransactions().FlatMap(Tx => Tx.Inputs).Any(tx.ContainsInput))
-            //{
-            //    return false;
-            //}
+            if (UnspentOutputs.Shift())
+            if (GetTransactions().FlatMap(Tx => Tx.Inputs).Any(tx.ContainsInput))
+            {
+                return false;
+            }
 
             // Referenced output check
-            // todo: keep index of all txs
-            if (!tx.Inputs.All(input => GetTransactionFromChain(input.Transaction).Outputs[input.Index].Corresponds(input)))
+            if (!tx.Inputs.All(input => Transactions.Get(input.Transaction).Outputs[input.Index].Corresponds(input)))
             {
                 return false;
             }

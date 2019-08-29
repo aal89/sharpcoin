@@ -31,15 +31,14 @@ namespace Core
             if (!File.Exists(BlockchainDirectory))
                 Directory.CreateDirectory(BlockchainDirectory);
 
-            
-            Validate();
-            
             Transactions = new Indexes.Transactions(this, Config.BlockchainDirectory);
             Log.NewLine($"Loading txs index.");
             Transactions.Read();
             UnspentOutputs = new Indexes.UnspentOutputs(Config.BlockchainDirectory);
             Log.NewLine($"Loading utxo index.");
             UnspentOutputs.Read();
+
+            Validate();
         }
 
         public void Validate()
@@ -126,16 +125,17 @@ namespace Core
                 // Write block out to disk
                 WriteBlock(Block);
 
-                // Remove all queued transactions that got included in the valid block
+                // Remove all queued transactions that got included in the valid block.
                 QueuedTransactions.RemoveWhere(tx => Block.GetTransactions().Any(btx => btx.Id == tx.Id));
 
                 // Remove all unspent outputs from the index that got used for this blocks transactions.
-                // todo
+                foreach (Output output in Block.GetTransactions().FlatMap(tx => tx.Outputs))
+                    UnspentOutputs.Remove(output);
 
-                // Create indexes for all the new data this block adds
+                // Create indexes for all the new data this block adds.
                 foreach (Transaction tx in Block.GetTransactions())
                     Transactions.Add(tx.Id, Block.Index);
-
+                // Keep track of new utxo's.
                 foreach (Output output in Block.GetTransactions().FlatMap(tx => tx.Outputs))
                     UnspentOutputs.Add(output);
 
@@ -223,8 +223,7 @@ namespace Core
         public bool IsValidTransaction(Transaction tx)
         {
             // Double spend check
-            if (UnspentOutputs.Shift())
-            if (GetTransactions().FlatMap(Tx => Tx.Inputs).Any(tx.ContainsInput))
+            if (tx.Inputs.Any(input => UnspentOutputs.Get(input.AsOutput()) == null))
             {
                 return false;
             }

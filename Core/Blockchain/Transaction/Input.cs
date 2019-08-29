@@ -21,6 +21,15 @@ namespace Core.Transactions
             Signature = Skp.Sign(Hash.Sha1(ToString()));
         }
 
+        public Output AsOutput()
+        {
+            return new Output
+            {
+                Amount = Amount,
+                Address = Address
+            };
+        }
+
         public override string ToString()
         {
             return $"{Transaction}{Index}{Amount}{Address}";

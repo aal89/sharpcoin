@@ -32,7 +32,7 @@ namespace Core
                 Directory.CreateDirectory(BlockchainDirectory);
 
             Transactions = new Indexes.Transactions(this, Config.BlockchainDirectory);
-            Log.NewLine($"Loading txs index.");
+            Log.NewLine($"Loading tx index.");
             Transactions.Read();
             UnspentOutputs = new Indexes.UnspentOutputs(Config.BlockchainDirectory);
             Log.NewLine($"Loading utxo index.");

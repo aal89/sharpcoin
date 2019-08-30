@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using Core.Transactions;
 using Core.Utilities;
 
@@ -13,6 +14,9 @@ namespace Core.Indexes
         public UnspentOutputs(string DataDirectory)
         {
             this.DataDirectory = DataDirectory;
+
+            if (!File.Exists(FilePath()))
+                File.Create(FilePath()).Dispose();
         }
 
         public override Output Get(Output Id)
@@ -32,12 +36,12 @@ namespace Core.Indexes
 
         public override void Read()
         {
-            UnspentOutputs utxo = serializer.Deserialize<UnspentOutputs>(File.ReadAllBytes(FilePath()));
+            // Todo: Admittedly the Index abstraction is quite leaky... The List<Output> detail shouldn't really be here.
+            List<Output> utxo = serializer.Deserialize<List<Output>>(File.ReadAllBytes(FilePath()));
 
-            foreach (Output output in utxo)
-            {
-                Add(output);
-            }
+            if (utxo != null)
+                foreach (Output output in utxo)
+                    Add(output);
         }
     }
 }

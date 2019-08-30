@@ -17,11 +17,21 @@ namespace Core.Indexes
         {
             this.DataDirectory = DataDirectory;
             this.Blockchain = Blockchain;
+
+            if (!File.Exists(FilePath()))
+                File.Create(FilePath()).Dispose();
         }
 
         public override Transaction Get(string Id)
         {
-            return Blockchain.GetBlockByIndex(this[Id]).GetTransactions().Filter(tx => tx.Id == Id).FirstOrDefault();
+            try
+            {
+                return Blockchain.GetBlockByIndex(this[Id]).GetTransactions().Filter(tx => tx.Id == Id).FirstOrDefault();
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public override string FilePath()
@@ -36,12 +46,12 @@ namespace Core.Indexes
 
         public override void Read()
         {
-            Transactions txIndex = serializer.Deserialize<Transactions>(File.ReadAllBytes(FilePath()));
+            // Todo: Admittedly the Index abstraction is quite leaky... The Dictionary<string, int> detail shouldn't really be here.
+            Dictionary<string, int> txIndex = serializer.Deserialize<Dictionary<string, int>>(File.ReadAllBytes(FilePath()));
 
-            foreach (KeyValuePair<string, int> entry in txIndex)
-            {
-                Add(entry.Key, entry.Value);
-            }
+            if (txIndex != null)
+                foreach (KeyValuePair<string, int> entry in txIndex)
+                    Add(entry.Key, entry.Value);
         }
     }
 }

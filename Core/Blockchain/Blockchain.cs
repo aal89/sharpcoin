@@ -31,25 +31,39 @@ namespace Core
             if (!File.Exists(BlockchainDirectory))
                 Directory.CreateDirectory(BlockchainDirectory);
 
-            Transactions = new Indexes.Transactions(this, Config.BlockchainDirectory);
             Log.NewLine($"Loading tx index.");
+            Transactions = new Indexes.Transactions(this, Config.BlockchainDirectory);
             Transactions.Read();
-            UnspentOutputs = new Indexes.UnspentOutputs(Config.BlockchainDirectory);
+
             Log.NewLine($"Loading utxo index.");
+            UnspentOutputs = new Indexes.UnspentOutputs(Config.BlockchainDirectory);
             UnspentOutputs.Read();
 
+            Log.NewLine($"Validating blockchain.");
             Validate();
+            Log.NewLine($"Valid!");
         }
 
         public void Validate()
         {
-            Log.NewLine("Validating blockchain.");
-            for (var i = 1; i < Size(); i++)
+            // In order to validate we have to continuously build up the index as it was written at the time
+            // of the block mined was added to the chain.
+            // So we clear the indexes if we have any loaded.
+            ClearIndexes();
+
+            // Keep track of the blockchain size.
+            int BcSize = Size();
+
+            for (var i = 1; i <= BcSize; i++)
             {
-                IsValidBlock(ReadBlock(i), i == 1 ? Genesis : ReadBlock(i - 1));
-                Log.NewLine($"Block {i} is valid!");
+                // Get the block to be checked
+                Block CurrentBlock = ReadBlock(i);
+                // Is it valid?
+                IsValidBlock(CurrentBlock, i == 1 ? Genesis : ReadBlock(i - 1));
+                // If so create the indexes for that block, but dont save them.
+                CreateIndexes(CurrentBlock, false);
+                Log.NewLine($"Block {i}/{BcSize} is valid!");
             }
-            Log.NewLine($"Valid! Size is {Size()}.");
         }
 
         // kind of obscure naming, but the blockchain is split up in parts of x
@@ -128,19 +142,59 @@ namespace Core
                 // Remove all queued transactions that got included in the valid block.
                 QueuedTransactions.RemoveWhere(tx => Block.GetTransactions().Any(btx => btx.Id == tx.Id));
 
-                // Remove all unspent outputs from the index that got used for this blocks transactions.
-                foreach (Output output in Block.GetTransactions().FlatMap(tx => tx.Outputs))
-                    UnspentOutputs.Remove(output);
-
-                // Create indexes for all the new data this block adds.
-                foreach (Transaction tx in Block.GetTransactions())
-                    Transactions.Add(tx.Id, Block.Index);
-                // Keep track of new utxo's.
-                foreach (Output output in Block.GetTransactions().FlatMap(tx => tx.Outputs))
-                    UnspentOutputs.Add(output);
+                // Creates indexes for this newly added block.
+                CreateIndexes(Block);
 
                 if (TriggerEvent)
                     BlockAdded?.Invoke(Block, EventArgs.Empty);
+            }
+        }
+
+        private void ClearIndexes()
+        {
+            if (Transactions != null && UnspentOutputs != null)
+            {
+                Transactions.Clear();
+                UnspentOutputs.Clear();
+            }
+        }
+
+        private void CreateIndexes(Block Block, bool Save = true)
+        {
+            // 1st part is easy, just keep track of all the new txs this block generates
+
+            // Create indexes for all the txs on the given block.
+            foreach (Transaction tx in Block.GetTransactions())
+                Transactions.Add(tx.Id, Block.Index);
+
+            // 2nd part requires some understanding; first we remove all the (unspent) outputs on this block
+            // that were used as inputs and remove them from the utxo index.
+
+            // Get all the inputs on this block and remove them as being an output.
+            foreach (Input input in Block.GetTransactions().FlatMap(tx => tx.Inputs))
+                UnspentOutputs.Remove(input.AsOutput());
+
+            // Then, we keep track of the newly generated outputs that those inputs created.
+            foreach (Output output in Block.GetTransactions().FlatMap(tx => tx.Outputs))
+                UnspentOutputs.Add(output);
+
+            if (Save)
+            {
+                Transactions.Save();
+                UnspentOutputs.Save();
+            }
+        }
+
+        public void RebuildIndexes()
+        {
+            ClearIndexes();
+
+            int BcSize = Size();
+
+            for (var i = 1; i <= BcSize; i++)
+            {
+                CreateIndexes(ReadBlock(i));
+                Log.NewLine($"Block {i}/{BcSize} is indexed.");
             }
         }
 

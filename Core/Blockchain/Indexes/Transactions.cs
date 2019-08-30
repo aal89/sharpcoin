@@ -36,7 +36,7 @@ namespace Core.Indexes
 
         public override string FilePath()
         {
-            return Path.Combine(Directory.GetCurrentDirectory(), DataDirectory, "txs.index");
+            return Path.Combine(Directory.GetCurrentDirectory(), DataDirectory, "tx.index");
         }
 
         public override void Save()

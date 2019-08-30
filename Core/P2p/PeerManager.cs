@@ -29,6 +29,8 @@ namespace Core.P2p
                 File.Create(peersPath).Dispose();
             }
 
+            Log.NewLine("Setting up server and accepting connections...");
+
             // Take some unique random ips from all the saved peers to connect to initially.
             string[] ips = File.ReadAllLines(peersPath)
                 .Distinct()

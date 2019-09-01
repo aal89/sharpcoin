@@ -47,8 +47,8 @@ namespace Core
         public void Validate()
         {
             // In order to validate we have to continuously build up the index as it was written at the time
-            // of the block mined was added to the chain.
-            // So we clear the indexes if we have any loaded.
+            // of the block mined was added to the chain. So we clear the indexes if we have any loaded.
+            // As an addition we also save this index when the last block got processed.
             ClearIndexes();
 
             // Keep track of the blockchain size.
@@ -60,8 +60,8 @@ namespace Core
                 Block CurrentBlock = ReadBlock(i);
                 // Is it valid?
                 IsValidBlock(CurrentBlock, i == 1 ? Genesis : ReadBlock(i - 1));
-                // If so create the indexes for that block, but dont save them.
-                CreateIndexes(CurrentBlock, false);
+                // If so create the indexes for that block, but save them only at the last iteration processed.
+                CreateIndexes(CurrentBlock, i == BcSize);
                 Log.NewLine($"Block {i}/{BcSize} is valid!");
             }
         }
@@ -92,7 +92,7 @@ namespace Core
 
         public Block GetLastBlock()
         {
-            return ReadBlock(Size());
+            return ReadBlock(Size()) ?? Genesis;
         }
 
         public ulong GetDifficulty()
@@ -119,16 +119,17 @@ namespace Core
             return QueuedTransactions.ToList().Find(Tx => Tx.Id == Id);
         }
 
-        private readonly object removeblock_operation = new object();
+        private readonly static object removeblock_operation = new object();
         public void RemoveBlock(Block Block)
         {
             lock (removeblock_operation)
             {
+                RemoveIndexes(Block);
                 DeleteBlock(Block);
             }
         }
 
-        private readonly object addblock_operation = new object();
+        private readonly static object addblock_operation = new object();
         public void AddBlock(Block Block, Block PreviousBlock = null, bool TriggerEvent = true)
         {
             lock (addblock_operation)
@@ -185,6 +186,18 @@ namespace Core
             }
         }
 
+        public void RemoveIndexes(Block Block)
+        {
+            foreach (Transaction tx in Block.GetTransactions())
+                Transactions.Remove(tx.Id);
+
+            foreach (Output output in Block.GetTransactions().FlatMap(tx => tx.Outputs))
+                UnspentOutputs.Remove(output);
+
+            Transactions.Save();
+            UnspentOutputs.Save();
+        }
+
         public void RebuildIndexes()
         {
             ClearIndexes();
@@ -193,7 +206,8 @@ namespace Core
 
             for (var i = 1; i <= BcSize; i++)
             {
-                CreateIndexes(ReadBlock(i));
+                // Save indexes only when we processed the last block (i == BcSize).
+                CreateIndexes(ReadBlock(i), i == BcSize);
                 Log.NewLine($"Block {i}/{BcSize} is indexed.");
             }
         }
@@ -315,7 +329,8 @@ namespace Core
 
         private void DeleteBlock(Block Block)
         {
-            File.Delete(Path.Combine(BlockchainDirectory, $"{Block.Index}.block"));
+            if (Block != null)
+                File.Delete(Path.Combine(BlockchainDirectory, $"{Block.Index}.block"));
         }
 
         public int Size()

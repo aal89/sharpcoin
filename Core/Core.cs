@@ -47,7 +47,7 @@ namespace Core
             Block b = (Block)sender;
             // Broadcast block to all peers
             PeerManager.BroadcastBlock(b);
-            // Iff were mining; stop and start again
+            // Iff were mining, stop.
             if (IsMining)
             {
                 StopMining();
@@ -91,7 +91,6 @@ namespace Core
         public void StopMining()
         {
             IsMining = false;
-            MineThread.Abort();
         }
 
         static void Main() => new Core();

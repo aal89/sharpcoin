@@ -48,18 +48,19 @@ namespace Core.P2p.Tcpn
             lock (synchchain_operation)
             {
                 int BcSize = core.Blockchain.Size();
-                // When synching with a peer we try to pull some extra blocks (the diff in size
-                // times 2). This is to prevent orphan blocks that we may have to be overwritten
-                // with blocks from the
-                // peer as its chain is longer. Bringing us into synch again.
-                // Note: this does require us to remove the last x blocks from our chain first.
-                int reducedSize = Math.Max(1, BcSize - (peerSize - BcSize) * 2);
+                // When synching with a peer we try to pull in some extra blocks (see 
+                // reducedSize). This is a way to solve orphanchains with fewer (or
+                // no) hashing power. Eventually the chain supported by the most hashing
+                // power should win and becomes the truth again.
+                int reducedSize = Math.Max(1, BcSize - (peerSize - BcSize));
 
+                // Synch for our reduced size untill we have the size of our peer,
+                // delete our block before requesting the new one.
                 for (int i = reducedSize; i <= peerSize; i++)
                 {
                     core.Blockchain.RemoveBlock(core.Blockchain.GetBlockByIndex(i));
-                    Thread.Sleep(250);
                     RequestBlock(i);
+                    Thread.Sleep(100);
                 }
             }
         }

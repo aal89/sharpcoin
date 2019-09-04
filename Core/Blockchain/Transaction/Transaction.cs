@@ -77,6 +77,11 @@ namespace Core.Transactions
             return Type == TransactionType.REWARD && Inputs.Length == 0 && Outputs.Length == 1 && Outputs[0].Amount == Equates;
         }
 
+        public bool IsDefaultTransaction()
+        {
+            return Type == TransactionType.DEFAULT;
+        }
+
         public override string ToString()
         {
             return $"{Id}{InputsConcatenated}{OutputsConcatenated}";

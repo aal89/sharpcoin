@@ -67,6 +67,11 @@ namespace Core
             return Utilities.Hash.Sha256($"{Index}{PreviousHash}{Timestamp.ToString("MM/dd/yyyy HH:mm:ss")}{Nonce}{Version}{Transactions.Stringified()}");
         }
 
+        public bool Equals(Block other)
+        {
+            return other != null && Hash == other.Hash;
+        }
+
         // Creates a next block based on the chain given with a reward tx for the keypair.
         public static Block Create(SharpKeyPair skp, Blockchain bc)
         {
@@ -88,8 +93,8 @@ namespace Core
                 try
                 {
                     Transaction tx = queued[count++];
-                    // Only add verified and valid transactions to the block
-                    if (tx.Verify() && bc.IsValidTransaction(tx))
+                    // Only add verified, valid and non reward transactions to the block
+                    if (tx.Verify() && bc.IsValidTransaction(tx) && tx.IsDefaultTransaction())
                         b.AddTransaction(tx);
                 } catch
                 {
@@ -100,11 +105,6 @@ namespace Core
             b.Hash = b.ToHash();
 
             return b;
-        }
-
-        public bool Equals(Block other)
-        {
-            return other != null && Hash == other.Hash;
         }
     }
 }

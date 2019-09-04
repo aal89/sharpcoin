@@ -203,8 +203,12 @@ namespace Core.P2p.Tcpn
         protected override void RequestTransactionResponse(byte[] data)
         {
             Transaction tx = serializer.Deserialize<Transaction>(data);
-            Log.NewLine($"Got transaction {tx.Id}.");
-            core.Blockchain.QueueTransaction(tx);
+
+            if (tx.Verify() && tx.IsDefaultTransaction())
+            {
+                Log.NewLine($"Got transaction {tx.Id}.");
+                core.Blockchain.QueueTransaction(tx);
+            }
         }
 
         // =====
@@ -218,8 +222,13 @@ namespace Core.P2p.Tcpn
         protected override void ServeAcceptTransaction(byte[] data)
         {
             Transaction tx = serializer.Deserialize<Transaction>(data);
-            Log.NewLine($"Accepting transaction {tx.Id}.");
-            core.Blockchain.QueueTransaction(tx);
+            
+            if (tx.Verify() && tx.IsDefaultTransaction())
+            {
+                Log.NewLine($"Accepting transaction {tx.Id}.");
+                core.Blockchain.QueueTransaction(tx);
+            }
+                
             Send(Operation.Codes["AcceptTransactionResponse"], Operation.OK());
         }
 

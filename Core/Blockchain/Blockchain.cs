@@ -100,13 +100,15 @@ namespace Core
             return Config.CalculateDifficulty(this);
         }
 
-        public void QueueTransaction(Transaction tx)
+        public bool QueueTransaction(Transaction tx)
         {
             if (IsValidTransaction(tx) && tx.Verify() && QueuedTransactions.Add(tx))
             {
                 // Fire the tx added event
                 QueuedTransactionAdded?.Invoke(tx, EventArgs.Empty);
+                return true;
             }
+            return false;
         }
 
         public Transaction[] GetQueuedTransactions()
@@ -270,6 +272,11 @@ namespace Core
             if (NewBlock.GetTransactions().Any(Tx => Transactions.Get(Tx.Id) != null))
             {
                 throw new BlockAssertion($"New block contains duplicate transactions.");
+            }
+
+            if (NewBlock.GetTransactions().FlatMap(tx => tx.Inputs).ContainsDuplicates())
+            {
+                throw new BlockAssertion($"New block contains duplicate inputs.");
             }
 
             if (!NewBlock.GetTransactions().Filter(RTx => RTx.Type != Transaction.TransactionType.REWARD).All(Tx => Tx.Equates() && Tx.Verify()))

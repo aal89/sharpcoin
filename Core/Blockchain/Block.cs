@@ -18,7 +18,7 @@ namespace Core
         public byte Version = 0x00;
 
         [JsonProperty]
-        private readonly List<Transaction> Transactions = new List<Transaction>();
+        private readonly HashSet<Transaction> Transactions = new HashSet<Transaction>(new TransactionComparer());
 
         public Block()
         {
@@ -26,7 +26,7 @@ namespace Core
         }
 
         [JsonConstructor]
-        public Block(List<Transaction> Transactions)
+        public Block(HashSet<Transaction> Transactions)
         {
             this.Transactions = Transactions;
             Hash = ToHash();
@@ -59,7 +59,7 @@ namespace Core
 
         public Transaction GetRewardTransaction()
         {
-            return Transactions.Find(Tx => Tx.Type == Transaction.TransactionType.REWARD);
+            return Transactions.Filter(Tx => Tx.Type == Transaction.TransactionType.REWARD).FirstOrDefault();
         }
 
         public string ToHash()

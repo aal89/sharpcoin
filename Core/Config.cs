@@ -18,6 +18,8 @@ namespace Core
 
         public static readonly int TcpPort = 18910;
 
+        public static readonly int TcpPortApi = 18911;
+
         public static readonly int TcpConnectTimeout = 5000;
 
         public static readonly int PeerInterval = 15 * 60 * 1000; // in ms

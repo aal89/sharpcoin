@@ -1,7 +1,7 @@
 ﻿using Core.Tcp;
 using System.Net.Sockets;
 
-namespace Core.P2p.Tcpn
+namespace Core.P2p.Network
 {
     public class PeerServer : TcpServer
     {

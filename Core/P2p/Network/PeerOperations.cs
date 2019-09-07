@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Core.Tcp;
 
-namespace Core.P2p.Tcpn
+namespace Core.P2p.Network
 {
     public class PeerOperations : Operations
     {

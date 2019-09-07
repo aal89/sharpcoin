@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using Core.Transactions;
 
-namespace Core.P2p.Tcpn
+namespace Core.P2p.Network
 {
     public abstract class AbstractPeer: ConnectionHandler
     {

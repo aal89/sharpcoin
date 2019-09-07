@@ -3,7 +3,7 @@ using System.Linq;
 using System.IO;
 using Core.Utilities;
 using Core.Transactions;
-using Core.P2p.Tcpn;
+using Core.P2p.Network;
 using System.Net.Sockets;
 using System.Timers;
 

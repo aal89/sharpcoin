@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Core.P2p.Tcpn;
+using Core.P2p.Network;
 
 namespace Core.Utilities
 {

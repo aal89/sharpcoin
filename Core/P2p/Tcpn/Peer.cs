@@ -216,20 +216,20 @@ namespace Core.P2p.Tcpn
         public override void AcceptTransaction(Transaction tx)
         {
             Log.NewLine($"Sending transaction {tx.Id}.");
-            Send(Operation.Codes["AcceptTransactions"], serializer.Serialize(tx));
+            Send(Operation.Codes["AcceptTransaction"], serializer.Serialize(tx));
         }
 
         protected override void ServeAcceptTransaction(byte[] data)
         {
             Transaction tx = serializer.Deserialize<Transaction>(data);
             
-            if (tx.Verify() && tx.IsDefaultTransaction())
+            if (tx.Verify() && tx.IsDefaultTransaction() && core.Blockchain.QueueTransaction(tx))
             {
-                Log.NewLine($"Accepting transaction {tx.Id}.");
-                core.Blockchain.QueueTransaction(tx);
+                Send(Operation.Codes["AcceptTransactionResponse"], Operation.OK());
+            } else
+            {
+                Send(Operation.Codes["AcceptTransactionResponse"], Operation.NOOP());
             }
-                
-            Send(Operation.Codes["AcceptTransactionResponse"], Operation.OK());
         }
 
         protected override void AcceptTransactionResponse(byte[] data)

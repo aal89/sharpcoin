@@ -19,7 +19,7 @@ namespace Core
 
         public Core()
         {
-            Log.NewLine("sharpcoin v0.1 -- core by aal89");
+            Log.NewLine("sharpcoin (core) v0.1 -- by aal89");
             // Load blockchain
             Log.NewLine($"Initializing blockchain.");
             Blockchain = new Blockchain(new Logger("Blockchain"));

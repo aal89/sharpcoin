@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Core.Tcpn
+namespace Core.P2p.Tcpn
 {
     public static class Operation
     {

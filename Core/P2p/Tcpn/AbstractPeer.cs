@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Net.Sockets;
-using Core.Tcpn;
 using Core.Transactions;
 
 namespace Core.P2p.Tcpn

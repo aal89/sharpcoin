@@ -1,9 +1,10 @@
 ﻿using Core.Utilities;
 using Core.Crypto;
+using System;
 
 namespace Core.Transactions
 {
-    public class Input
+    public class Input : IEquatable<Input>
     {
         public string Transaction = "";
         public int Index;
@@ -33,6 +34,19 @@ namespace Core.Transactions
         public override string ToString()
         {
             return $"{Transaction}{Index}{Amount}{Address}";
+        }
+
+        public bool Equals(Input other)
+        {
+            return other != null
+                && other.Transaction == Transaction
+                && other.Index == Index
+                && other.Amount == Amount;
+        }
+
+        public override int GetHashCode()
+        {
+            return ToString().GetHashCode();
         }
     }
 }

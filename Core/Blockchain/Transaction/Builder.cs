@@ -11,6 +11,8 @@ namespace Core.Transactions
         private readonly List<(Transaction, int)> uouts = new List<(Transaction, int)>();
         private readonly List<(string, long)> nouts = new List<(string, long)>();
 
+        private Transaction Product;
+
         public Builder(SharpKeyPair skp)
         {
             this.skp = skp;
@@ -31,8 +33,11 @@ namespace Core.Transactions
             return Make(skp, uouts.ToArray())(nouts.ToArray())(null);
         }
 
-        public static Func<(string address, long amount)[], Func<string, Transaction>> Make(SharpKeyPair skp, (Transaction tx, int index)[] uouts)
+        public Func<(string address, long amount)[], Func<string, Transaction>> Make(SharpKeyPair skp, (Transaction tx, int index)[] uouts)
         {
+            if (Product != null)
+                throw new BuilderException(Product, "Builder has already built a transaction. To build a new transaction, create a new builder first.");
+
             List<Input> ins = new List<Input>();
 
             foreach ((Transaction tx, int outindex) in uouts)
@@ -89,7 +94,9 @@ namespace Core.Transactions
                         throw new BuilderException(newtx, "The constructed transaction is not balanced or signed right.");
                     }
 
-                    return newtx;
+                    Product = newtx;
+
+                    return Product;
                 };
             };
         }

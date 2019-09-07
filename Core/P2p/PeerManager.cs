@@ -48,7 +48,7 @@ namespace Core.P2p
             Interval.Enabled = true;
 
             // Final step: initiate the server
-            _ = new TcpServer(Config.TcpPort);
+            _ = new PeerServer(Config.TcpPort);
         }
 
         // Peer operations

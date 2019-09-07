@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading;
 using Core.Utilities;
 
-namespace Core.P2p.Tcpn
+namespace Core.Tcp
 {
     public abstract class ConnectionHandler
     {
@@ -50,8 +50,6 @@ namespace Core.P2p.Tcpn
             client.Dispose();
         }
 
-        protected abstract void ClosedConnection();
-
         protected void Send(byte type, string data)
         {
             Send(type, Encoding.UTF8.GetBytes(data));
@@ -74,5 +72,6 @@ namespace Core.P2p.Tcpn
         }
 
         public abstract void Incoming(byte type, byte[] data);
+        protected abstract void ClosedConnection();
     }
 }

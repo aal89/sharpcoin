@@ -7,7 +7,7 @@ namespace Core.P2p.Tcpn
     public abstract class AbstractPeer: ConnectionHandler
     {
         protected readonly Core core;
-        protected readonly Dictionary<string, byte> Opcodes = Operation.Codes;
+        protected readonly Dictionary<string, byte> Opcodes = new PeerOperations().Codes;
 
         protected AbstractPeer(Core core, TcpClient client) : base(client)
         {

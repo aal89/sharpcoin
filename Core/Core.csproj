@@ -15,6 +15,8 @@
     <Folder Include="P2p\Tcpn\" />
     <Folder Include="Blockchain\Indexes\" />
     <Folder Include="Blockchain\Transaction\" />
+    <Folder Include="Api\" />
+    <Folder Include="Tcp\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Security.Cryptography.Cng" Version="4.5.0" />

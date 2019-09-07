@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using Core.Tcp;
 
 namespace Core.P2p.Tcpn
 {
-    public static class Operation
+    public class PeerOperations : Operations
     {
-        public static readonly Dictionary<string, byte> Codes = new Dictionary<string, byte>
+        public new readonly Dictionary<string, byte> Codes = new Dictionary<string, byte>
         {
             { "Ok", 0x98 },
             { "Noop", 0x99 },
@@ -24,22 +25,22 @@ namespace Core.P2p.Tcpn
             { "RequestBlockchainSizeResponse", 0x0e }
         };
 
-        public static byte[] OK()
+        public override byte[] OK()
         {
             return new byte[] { Codes["Ok"] };
         }
 
-        public static byte[] NOOP()
+        public override byte[] NOOP()
         {
             return new byte[] { Codes["Noop"] };
         }
 
-        public static bool IsOK(byte[] data)
+        public override bool IsOK(byte[] data)
         {
             return data.Length > 0 && data[0] == Codes["Ok"];
         }
 
-        public static bool IsNOOP(byte[] data)
+        public override bool IsNOOP(byte[] data)
         {
             return data.Length > 0 && data[0] == Codes["Noop"];
         }

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using Core.Tcp;
 using Core.Transactions;
 using Core.Utilities;
 
@@ -11,6 +12,7 @@ namespace Core.P2p.Tcpn
     public class Peer: AbstractPeer
     {
         private readonly Serializer serializer = new Serializer();
+        private readonly Operations Operation = new PeerOperations();
         private readonly ILoggable Log;
 
         public event EventHandler ClosedConn;

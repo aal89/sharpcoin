@@ -40,6 +40,16 @@ namespace Core.Crypto
             return CryptoECDsa.GenerateKeyPair();
         }
 
+        public byte[] AsData()
+        {
+            byte[] data = new byte[96];
+
+            Array.Copy(PublicKey, data, 64);
+            Array.Copy(PrivateKey, 0, data, 64, 32);
+
+            return data;
+        }
+
         public bool HasPublicKey()
         {
             return PublicKey != null;

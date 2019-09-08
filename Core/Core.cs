@@ -14,8 +14,9 @@ namespace Core
 
         private readonly ILoggable Log = new Logger("Core");
 
-        private Thread MineThread;
         private bool IsMining;
+        private Thread MineThread;
+        private SharpKeyPair MiningKeyPair;
 
         public Core()
         {
@@ -51,6 +52,7 @@ namespace Core
             if (IsMining)
             {
                 StopMining();
+                StartMining(MiningKeyPair);
             }
         }
 
@@ -80,9 +82,10 @@ namespace Core
 
         public void StartMining(SharpKeyPair skp)
         {
-            if (!IsMining)
+            if (!IsMining && skp != null)
             {
                 IsMining = true;
+                MiningKeyPair = skp;
                 MineThread = new Thread(new ParameterizedThreadStart(Mine));
                 MineThread.Start(skp);
             }

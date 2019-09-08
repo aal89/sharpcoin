@@ -15,6 +15,12 @@ namespace Core.Api
             _ = new ClientServer(Config.TcpPortApi);
         }
 
+        public static void Push(byte[] data)
+        {
+            if (client != null)
+                client.Push(data);
+        }
+
         // Only one client is allowed to be connected at any one time.
         public static bool SetClient(TcpClient conn)
         {

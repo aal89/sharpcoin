@@ -5,6 +5,7 @@ using System.Linq;
 using Core.Exceptions;
 using Core.Transactions;
 using Core.Utilities;
+using Core.Crypto;
 
 namespace Core
 {
@@ -42,6 +43,11 @@ namespace Core
             Log.NewLine($"Validating blockchain.");
             Validate();
             Log.NewLine($"Valid!");
+        }
+
+        public long Balance(SharpKeyPair skp)
+        {
+            return UnspentOutputs.All(skp.GetAddress()).Map(output => output.Amount).Reduce(R.Total, 0);
         }
 
         public void Validate()

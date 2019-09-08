@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using Core.Api;
 using Core.Crypto;
 using Core.P2p;
 using Core.Transactions;
@@ -21,20 +22,24 @@ namespace Core
         public Core()
         {
             Log.NewLine("sharpcoin (core) v0.1 -- by aal89");
+
             // Load blockchain
             Log.NewLine($"Initializing blockchain.");
             Blockchain = new Blockchain(new Logger("Blockchain"));
+
             // Setup event listeners
             Log.Line("Setting up event listeners...");
             Blockchain.BlockAdded += Blockchain_BlockAdded;
             Blockchain.QueuedTransactionAdded += Blockchain_QueuedTransactionAdded;
             Log.Append("Done.");
 
+            // Setup api
+            Log.NewLine($"Setting up client management.");
+            _ = new ClientManager(this, new Logger("ClientManager"));
+
             // Setup peer manager (server&client)
             Log.NewLine($"Setting up peer manager.");
             PeerManager = new PeerManager(this, new Logger("PeerManager"));
-
-            //PeerManager.AddPeer("192.168.178.50");
         }
 
         private void Blockchain_QueuedTransactionAdded(object sender, EventArgs e)

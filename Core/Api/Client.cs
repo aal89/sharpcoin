@@ -4,11 +4,13 @@ using Core.Crypto;
 using Core.Tcp;
 using Core.Utilities;
 using System.Linq;
+using Core.Transactions;
 
 namespace Core.Api
 {
     public class Client : AbstractClient
     {
+        private readonly Serializer serializer = new Serializer();
         private readonly Operations Operation = new ApiOperations();
         private readonly ILoggable Log;
 
@@ -21,7 +23,17 @@ namespace Core.Api
             Log.NewLine($"Connected successfully.");
         }
 
-        public void Push(byte[] data)
+        public void Push(Block b)
+        {
+            Push(serializer.Serialize(b));
+        }
+
+        public void Push(Transaction tx)
+        {
+            Push(serializer.Serialize(tx));
+        }
+
+        private void Push(byte[] data)
         {
             Send(Operation.Codes["Push"], data);
         }
@@ -34,13 +46,20 @@ namespace Core.Api
 
         public override void RequestMining(byte[] data)
         {
-            byte[] pubk = new byte[64];
-            byte[] seck = new byte[32];
+            bool start = data[0] == 0x00;
 
-            Array.Copy(data, pubk, 64);
-            Array.Copy(data, 64, seck, 0, 32);
+            if (start)
+            {
+                byte[] pubk = new byte[64];
+                byte[] seck = new byte[32];
 
-            core.StartMining(new SharpKeyPair(pubk, seck));
+                Array.Copy(data, 1, pubk, 0, 64);
+                Array.Copy(data, 65, seck, 0, 32);
+
+                core.StartMining(new SharpKeyPair(pubk, seck));
+            }
+            else
+                core.StopMining();
 
             Send(Operation.Codes["RequestMiningResponse"], Operation.OK());
         }

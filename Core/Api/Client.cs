@@ -48,7 +48,9 @@ namespace Core.Api
         {
             bool start = data[0] == 0x00;
 
-            if (start)
+            Log.NewLine($"Mine command received ({(start ? "start" : "stop")}).");
+
+            if (start && data.Length == 97)
             {
                 byte[] pubk = new byte[64];
                 byte[] seck = new byte[32];
@@ -59,7 +61,9 @@ namespace Core.Api
                 core.StartMining(new SharpKeyPair(pubk, seck));
             }
             else
+            {
                 core.StopMining();
+            }
 
             Send(Operation.Codes["RequestMiningResponse"], Operation.OK());
         }

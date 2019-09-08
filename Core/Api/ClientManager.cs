@@ -1,22 +1,33 @@
 ﻿using System.Net.Sockets;
+using Core.Transactions;
 using Core.Utilities;
 
 namespace Core.Api
 {
     public class ClientManager
     {
+        private static ILoggable Log;
         private static Client client;
         private static Core core;
 
-        public ClientManager(Core core)
+        public ClientManager(Core core, ILoggable Log = null)
         {
             ClientManager.core = core;
+            ClientManager.Log = Log ?? new NullLogger();
 
             _ = new ClientServer(Config.TcpPortApi);
         }
 
-        public static void Push(byte[] data)
+        public static void Push(Transaction data)
         {
+            Log.NewLine($"Pushing transaction {data.Id} to the client.");
+            if (client != null)
+                client.Push(data);
+        }
+
+        public static void Push(Block data)
+        {
+            Log.NewLine($"Pushing block {data.Index} to the client.");
             if (client != null)
                 client.Push(data);
         }

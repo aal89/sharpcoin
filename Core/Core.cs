@@ -34,8 +34,9 @@ namespace Core
             Log.Append("Done.");
 
             // Setup api
-            Log.NewLine($"Setting up client management.");
+            Log.Line($"Setting up client management...");
             _ = new ClientManager(this, new Logger("ClientManager"));
+            Log.Append("Done.");
 
             // Setup peer manager (server&client)
             Log.NewLine($"Setting up peer manager.");

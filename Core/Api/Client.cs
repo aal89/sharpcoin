@@ -11,7 +11,6 @@ namespace Core.Api
     public class Client : AbstractClient
     {
         private readonly Serializer serializer = new Serializer();
-        private readonly Operations Operation = new ApiOperations();
         private readonly ILoggable Log;
 
         public event EventHandler ClosedConn;
@@ -35,7 +34,7 @@ namespace Core.Api
 
         private void Push(byte[] data)
         {
-            Send(Operation.Codes["Push"], data);
+            Send(Opcodes["Push"], data);
         }
 
         protected override void ClosedConnection()
@@ -65,13 +64,13 @@ namespace Core.Api
                 core.StopMining();
             }
 
-            Send(Operation.Codes["RequestMiningResponse"], Operation.OK());
+            Send(Opcodes["RequestMiningResponse"], OK());
         }
 
         public override void RequestKeyPair(byte[] data)
         {
             Log.NewLine($"Sending keypair.");
-            Send(Operation.Codes["RequestKeyPairResponse"], SharpKeyPair.Create().AsData());
+            Send(Opcodes["RequestKeyPairResponse"], SharpKeyPair.Create().AsData());
         }
 
         public override void RequestBalance(byte[] data)
@@ -81,7 +80,7 @@ namespace Core.Api
 
             Log.NewLine($"Sending balance ({balance}) for address {skp.GetAddress()}.");
 
-            Send(Operation.Codes["RequestBalanceResponse"], BitConverter.GetBytes(balance).Reverse().ToArray());
+            Send(Opcodes["RequestBalanceResponse"], BitConverter.GetBytes(balance).Reverse().ToArray());
         }
     }
 }

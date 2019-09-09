@@ -45,11 +45,11 @@ namespace Core.Api
 
         public override void RequestMining(byte[] data)
         {
-            bool start = data[0] == 0x00;
+            bool start = data[0] == 0x00 && data.Length == 97;
 
             Log.NewLine($"Mine command received ({(start ? "start" : "stop")}).");
 
-            if (start && data.Length == 97)
+            if (start)
             {
                 byte[] pubk = new byte[64];
                 byte[] seck = new byte[32];

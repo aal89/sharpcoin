@@ -6,12 +6,15 @@ namespace Core.Api
 {
     public abstract class AbstractClient : ConnectionHandler
     {
+        private readonly ApiOperations Operations = new ApiOperations();
+
         protected readonly Core core;
-        protected readonly Dictionary<string, byte> Opcodes = new ApiOperations().Codes;
+        protected readonly Dictionary<string, byte> Opcodes;
 
         protected AbstractClient(Core core, TcpClient client) : base(client)
         {
             this.core = core;
+            Opcodes = Operations.Codes;
         }
 
         public override void Incoming(byte type, byte[] data)
@@ -27,5 +30,26 @@ namespace Core.Api
         public abstract void RequestMining(byte[] data);
         public abstract void RequestKeyPair(byte[] data);
         public abstract void RequestBalance(byte[] data);
+
+        // delegates
+        public byte[] OK()
+        {
+            return Operations.OK();
+        }
+
+        public byte[] NOOP()
+        {
+            return Operations.NOOP();
+        }
+
+        public bool IsOK(byte[] data)
+        {
+            return Operations.IsOK(data);
+        }
+
+        public bool IsNOOP(byte[] data)
+        {
+            return Operations.IsNOOP(data);
+        }
     }
 }

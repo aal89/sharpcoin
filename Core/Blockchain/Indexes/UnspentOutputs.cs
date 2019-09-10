@@ -25,11 +25,6 @@ namespace Core.Indexes
             return Find(output => output.Address == Id.Address && output.Amount == Id.Amount);
         }
 
-        public Output[] All(string Address)
-        {
-            return this.Filter(output => output.Address == Address).ToArray();
-        }
-
         public override string FilePath()
         {
             return Path.Combine(Directory.GetCurrentDirectory(), DataDirectory, "utxo.index");

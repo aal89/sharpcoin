@@ -47,7 +47,7 @@ namespace Core
 
         public long Balance(SharpKeyPair skp)
         {
-            return UnspentOutputs.All(skp.GetAddress()).Map(output => output.Amount).Reduce(R.Total, 0);
+            return UnspentOutputs.Filter(output => output.Address == skp.GetAddress()).Map(output => output.Amount).Reduce(R.Total, 0);
         }
 
         public void Validate()

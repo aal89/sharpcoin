@@ -24,12 +24,14 @@ namespace Core.Api
                 case 0x01: RequestMining(data); break;
                 case 0x03: RequestKeyPair(data); break;
                 case 0x05: RequestBalance(data); break;
+                case 0x07: CreateTransaction(data); break;
             }
         }
 
         public abstract void RequestMining(byte[] data);
         public abstract void RequestKeyPair(byte[] data);
         public abstract void RequestBalance(byte[] data);
+        public abstract void CreateTransaction(byte[] data);
 
         // delegates
         public byte[] OK()

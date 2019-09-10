@@ -17,6 +17,8 @@ namespace Core.Api
             { "RequestKeyPairResponse", 0x04 },
             { "RequestBalance", 0x05 },
             { "RequestBalanceResponse", 0x06 },
+            { "CreateTransaction", 0x07 },
+            { "CreateTransactionResponse", 0x08 },
         };
 
         public override byte[] OK()

@@ -184,8 +184,14 @@ namespace Core
                 UnspentOutputs.Remove(input.AsOutput());
 
             // Then, we keep track of the newly generated outputs that those inputs created.
-            foreach (Output output in Block.GetTransactions().FlatMap(tx => tx.Outputs))
-                UnspentOutputs.Add(output);
+            foreach(Transaction tx in Block.GetTransactions())
+                foreach ((Output output, int index) in tx.Outputs.Track())
+                    UnspentOutputs.Add(new MetaOutput {
+                        Address = output.Address,
+                        Amount = output.Amount,
+                        Transaction = tx.Id,
+                        Index = index
+                    });
 
             if (Save)
             {
@@ -318,6 +324,21 @@ namespace Core
             return true;
         }
 
+        public Output[] GetUnspentOutputs(string Address)
+        {
+            return UnspentOutputs.All(Address);
+        }
+
+        public Transaction GetTransaction(string Id)
+        {
+            return Transactions.Get(Id);
+        }
+
+        public int Size()
+        {
+            return DirectoryInfo().GetFiles().Filter(i => i.Name.Contains(".block")).Count();
+        }
+
         private DirectoryInfo DirectoryInfo()
         {
             return new DirectoryInfo(BlockchainDirectory);
@@ -344,11 +365,6 @@ namespace Core
         {
             if (Block != null)
                 File.Delete(Path.Combine(BlockchainDirectory, $"{Block.Index}.block"));
-        }
-
-        public int Size()
-        {
-            return DirectoryInfo().GetFiles().Filter(i => i.Name.Contains(".block")).Count();
         }
     }
 }

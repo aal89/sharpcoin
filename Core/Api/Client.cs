@@ -96,6 +96,9 @@ namespace Core.Api
             Array.Copy(data, 96, rawamount, 0, 8);
             Array.Copy(data, 104, rawrecipient, 0, 41);
 
+            if (BitConverter.IsLittleEndian)
+                rawamount = rawamount.Reverse().ToArray();
+
             SharpKeyPair skp = new SharpKeyPair(pubk, seck);
             Builder txb = new Builder(skp);
             long amount = BitConverter.ToInt64(rawamount);

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Core.Crypto;
 using Core.Exceptions;
+using Core.Utilities;
 
 namespace Core.Transactions
 {
@@ -26,6 +27,11 @@ namespace Core.Transactions
         public void AddOutput(string address, long amount)
         {
             nouts.Add((address, amount));
+        }
+
+        public long InputAmount()
+        {
+            return uouts.Map(utxo => utxo.Item1.GetOutputByIndex(utxo.Item2)).Map(output => output.Amount).Reduce(R.Total, 0);
         }
 
         public Transaction Make()

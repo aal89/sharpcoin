@@ -11,6 +11,16 @@ namespace Core
             return self.Select(selector);
         }
 
+        public static IEnumerable<R> Map<T, R>(this IEnumerable<T> self, Func<T, int, R> selector)
+        {
+            return self.Select(selector);
+        }
+
+        public static IEnumerable<(T, int)> Track<T>(this IEnumerable<T> self)
+        {
+            return self.Map((value, i) => (value, i));
+        }
+
         public static T Reduce<T>(this IEnumerable<T> self, Func<T, T, T> func, T DefaultValue)
         {
             try

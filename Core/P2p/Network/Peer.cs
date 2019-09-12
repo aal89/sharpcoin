@@ -9,25 +9,20 @@ using Core.Utilities;
 
 namespace Core.P2p.Network
 {
-    public class Peer: AbstractPeer
+    public class Peer : AbstractClient
     {
-        private readonly Serializer serializer = new Serializer();
-        private readonly Operations Operation = new PeerOperations();
+        private readonly Serializer Serializer = new Serializer();
+        private readonly Core Core;
         private readonly ILoggable Log;
 
         public event EventHandler ClosedConn;
 
-        private Peer(Core core, TcpClient client, ILoggable log = null): base(core, client)
+        private Peer(Core Core, Operations Operations, TcpClient Client, ILoggable Log = null): base(Operations, Client)
         {
-            Log = log ?? new NullLogger();
+            this.Log = Log ?? new NullLogger();
+            this.Core = Core;
 
-            Log.NewLine($"Connected successfully.");
-        }
-
-        protected override void ClosedConnection()
-        {
-            Log.NewLine($"Disconnected.");
-            ClosedConn?.Invoke(this, EventArgs.Empty);
+            this.Log.NewLine($"Connected successfully.");
         }
 
         public static Peer Create(Core core, string ip)
@@ -39,7 +34,34 @@ namespace Core.P2p.Network
 
         public static Peer Create(Core core, TcpClient client)
         {
-            return new Peer(core, client, new Logger($"Peer {client.Ip()}"));
+            return new Peer(core, new PeerOperations(), client, new Logger($"Peer {client.Ip()}"));
+        }
+
+        protected override void ClosedConnection()
+        {
+            Log.NewLine($"Disconnected.");
+            ClosedConn?.Invoke(this, EventArgs.Empty);
+        }
+
+        public override void Incoming(byte type, byte[] data)
+        {
+            switch (type)
+            {
+                case 0x01: ServeRequestBlock(data); break;
+                case 0x02: RequestBlockResponse(data); break;
+                case 0x03: ServeAcceptBlock(data); break;
+                case 0x04: AcceptBlockResponse(data); break;
+                case 0x05: ServeRequestPeers(data); break;
+                case 0x06: RequestPeersResponse(data); break;
+                case 0x07: ServeAcceptPeers(data); break;
+                case 0x08: AcceptPeersResponse(data); break;
+                case 0x09: ServeRequestTransaction(data); break;
+                case 0x0a: RequestTransactionResponse(data); break;
+                case 0x0b: ServeAcceptTransaction(data); break;
+                case 0x0c: AcceptTransactionResponse(data); break;
+                case 0x0d: ServeRequestBlockchainSize(); break;
+                case 0x0e: RequestBlockchainSizeResponse(data); break;
+            }
         }
 
         public readonly static object synchchain_operation = new object();
@@ -48,7 +70,7 @@ namespace Core.P2p.Network
             Log.NewLine($"Synching chain.");
             lock (synchchain_operation)
             {
-                int BcSize = core.Blockchain.Size();
+                int BcSize = Core.Blockchain.Size();
                 // When synching with a peer we try to pull in some extra blocks (see 
                 // reducedSize). This is a way to solve orphanchains with fewer (or
                 // no) hashing power. Eventually the chain supported by the most hashing
@@ -59,7 +81,7 @@ namespace Core.P2p.Network
                 // delete our block before requesting the new one.
                 for (int i = reducedSize; i <= peerSize; i++)
                 {
-                    core.Blockchain.RemoveBlock(core.Blockchain.GetBlockByIndex(i));
+                    Core.Blockchain.RemoveBlock(Core.Blockchain.GetBlockByIndex(i));
                     RequestBlock(i);
                     Thread.Sleep(100);
                 }
@@ -68,13 +90,13 @@ namespace Core.P2p.Network
 
         // =====
 
-        public override void RequestBlock(int index)
+        public void RequestBlock(int index)
         {
             Log.NewLine($"Requesting block {index}.");
-            Send(Operation.Codes["RequestBlock"], BitConverter.GetBytes(index).Reverse().ToArray());
+            Send(Opcodes["RequestBlock"], BitConverter.GetBytes(index).Reverse().ToArray());
         }
 
-        protected override void ServeRequestBlock(byte[] data)
+        protected void ServeRequestBlock(byte[] data)
         {
             if (BitConverter.IsLittleEndian)
                 data = data.Reverse().ToArray();
@@ -83,7 +105,7 @@ namespace Core.P2p.Network
 
             try
             {
-                byte[] compressedBlock = serializer.Serialize(core.Blockchain.GetBlockByIndex(index) ?? core.Blockchain.GetBlockByIndex(0));
+                byte[] compressedBlock = Serializer.Serialize(Core.Blockchain.GetBlockByIndex(index) ?? Core.Blockchain.GetBlockByIndex(0));
 
                 Log.NewLine($"Sending block {index}.");
 
@@ -92,66 +114,66 @@ namespace Core.P2p.Network
             catch
             {
                 Log.NewLine($"Noop'ed on block request {index}.");
-                Send(Opcodes["RequestBlockResponse"], Operation.NOOP());
+                Send(Opcodes["RequestBlockResponse"], NOOP());
             }
         }
 
-        protected override void RequestBlockResponse(byte[] data)
+        protected void RequestBlockResponse(byte[] data)
         {
-            if (!Operation.IsNOOP(data))
+            if (!IsNOOP(data))
             {
-                Block block = serializer.Deserialize<Block>(data);
+                Block block = Serializer.Deserialize<Block>(data);
                 Log.NewLine($"Got block {block.Index}.");
-                core.Blockchain.AddBlock(block, null, false);
+                Core.Blockchain.AddBlock(block, null, false);
             }
         }
 
         // =====
 
-        public override void AcceptBlock(Block block)
+        public void AcceptBlock(Block block)
         {
             Log.NewLine($"Sending block {block.Index}.");
-            Send(Operation.Codes["AcceptBlock"], serializer.Serialize(block));
+            Send(Opcodes["AcceptBlock"], Serializer.Serialize(block));
         }
 
-        protected override void ServeAcceptBlock(byte[] data)
+        protected void ServeAcceptBlock(byte[] data)
         {
             try
             {
-                Block block = serializer.Deserialize<Block>(data);
+                Block block = Serializer.Deserialize<Block>(data);
                 Log.NewLine($"Accepting block {block.Index}.");
-                core.Blockchain.AddBlock(block);
-                Send(Opcodes["AcceptBlockResponse"], Operation.OK());
+                Core.Blockchain.AddBlock(block);
+                Send(Opcodes["AcceptBlockResponse"], OK());
             }
             catch
             {
                 Log.NewLine($"Rejecting block received.");
-                Send(Opcodes["AcceptBlockResponse"], Operation.NOOP());
+                Send(Opcodes["AcceptBlockResponse"], NOOP());
             }
         }
 
-        protected override void AcceptBlockResponse(byte[] data)
+        protected void AcceptBlockResponse(byte[] data)
         {
-            string status = Operation.IsOK(data) ? "accepted" : "rejected";
+            string status = IsOK(data) ? "accepted" : "rejected";
             Log.NewLine($"Block got {status} by peer.");
         }
 
         // =====
 
-        public override void RequestPeers()
+        public void RequestPeers()
         {
             Log.NewLine($"Requesting all peers.");
-            Send(Operation.Codes["RequestPeers"], Operation.NOOP());
+            Send(Opcodes["RequestPeers"], NOOP());
         }
 
-        protected override void ServeRequestPeers(byte[] data)
+        protected void ServeRequestPeers(byte[] data)
         {
             Log.NewLine($"Sending peers.");
             string peers = PeerManager.GetPeersAsIps().Stringified(",");
-            Send(Operation.Codes["RequestPeersResponse"], peers);
+            Send(Opcodes["RequestPeersResponse"], peers);
         }
 
-        protected override void RequestPeersResponse(byte[] data)
+        protected void RequestPeersResponse(byte[] data)
         {
             string[] peers = Encoding.UTF8.GetString(data).Split(",");
             Log.NewLine($"Peer responded with {peers.Length} peers.");
@@ -163,13 +185,13 @@ namespace Core.P2p.Network
 
         // =====
 
-        public override void AcceptPeers(string peers)
+        public void AcceptPeers(string peers)
         {
             Log.NewLine($"Sending peers.");
-            Send(Operation.Codes["AcceptPeers"], peers);
+            Send(Opcodes["AcceptPeers"], peers);
         }
 
-        protected override void ServeAcceptPeers(byte[] data)
+        protected void ServeAcceptPeers(byte[] data)
         {
             string[] peers = Encoding.UTF8.GetString(data).Split(",").Filter(ip => ip != IpAddr.Mine()).ToArray();
             Log.NewLine($"Accepting {peers.Length} peers.");
@@ -179,87 +201,87 @@ namespace Core.P2p.Network
             }
         }
 
-        protected override void AcceptPeersResponse(byte[] data)
+        protected void AcceptPeersResponse(byte[] data)
         {
-            string status = Operation.IsOK(data) ? "accepted" : "rejected";
+            string status = IsOK(data) ? "accepted" : "rejected";
             Log.NewLine($"Peers got {status} by peer.");
         }
 
         // =====
 
-        public override void RequestTransaction(string id)
+        public void RequestTransaction(string id)
         {
             Log.NewLine($"Requesting transaction {id}.");
-            Send(Operation.Codes["RequestTransaction"], id);
+            Send(Opcodes["RequestTransaction"], id);
         }
 
-        protected override void ServeRequestTransaction(byte[] data)
+        protected void ServeRequestTransaction(byte[] data)
         {
             string id = Encoding.UTF8.GetString(data);
             Log.NewLine($"Sending transaction {id}.");
-            Transaction tx = core.Blockchain.GetQueuedTransactionById(id);
-            Send(Operation.Codes["RequestTransactionResponse"], serializer.Serialize(tx));
+            Transaction tx = Core.Blockchain.GetQueuedTransactionById(id);
+            Send(Opcodes["RequestTransactionResponse"], Serializer.Serialize(tx));
         }
 
-        protected override void RequestTransactionResponse(byte[] data)
+        protected void RequestTransactionResponse(byte[] data)
         {
-            Transaction tx = serializer.Deserialize<Transaction>(data);
+            Transaction tx = Serializer.Deserialize<Transaction>(data);
 
             if (tx.Verify() && tx.IsDefaultTransaction())
             {
                 Log.NewLine($"Got transaction {tx.Id}.");
-                core.Blockchain.QueueTransaction(tx);
+                Core.Blockchain.QueueTransaction(tx);
             }
         }
 
         // =====
 
-        public override void AcceptTransaction(Transaction tx)
+        public void AcceptTransaction(Transaction tx)
         {
             Log.NewLine($"Sending transaction {tx.Id}.");
-            Send(Operation.Codes["AcceptTransaction"], serializer.Serialize(tx));
+            Send(Opcodes["AcceptTransaction"], Serializer.Serialize(tx));
         }
 
-        protected override void ServeAcceptTransaction(byte[] data)
+        protected void ServeAcceptTransaction(byte[] data)
         {
-            Transaction tx = serializer.Deserialize<Transaction>(data);
+            Transaction tx = Serializer.Deserialize<Transaction>(data);
             
-            if (tx.Verify() && tx.IsDefaultTransaction() && core.Blockchain.QueueTransaction(tx))
+            if (tx.Verify() && tx.IsDefaultTransaction() && Core.Blockchain.QueueTransaction(tx))
             {
-                Send(Operation.Codes["AcceptTransactionResponse"], Operation.OK());
+                Send(Opcodes["AcceptTransactionResponse"], OK());
             } else
             {
-                Send(Operation.Codes["AcceptTransactionResponse"], Operation.NOOP());
+                Send(Opcodes["AcceptTransactionResponse"], NOOP());
             }
         }
 
-        protected override void AcceptTransactionResponse(byte[] data)
+        protected void AcceptTransactionResponse(byte[] data)
         {
-            string status = Operation.IsOK(data) ? "accepted" : "rejected";
+            string status = IsOK(data) ? "accepted" : "rejected";
             Log.NewLine($"Transaction got {status} by peer.");
         }
 
         // =====
 
-        public override void RequestBlockchainSize()
+        public void RequestBlockchainSize()
         {
             Log.NewLine($"Requesting blockchain size.");
-            Send(Operation.Codes["RequestBlockchainSize"], Operation.NOOP());
+            Send(Opcodes["RequestBlockchainSize"], NOOP());
         }
 
-        protected override void ServeRequestBlockchainSize()
+        protected void ServeRequestBlockchainSize()
         {
             Log.NewLine($"Sending blockchain size.");
-            Send(Operation.Codes["RequestBlockchainSizeResponse"], BitConverter.GetBytes(core.Blockchain.Size()).Reverse().ToArray());
+            Send(Opcodes["RequestBlockchainSizeResponse"], BitConverter.GetBytes(Core.Blockchain.Size()).Reverse().ToArray());
         }
 
-        protected override void RequestBlockchainSizeResponse(byte[] data)
+        protected void RequestBlockchainSizeResponse(byte[] data)
         {
             if (BitConverter.IsLittleEndian)
                 data = data.Reverse().ToArray();
 
             int size = BitConverter.ToInt32(data, 0);
-            int mysize = core.Blockchain.Size();
+            int mysize = Core.Blockchain.Size();
 
             Log.NewLine($"Blockchain size at peer is {size}. My size {mysize}.");
 

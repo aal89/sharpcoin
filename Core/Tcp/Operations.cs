@@ -4,12 +4,26 @@ namespace Core.Tcp
 {
     public abstract class Operations
     {
-        public Dictionary<string, byte> Codes;
+        public abstract Dictionary<string, byte> Codes();
 
-        public abstract byte[] OK();
-        public abstract byte[] NOOP();
+        public byte[] OK()
+        {
+            return new byte[] { Codes()["Ok"] };
+        }
 
-        public abstract bool IsOK(byte[] data);
-        public abstract bool IsNOOP(byte[] data);
+        public byte[] NOOP()
+        {
+            return new byte[] { Codes()["Noop"] };
+        }
+
+        public bool IsOK(byte[] data)
+        {
+            return data.Length > 0 && data[0] == Codes()["Ok"];
+        }
+
+        public bool IsNOOP(byte[] data)
+        {
+            return data.Length > 0 && data[0] == Codes()["Noop"];
+        }
     }
 }

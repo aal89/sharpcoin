@@ -37,7 +37,7 @@ namespace Core.Api
         {
             if (client == null && core != null)
             {
-                client = new Client(core, conn, new Logger($"Client {conn.Ip()}"));
+                client = Client.Create(core, conn);
                 client.ClosedConn += Client_ClosedConn;
                 return true;
             }

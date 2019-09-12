@@ -84,35 +84,74 @@ namespace Core.Api
             Send(Opcodes["RequestBalanceResponse"], BitConverter.GetBytes(balance).Reverse().ToArray());
         }
 
+        struct TransactionRecipient
+        {
+            private byte[] _RawAmount;
+            public byte[] RawAmount
+            {
+                set {
+                    if (BitConverter.IsLittleEndian)
+                        _RawAmount = value.Reverse().ToArray();
+                }
+            }
+            public byte[] RawRecipient;
+
+            public string Recipient()
+            {
+                return Encoding.UTF8.GetString(RawRecipient);
+            }
+
+            public long Amount()
+            {
+                return BitConverter.ToInt64(_RawAmount);
+            }
+        }
+
+        // todo: one big clunky method that could be split up
         public override void CreateTransaction(byte[] data)
         {
+            int TotalKeySize = 96;
+            int TransactionRecipientSize = 49;
+
             byte[] pubk = new byte[64];
             byte[] seck = new byte[32];
-            byte[] rawamount = new byte[8];
-            byte[] rawrecipient = new byte[41];
 
             Array.Copy(data, 0, pubk, 0, 64);
             Array.Copy(data, 64, seck, 0, 32);
-            Array.Copy(data, 96, rawamount, 0, 8);
-            Array.Copy(data, 104, rawrecipient, 0, 41);
 
-            if (BitConverter.IsLittleEndian)
-                rawamount = rawamount.Reverse().ToArray();
+            int TotalRecipients = (data.Length - TotalKeySize) / TransactionRecipientSize;
+            TransactionRecipient[] txrs = new TransactionRecipient[TotalRecipients];
+
+            for (int i = 0; i < TotalRecipients; i++)
+            {
+                byte[] rawamount = new byte[8];
+                byte[] rawrecipient = new byte[41];
+
+                Array.Copy(data, 96 + (i * TransactionRecipientSize), rawamount, 0, 8);
+                Array.Copy(data, 104 + (i * TransactionRecipientSize), rawrecipient, 0, 41);
+
+                txrs[i] = new TransactionRecipient
+                {
+                    RawAmount = rawamount,
+                    RawRecipient = rawrecipient
+                };
+            }
+
+            long TotalAmount = txrs.Map(rec => rec.Amount()).Reduce(R.Total, 0);
 
             SharpKeyPair skp = new SharpKeyPair(pubk, seck);
             Builder txb = new Builder(skp);
-            long amount = BitConverter.ToInt64(rawamount);
-            string recipient = Encoding.UTF8.GetString(rawrecipient);
 
             IEnumerator<Output> utxos = ((IEnumerable<Output>)core.Blockchain.GetUnspentOutputs(skp.GetAddress())).GetEnumerator();
 
-            while (txb.InputAmount() < amount && utxos.MoveNext())
+            while (txb.InputAmount() < TotalAmount && utxos.MoveNext())
             {
                 MetaOutput output = (MetaOutput)utxos.Current;
                 txb.AddInput(core.Blockchain.GetTransaction(output.Transaction), output.Index);
             }
 
-            txb.AddOutput(recipient, amount);
+            foreach(TransactionRecipient txr in txrs)
+                txb.AddOutput(txr.Recipient(), txr.Amount());
 
             try
             {

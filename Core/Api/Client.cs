@@ -77,11 +77,11 @@ namespace Core.Api
                 Array.Copy(data, 1, pubk, 0, 64);
                 Array.Copy(data, 65, seck, 0, 32);
 
-                Core.StartMining(new SharpKeyPair(pubk, seck));
+                Core.GetOperator().Start(new SharpKeyPair(pubk, seck));
             }
             else
             {
-                Core.StopMining();
+                Core.GetOperator().Stop();
             }
 
             Send(Opcodes["RequestMiningResponse"], OK());

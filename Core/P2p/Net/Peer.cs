@@ -319,9 +319,9 @@ namespace Core.P2p.Net
                 Log.NewLine("Synching up with chain.");
                 Send(Opcodes["AcceptBlockchainSizeResponse"], OK());
                 SynchChain(size);
-            } else
+            }
+            else
             {
-                Log.NewLine("Already busy synching with some peer, skipping this one for now.");
                 Send(Opcodes["AcceptBlockchainSizeResponse"], NOOP());
             }
                 

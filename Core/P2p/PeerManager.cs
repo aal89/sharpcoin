@@ -6,6 +6,7 @@ using Core.Transactions;
 using Core.P2p.Net;
 using System.Net.Sockets;
 using System.Timers;
+using System;
 
 namespace Core.P2p
 {
@@ -137,24 +138,28 @@ namespace Core.P2p
             lock (addpeers_operation)
             {
                 p.ClosedConn += Peer_ClosedConn;
+                p.OpenenConn += Peer_OpenenConn;
+
                 if (peers.Add(p))
-                {
-                    // Save all peers to a file
-                    SavePeers(GetPeersAsIps().Distinct().ToArray());
                     return true;
-                }
                 return false;
             }
         }
 
-        public static bool HasPeer(string ip)
+        private static void Peer_OpenenConn(object sender, EventArgs e)
         {
-            return peers.Any(peer => peer.Ip == ip);
+            // Save all peers to a file
+            SavePeers(GetPeersAsIps().ToArray());
         }
 
         private static void Peer_ClosedConn(object sender, System.EventArgs e)
         {
             peers.Remove((Peer)sender);
+        }
+
+        public static bool HasPeer(string ip)
+        {
+            return peers.Any(peer => peer.Ip == ip);
         }
 
         public static Peer[] GetPeers()
@@ -174,10 +179,10 @@ namespace Core.P2p
         
         private static void SavePeers(string[] newips)
         {
-            string[] ips = File.ReadAllLines(peersPath);
+            List<string> ips = File.ReadAllLines(peersPath).ToList();
 
             foreach (string ip in newips)
-                ips.Append(ip);
+                ips.Add(ip);
 
             File.WriteAllLines(peersPath, ips.Distinct().ToArray());
         }

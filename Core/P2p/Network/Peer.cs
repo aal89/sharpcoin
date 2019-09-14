@@ -31,6 +31,8 @@ namespace Core.P2p.Network
         private void Peer_OpenenConn(object sender, EventArgs e)
         {
             Log.NewLine($"Connected successfully.");
+            RequestBlockchainSize();
+            RequestPeers();
         }
 
         public static Peer Create(Core core, string ip)

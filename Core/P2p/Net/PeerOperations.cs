@@ -24,7 +24,9 @@ namespace Core.P2p.Net
                 { "AcceptTransaction", 0x0b },
                 { "AcceptTransactionResponse", 0x0c },
                 { "RequestBlockchainSize", 0x0d },
-                { "RequestBlockchainSizeResponse", 0x0e }
+                { "RequestBlockchainSizeResponse", 0x0e },
+                { "AcceptBlockchainSize", 0x0f },
+                { "AcceptBlockchainSizeResponse", 0x10 }
             };
         }
     }

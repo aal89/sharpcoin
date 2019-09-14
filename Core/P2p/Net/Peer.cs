@@ -65,6 +65,8 @@ namespace Core.P2p.Net
                 case 0x0c: AcceptTransactionResponse(data); break;
                 case 0x0d: ServeRequestBlockchainSize(); break;
                 case 0x0e: RequestBlockchainSizeResponse(data); break;
+                case 0x0f: ServeAcceptBlockchainSize(data); break;
+                case 0x10: AcceptBlockchainSizeResponse(data); break;
             }
         }
 
@@ -287,10 +289,48 @@ namespace Core.P2p.Net
             int size = BitConverter.ToInt32(data, 0);
             int mysize = Core.Blockchain.Size();
 
-            Log.NewLine($"Blockchain size at peer is {size}. My size {mysize}.");
+            Log.NewLine($"Blockchain size at peer is {size}. My blockchain size is {mysize}.");
 
             if (size > mysize && !Monitor.IsEntered(synchchain_operation))
                 SynchChain(size);
+        }
+
+        // =====
+
+        public void AcceptBlockchainSize()
+        {
+            int Size = Core.Blockchain.Size();
+            Log.NewLine($"Sending blockchain size ({Size}).");
+            Send(Opcodes["AcceptBlockchainSize"], BitConverter.GetBytes(Size).Reverse().ToArray());
+        }
+
+        protected void ServeAcceptBlockchainSize(byte[] data)
+        {
+            if (BitConverter.IsLittleEndian)
+                data = data.Reverse().ToArray();
+
+            int size = BitConverter.ToInt32(data, 0);
+            int mysize = Core.Blockchain.Size();
+
+            Log.NewLine($"Received blockchain size of {size}. My blockchain size is {mysize}.");
+
+            if (size > mysize && !Monitor.IsEntered(synchchain_operation))
+            {
+                Log.NewLine("Synching up with chain.");
+                Send(Opcodes["AcceptBlockchainSizeResponse"], OK());
+                SynchChain(size);
+            } else
+            {
+                Log.NewLine("Already busy synching with some peer, skipping this one for now.");
+                Send(Opcodes["AcceptBlockchainSizeResponse"], NOOP());
+            }
+                
+        }
+
+        protected void AcceptBlockchainSizeResponse(byte[] data)
+        {
+            string status = IsOK(data) ? "got started" : "did not start";
+            Log.NewLine($"Synching {status} at peer.");
         }
 
         // =====

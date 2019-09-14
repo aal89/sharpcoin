@@ -57,7 +57,7 @@ namespace Core.P2p
         {
             // On each timed event we share our list of peers and check if the blockchain
             // is in synch.
-            RequestBlockchainSizeAtPeers();
+            BroadcastBlockchainSize();
             BroadcastPeers();
         }
 
@@ -88,12 +88,12 @@ namespace Core.P2p
             }
         }
 
-        public static void RequestBlockchainSizeAtPeers()
+        public static void BroadcastBlockchainSize()
         {
-            Log.NewLine($"Requesting blockchain sizes at peers.");
+            Log.NewLine($"Broadcasting blockchain size.");
             foreach (Peer p in peers)
             {
-                p.RequestBlockchainSize();
+                p.AcceptBlockchainSize();
             }
         }
 

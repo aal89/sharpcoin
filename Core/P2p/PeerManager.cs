@@ -172,9 +172,14 @@ namespace Core.P2p
             return peers.Count >= Config.MaximumConnections;
         }
         
-        private static void SavePeers(string[] newpeers)
+        private static void SavePeers(string[] newips)
         {
-            File.AppendAllLines(peersPath, newpeers);
+            string[] ips = File.ReadAllLines(peersPath);
+
+            foreach (string ip in newips)
+                ips.Append(ip);
+
+            File.WriteAllLines(peersPath, ips.Distinct().ToArray());
         }
     }
 }

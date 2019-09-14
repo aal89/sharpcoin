@@ -327,11 +327,7 @@ namespace Core.P2p.Net
                 
         }
 
-        protected void AcceptBlockchainSizeResponse(byte[] data)
-        {
-            string status = IsOK(data) ? "got started" : "did not start";
-            Log.NewLine($"Synching {status} at peer.");
-        }
+        protected void AcceptBlockchainSizeResponse(byte[] data) { }
 
         // =====
     }

@@ -50,11 +50,10 @@ namespace Core.Tcp
                     Incoming(type, data);
                 }
             }
-            finally
-            {
-                client.Close();
-                ClosedConn?.Invoke(this, EventArgs.Empty);
-            }
+            catch { }
+
+            client.Close();
+            ClosedConn?.Invoke(this, EventArgs.Empty);
         }
 
         protected void Send(byte type, string data)

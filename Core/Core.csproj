@@ -12,11 +12,12 @@
     <Folder Include="Blockchain\" />
     <Folder Include="Miner\" />
     <Folder Include="P2p\" />
-    <Folder Include="P2p\Network\" />
+    <Folder Include="P2p\Net\" />
     <Folder Include="Blockchain\Indexes\" />
     <Folder Include="Blockchain\Transaction\" />
     <Folder Include="Api\" />
     <Folder Include="Tcp\" />
+    <Folder Include="Api\Net\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Security.Cryptography.Cng" Version="4.5.0" />

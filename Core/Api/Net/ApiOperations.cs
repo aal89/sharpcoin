@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Core.Tcp;
 
-namespace Core.Api
+namespace Core.Api.Net
 {
     public class ApiOperations : Operations
     {

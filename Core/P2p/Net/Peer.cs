@@ -7,7 +7,7 @@ using Core.Tcp;
 using Core.Transactions;
 using Core.Utilities;
 
-namespace Core.P2p.Network
+namespace Core.P2p.Net
 {
     public class Peer : AbstractClient
     {

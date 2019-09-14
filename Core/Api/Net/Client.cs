@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Text;
 using Core.Tcp;
 
-namespace Core.Api
+namespace Core.Api.Net
 {
     public class Client : AbstractClient
     {

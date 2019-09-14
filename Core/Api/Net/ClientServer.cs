@@ -1,11 +1,11 @@
-﻿using Core.Tcp;
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
+using Core.Tcp;
 
-namespace Core.P2p.Network
+namespace Core.Api.Net
 {
-    public class PeerServer : TcpServer
+    public class ClientServer : TcpServer
     {
-        public PeerServer(int port) : base(port) { }
+        public ClientServer(int port) : base(port) { }
 
         public override void AwaitConnections()
         {
@@ -13,7 +13,7 @@ namespace Core.P2p.Network
             {
                 // wait for client connection
                 TcpClient client = server.AcceptTcpClient();
-                if (!PeerManager.AddPeer(client))
+                if (!ClientManager.SetClient(client))
                     client.Close();
             }
         }

@@ -43,8 +43,6 @@ namespace Core
             // Setup peer manager (server&client)
             Log.NewLine($"Setting up peer manager.");
             PeerManager = new PeerManager(this, new Logger("PeerManager"));
-
-            Operator.Start(SharpKeyPair.Create());
         }
 
         public Operator GetOperator()

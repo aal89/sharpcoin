@@ -11,18 +11,26 @@ namespace Core.P2p.Network
 {
     public class Peer : AbstractClient
     {
-        private readonly Serializer Serializer = new Serializer();
         private readonly Core Core;
         private readonly ILoggable Log;
-
-        public event EventHandler ClosedConn;
 
         private Peer(Core Core, Operations Operations, TcpClient Client, ILoggable Log = null): base(Operations, Client)
         {
             this.Log = Log ?? new NullLogger();
             this.Core = Core;
 
-            this.Log.NewLine($"Connected successfully.");
+            OpenenConn += Peer_OpenenConn;
+            ClosedConn += Peer_ClosedConn;
+        }
+
+        private void Peer_ClosedConn(object sender, EventArgs e)
+        {
+            Log.NewLine($"Disconnected.");
+        }
+
+        private void Peer_OpenenConn(object sender, EventArgs e)
+        {
+            Log.NewLine($"Connected successfully.");
         }
 
         public static Peer Create(Core core, string ip)
@@ -35,12 +43,6 @@ namespace Core.P2p.Network
         public static Peer Create(Core core, TcpClient client)
         {
             return new Peer(core, new PeerOperations(), client, new Logger($"Peer {client.Ip()}"));
-        }
-
-        protected override void ClosedConnection()
-        {
-            Log.NewLine($"Disconnected.");
-            ClosedConn?.Invoke(this, EventArgs.Empty);
         }
 
         public override void Incoming(byte type, byte[] data)

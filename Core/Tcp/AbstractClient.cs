@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Net.Sockets;
+using Core.Utilities;
 
 namespace Core.Tcp
 {
@@ -7,6 +8,7 @@ namespace Core.Tcp
     {
         private readonly Operations Operations;
         protected readonly Dictionary<string, byte> Opcodes;
+        protected readonly Serializer Serializer = new Serializer();
 
         protected AbstractClient(Operations Operations, TcpClient client) : base(client)
         {

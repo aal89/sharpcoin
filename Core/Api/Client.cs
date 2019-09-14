@@ -12,18 +12,16 @@ namespace Core.Api
 {
     public class Client : AbstractClient
     {
-        private readonly Serializer Serializer = new Serializer();
         private readonly Core Core;
         private readonly ILoggable Log;
-
-        public event EventHandler ClosedConn;
 
         private Client(Core Core, Operations Operations, TcpClient Client, ILoggable Log = null) : base(Operations, Client)
         {
             this.Log = Log ?? new NullLogger();
             this.Core = Core;
 
-            Log.NewLine($"Connected successfully.");
+            OpenenConn += Client_OpenenConn;
+            ClosedConn += Client_ClosedConn;
         }
 
         public static Client Create(Core Core, TcpClient Client)
@@ -57,10 +55,14 @@ namespace Core.Api
             Send(Opcodes["Push"], data);
         }
 
-        protected override void ClosedConnection()
+        private void Client_ClosedConn(object sender, EventArgs e)
         {
             Log.NewLine($"Disconnected.");
-            ClosedConn?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void Client_OpenenConn(object sender, EventArgs e)
+        {
+            Log.NewLine($"Connected successfully.");
         }
 
         public void RequestMining(byte[] data)

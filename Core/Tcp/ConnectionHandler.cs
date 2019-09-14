@@ -2,6 +2,7 @@
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Core.Utilities;
 
 namespace Core.Tcp
@@ -12,11 +13,19 @@ namespace Core.Tcp
         protected readonly int TLVHeaderSize = 4;
         protected readonly TcpClient client;
 
+        public event EventHandler OpenenConn;
+        public event EventHandler ClosedConn;
+
         protected ConnectionHandler(TcpClient client)
         {
             Ip = client.Ip();
             this.client = client;
-            new Thread(new ThreadStart(AwaitCommunication)).Start();
+
+            Thread t = new Thread(new ThreadStart(AwaitCommunication));
+            // Small delay before starting thread so that the control flow of the constructors
+            // up above in the concretions have time finishing doing their stuff. For example
+            // adding event listeners to this object first...
+            Task.Delay(50).ContinueWith(task => t.Start());
         }
 
         public void AwaitCommunication()
@@ -26,10 +35,12 @@ namespace Core.Tcp
             // Buffer for reading the header of the tlv protocol
             byte[] bytes = new byte[4];
 
-            // Simple TLV protocol where first byte is type and the following 3 are for length
-            // so read 4 bytes and then in the while loop build data byte array
             try
             {
+                OpenenConn?.Invoke(this, EventArgs.Empty);
+
+                // Simple TLV protocol where first byte is type and the following 3 are for length
+                // so read 4 bytes and then in the while loop build data byte array
                 while ((_ = stream.Read(bytes, 0, TLVHeaderSize)) != 0)
                 {
                     byte type = bytes[0];
@@ -39,15 +50,11 @@ namespace Core.Tcp
                     Incoming(type, data);
                 }
             }
-            catch
+            finally
             {
                 client.Close();
-                client.Dispose();
+                ClosedConn?.Invoke(this, EventArgs.Empty);
             }
-
-            ClosedConnection();
-            client.Close();
-            client.Dispose();
         }
 
         protected void Send(byte type, string data)
@@ -72,6 +79,5 @@ namespace Core.Tcp
         }
 
         public abstract void Incoming(byte type, byte[] data);
-        protected abstract void ClosedConnection();
     }
 }

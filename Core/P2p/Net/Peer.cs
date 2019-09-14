@@ -55,7 +55,7 @@ namespace Core.P2p.Net
                 case 0x02: RequestBlockResponse(data); break;
                 case 0x03: ServeAcceptBlock(data); break;
                 case 0x04: AcceptBlockResponse(data); break;
-                case 0x05: ServeRequestPeers(data); break;
+                case 0x05: ServeRequestPeers(); break;
                 case 0x06: RequestPeersResponse(data); break;
                 case 0x07: ServeAcceptPeers(data); break;
                 case 0x08: AcceptPeersResponse(data); break;
@@ -172,7 +172,7 @@ namespace Core.P2p.Net
             Send(Opcodes["RequestPeers"], NOOP());
         }
 
-        protected void ServeRequestPeers(byte[] data)
+        protected void ServeRequestPeers()
         {
             Log.NewLine($"Sending peers.");
             string peers = PeerManager.GetPeersAsIps().Stringified(",");
@@ -181,7 +181,7 @@ namespace Core.P2p.Net
 
         protected void RequestPeersResponse(byte[] data)
         {
-            string[] peers = Encoding.UTF8.GetString(data).Split(",");
+            string[] peers = Encoding.UTF8.GetString(data).Split(",").Filter(ip => ip != IpAddr.Mine()).ToArray();
             Log.NewLine($"Peer responded with {peers.Length} peers.");
             foreach (string peer in peers)
             {

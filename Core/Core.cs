@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Net;
 using Core.Api;
-using Core.Crypto;
 using Core.P2p;
 using Core.Transactions;
 using Core.Utilities;
@@ -12,13 +12,18 @@ namespace Core
         public readonly Blockchain Blockchain;
         public readonly PeerManager PeerManager;
 
-        private Operator Operator;
+        private readonly Operator Operator;
 
         private readonly ILoggable Log = new Logger("Core");
 
-        public Core()
+        public Core(string[] args)
         {
             Log.NewLine("sharpcoin (core) v0.1 -- by aal89");
+
+            // Configure the ip address to bind on
+            if (args.Length == 1 && IPAddress.Parse(args[0]) != null)
+                IpAddr.Set(args[0]);
+            Log.NewLine($"Attempting to bind tcp servers to address: {IpAddr.Mine()}.");
 
             // Load blockchain
             Log.NewLine($"Initializing blockchain.");
@@ -70,6 +75,6 @@ namespace Core
             }
         }
 
-        static void Main() => new Core();
+        static void Main(string[] args) => new Core(args);
     }
 }

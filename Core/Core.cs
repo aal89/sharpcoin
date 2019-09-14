@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Threading.Tasks;
 using Core.Api;
 using Core.P2p;
 using Core.Transactions;
@@ -71,7 +72,8 @@ namespace Core
             if (Operator.Busy())
             {
                 Operator.Stop();
-                Operator.Start();
+                // Give the operator some time to stop before starting again.
+                Task.Delay(100).ContinueWith(task => Operator.Start());
             }
         }
 

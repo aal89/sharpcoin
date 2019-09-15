@@ -13,7 +13,7 @@ namespace Core
         public int Index;
         public string PreviousHash = "";
         public string Hash = "";
-        public DateTime Timestamp = DateTime.UtcNow;
+        public DateTime Timestamp = Date.Now();
         public uint Nonce;
         public byte Version = 0x00;
 
@@ -64,7 +64,7 @@ namespace Core
 
         public string ToHash()
         {
-            return Utilities.Hash.Sha256($"{Index}{PreviousHash}{Timestamp.ToString("MM/dd/yyyy HH:mm:ss")}{Nonce}{Version}{Transactions.Stringified()}");
+            return Utilities.Hash.Sha256($"{Index}{PreviousHash}{Timestamp.FormattedString()}{Nonce}{Version}{Transactions.Stringified()}");
         }
 
         public bool Equals(Block other)

@@ -18,12 +18,12 @@ namespace Core.Utilities
 
         public void Line(string line, string prefix = null)
         {
-            Console.Write($"{DateTime.UtcNow} [{prefix ?? this.prefix}] {line}");
+            Console.Write($"{Date.Now().FormattedString()} [{prefix ?? this.prefix}] {line}");
         }
 
         public void NewLine(string line, string prefix = null)
         {
-            Console.WriteLine($"{DateTime.UtcNow} [{prefix ?? this.prefix}] {line}");
+            Console.WriteLine($"{Date.Now().FormattedString()} [{prefix ?? this.prefix}] {line}");
         }
     }
 }

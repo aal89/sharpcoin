@@ -1,5 +1,5 @@
-﻿using System;
-using Core.Crypto;
+﻿using Core.Crypto;
+using Core.Utilities;
 
 namespace Core
 {
@@ -9,7 +9,7 @@ namespace Core
         {
             while (Block.GetDifficulty() > TargetDiff && ControlFlag)
             {
-                Block.Timestamp = DateTime.Parse(DateTime.UtcNow.ToString("MM/dd/yyyy HH:mm:ss"));
+                Block.Timestamp = Date.Now();
                 Block.Nonce++;
                 Block.Hash = Block.ToHash();
             }

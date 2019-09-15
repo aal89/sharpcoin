@@ -24,13 +24,13 @@ namespace Core
         {
             while (IsMining)
             {
-                DateTime started = DateTime.UtcNow;
+                DateTime started = Date.Now();
                 Log.NewLine($"Started at {started}. Attempting to solve block {Blockchain.GetLastBlock().Index + 1}.");
 
                 Block b = Miner.Solve((SharpKeyPair)skp, Blockchain, IsMining);
 
                 if (b != null)
-                    Log.NewLine($"Solved block {b.Index} with nonce {b.Nonce} ({b.Hash.Substring(0, 10)}) in {(int)DateTime.UtcNow.Subtract(started).TotalMinutes} mins! Target diff was: {Blockchain.GetDifficulty()}.");
+                    Log.NewLine($"Solved block {b.Index} with nonce {b.Nonce} ({b.Hash.Substring(0, 10)}) in {(int)Date.Now().Subtract(started).TotalMinutes} mins! Target diff was: {Blockchain.GetDifficulty()}.");
 
                 try
                 {
@@ -42,7 +42,7 @@ namespace Core
                 }
 
             }
-            Log.NewLine($"Stopped at {DateTime.UtcNow}.");
+            Log.NewLine($"Stopped at {Date.Now()}.");
         }
 
         public void Start(SharpKeyPair skp = null)

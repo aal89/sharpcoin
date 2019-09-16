@@ -18,7 +18,7 @@ namespace Core
 
         public static readonly int TcpPort = 18910;
 
-        public static readonly int TcpPortApi = 18911;
+        public static readonly int TcpPortApi = 28910;
 
         public static readonly int TcpConnectTimeout = 5000;
 

@@ -81,7 +81,7 @@ namespace Core.P2p.Net
                 // reducedSize). This is a way to solve orphanchains with fewer (or
                 // no) hashing power. Eventually the chain supported by the most hashing
                 // power should win and becomes the truth again.
-                int reducedSize = Math.Max(1, BcSize - (peerSize - BcSize));
+                int reducedSize = Math.Max(1, BcSize - Math.Min(Config.MaximumBlockTruncation, peerSize - BcSize));
 
                 // Synch for our reduced size untill we have the size of our peer,
                 // delete our block before requesting the new one.

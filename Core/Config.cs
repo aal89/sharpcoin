@@ -24,6 +24,9 @@ namespace Core
 
         public static readonly int PeerInterval = 15 * 60 * 1000; // in ms
 
+        // quite arbitrarily chosen number, we assume that an orphan chain will never be any longer than this...
+        public static readonly int MaximumBlockTruncation = 50;
+
         public static readonly string BlockchainDirectory = "blockchain";
 
         public static ulong CalculateDifficulty(Blockchain Blockchain)

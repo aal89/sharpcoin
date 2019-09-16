@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using Core.Exceptions;
 using Core.Tcp;
 using Core.Transactions;
 using Core.Utilities;
@@ -128,9 +129,20 @@ namespace Core.P2p.Net
         {
             if (!IsNOOP(data))
             {
-                Block block = Serializer.Deserialize<Block>(data);
-                Log.NewLine($"Got block {block.Index}.");
-                Core.Blockchain.AddBlock(block, null, false);
+                try
+                {
+                    Block block = Serializer.Deserialize<Block>(data);
+                    Log.NewLine($"Got block {block.Index}.");
+                    Core.Blockchain.AddBlock(block, null, false);
+                }
+                catch (BlockAssertion ba)
+                {
+                    Log.NewLine($"Skipping block {ba.Block.Index}. {ba.Message}");
+                }
+                catch
+                {
+                    Log.NewLine($"Unknown error, skipping block received.");
+                }
             }
         }
 
@@ -151,10 +163,14 @@ namespace Core.P2p.Net
                 Core.Blockchain.AddBlock(block);
                 Send(Opcodes["AcceptBlockResponse"], OK());
             }
+            catch (BlockAssertion ba)
+            {
+                Log.NewLine($"Rejecting block ({ba.Block.Index}) received.");
+                Send(Opcodes["AcceptBlockResponse"], NOOP());
+            }
             catch
             {
-                Log.NewLine($"Rejecting block received.");
-                Send(Opcodes["AcceptBlockResponse"], NOOP());
+                Log.NewLine($"Unknown error, skipping block received.");
             }
         }
 

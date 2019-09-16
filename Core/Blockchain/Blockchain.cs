@@ -232,75 +232,75 @@ namespace Core
                 PreviousBlock = GetLastBlock();
 
             if (NewBlock == null)
-                throw new BlockAssertion($"New or previous block is null.");
+                throw new BlockAssertion(NewBlock, $"New or previous block is null.");
 
             if (NewBlock.Timestamp.Subtract(PreviousBlock.Timestamp).TotalSeconds < 0)
             {
-                throw new BlockAssertion($"The new block is older than the last block. Timestamp last block {PreviousBlock.Timestamp}, timestamp new block {NewBlock.Timestamp}.");
+                throw new BlockAssertion(NewBlock, $"The new block is older than the last block. Timestamp last block {PreviousBlock.Timestamp}, timestamp new block {NewBlock.Timestamp}.");
             }
 
             if (NewBlock.Index != PreviousBlock.Index + 1)
             {
-                throw new BlockAssertion($"Not consecutive blocks. Expected new block index to be {PreviousBlock.Index + 1}, but got {NewBlock.Index}.");
+                throw new BlockAssertion(NewBlock, $"Not consecutive blocks. Expected new block index to be {PreviousBlock.Index + 1}, but got {NewBlock.Index}.");
             }
 
             if (NewBlock.PreviousHash != PreviousBlock.Hash)
             {
-                throw new BlockAssertion($"New block points to a different block. Previous hash of new block is {NewBlock.PreviousHash}, while hash of last block is {PreviousBlock.Hash}.");
+                throw new BlockAssertion(NewBlock, $"New block points to a different block. Previous hash of new block is {NewBlock.PreviousHash}, while hash of last block is {PreviousBlock.Hash}.");
             }
 
             if (NewBlock.Hash != NewBlock.ToHash())
             {
-                throw new BlockAssertion($"New blocks integrity check failed. Is {NewBlock.Hash}, should be: {NewBlock.ToHash()}");
+                throw new BlockAssertion(NewBlock, $"New blocks integrity check failed. Is {NewBlock.Hash}, should be: {NewBlock.ToHash()}");
             }
 
             if (NewBlock.GetDifficulty() >= GetDifficulty())
             {
-                throw new BlockAssertion($"Expected the difficulty of the new block ({NewBlock.GetDifficulty()}) to be less than the current difficulty ({GetDifficulty()}).");
+                throw new BlockAssertion(NewBlock, $"Expected the difficulty of the new block ({NewBlock.GetDifficulty()}) to be less than the current difficulty ({GetDifficulty()}).");
             }
 
             if (!NewBlock.HasTransactions())
             {
-                throw new BlockAssertion($"New block does not have any transactions.");
+                throw new BlockAssertion(NewBlock, $"New block does not have any transactions.");
             }
 
             if (Serializer.Size(NewBlock) > Config.MaximumBlockSizeInBytes)
             {
-                throw new BlockAssertion($"New Block size (in bytes) is {Serializer.Size(NewBlock)} and the maximum is {Config.MaximumBlockSizeInBytes}.");
+                throw new BlockAssertion(NewBlock, $"New Block size (in bytes) is {Serializer.Size(NewBlock)} and the maximum is {Config.MaximumBlockSizeInBytes}.");
             }
 
             if (!NewBlock.HasRewardTransaction())
             {
-                throw new BlockAssertion($"New block does not have a reward transaction.");
+                throw new BlockAssertion(NewBlock, $"New block does not have a reward transaction.");
             }
 
             if (!NewBlock.GetRewardTransaction().IsRewardTransaction(Config.BlockReward) || !NewBlock.GetRewardTransaction().Verify())
             {
-                throw new BlockAssertion($"New block does not have a valid reward transaction.");
+                throw new BlockAssertion(NewBlock, $"New block does not have a valid reward transaction.");
             }
 
             // Somewhat more expensive operations
 
             if (NewBlock.GetTransactions().Any(Tx => Transactions.Get(Tx.Id) != null))
             {
-                throw new BlockAssertion($"New block contains duplicate transactions.");
+                throw new BlockAssertion(NewBlock, $"New block contains duplicate transactions.");
             }
 
             if (NewBlock.GetTransactions().FlatMap(tx => tx.Inputs).ContainsDuplicates())
             {
-                throw new BlockAssertion($"New block contains duplicate inputs.");
+                throw new BlockAssertion(NewBlock, $"New block contains duplicate inputs.");
             }
 
             if (!NewBlock.GetTransactions().Filter(RTx => RTx.Type != Transaction.TransactionType.REWARD).All(Tx => Tx.Equates() && Tx.Verify()))
             {
-                throw new BlockAssertion($"New block contains invalid transaction (inputs do not equate with outputs or signature invalid).");
+                throw new BlockAssertion(NewBlock, $"New block contains invalid transaction (inputs do not equate with outputs or signature invalid).");
             }
 
             // Double spending inputs check and validate referenced outputs.
 
             if(!NewBlock.GetTransactions().All(IsValidTransaction))
             {
-                throw new BlockAssertion($"New block tries to spend already spent inputs or the referenced outputs in the inputs are invalid.");
+                throw new BlockAssertion(NewBlock, $"New block tries to spend already spent inputs or the referenced outputs in the inputs are invalid.");
             }
 
             return true;

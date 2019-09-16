@@ -4,6 +4,11 @@ namespace Core.Exceptions
 {
     public class BlockAssertion: Exception
     {
-        public BlockAssertion(string message) : base(message) { }
+        public Block Block;
+
+        public BlockAssertion(Block block, string message) : base(message)
+        {
+            Block = block;
+        }
     }
 }

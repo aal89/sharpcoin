@@ -1,11 +1,12 @@
-﻿using Core.Crypto;
+﻿using System.Numerics;
+using Core.Crypto;
 using Core.Utilities;
 
 namespace Core
 {
     public static class Miner
     {
-        public static Block Solve(Block Block, ulong TargetDiff, in bool ControlFlag = true)
+        public static Block Solve(Block Block, BigInteger TargetDiff, in bool ControlFlag = true)
         {
             while (Block.GetDifficulty() > TargetDiff && ControlFlag)
             {

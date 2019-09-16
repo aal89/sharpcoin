@@ -6,6 +6,7 @@ using Core.Exceptions;
 using Core.Transactions;
 using Core.Utilities;
 using Core.Crypto;
+using System.Numerics;
 
 namespace Core
 {
@@ -101,7 +102,7 @@ namespace Core
             return ReadBlock(Size()) ?? Genesis;
         }
 
-        public ulong GetDifficulty()
+        public BigInteger GetDifficulty()
         {
             return Config.CalculateDifficulty(this);
         }

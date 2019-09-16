@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using Core.Utilities;
 
 namespace Core
@@ -29,9 +30,9 @@ namespace Core
 
         public static readonly string BlockchainDirectory = "blockchain";
 
-        public static ulong CalculateDifficulty(Blockchain Blockchain)
+        public static BigInteger CalculateDifficulty(Blockchain Blockchain)
         {
-            ulong GenesisDifficulty = Blockchain.GetBlockByIndex(0).GetDifficulty();
+            BigInteger GenesisDifficulty = Blockchain.GetBlockByIndex(0).GetDifficulty();
             Block[] Section = Blockchain.GetLastSection();
 
             if (Section != null)
@@ -48,11 +49,11 @@ namespace Core
 
                 // Cap decline at max 80% (120 secs out of 600 secs).
                 int AverageTimeDifference = Math.Max(120, TimeDifferences.Reduce(R.Total, 0) / TimeDifferences.Count);
-                ulong AverageDifficulty = Section.Map(b => b.GetDifficulty()).Reduce(R.Total, GenesisDifficulty) / (ulong)Section.Length;
+                BigInteger AverageDifficulty = Section.Map(b => b.GetDifficulty()).Reduce(R.Total, GenesisDifficulty) / (ulong)Section.Length;
                 // Cap growth at max 80% (0.8).
                 float DeltaChange = Math.Min((float)0.8, (AverageTimeDifference - MeanTimeBetweenBlocks) / MeanTimeBetweenBlocks);
 
-                return (ulong)(AverageDifficulty + AverageDifficulty * DeltaChange);
+                return AverageDifficulty + AverageDifficulty.Percentage(DeltaChange);
             }
 
             return GenesisDifficulty;

@@ -5,6 +5,8 @@ using System.Linq;
 using Newtonsoft.Json;
 using Core.Transactions;
 using Core.Crypto;
+using System.Numerics;
+using System.Globalization;
 
 namespace Core
 {
@@ -32,9 +34,10 @@ namespace Core
             Hash = ToHash();
         }
 
-        public ulong GetDifficulty()
+        public BigInteger GetDifficulty()
         {
-            return Convert.ToUInt64(Hash.Substring(0, 16), 16);
+            // prepend a zero to the hash so never a negative value gets parsed...
+            return BigInteger.Parse($"0{Hash}", NumberStyles.AllowHexSpecifier);
         }
 
         public bool HasTransactions()

@@ -19,5 +19,10 @@ namespace Core.Utilities
                .First(x => x.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
                .ToString();
         }
+        
+        public static IPAddress MineAsObject()
+        {
+            return IPAddress.Parse(Mine());
+        }
     }
 }

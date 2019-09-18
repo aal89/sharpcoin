@@ -11,6 +11,7 @@ namespace Core.P2p.Net
             {
                 { "Ok", 0x98 },
                 { "Noop", 0x99 },
+                { "Signal", 0x97 },
                 { "RequestBlock", 0x01 },
                 { "RequestBlockResponse", 0x02 },
                 { "AcceptBlock", 0x03 },

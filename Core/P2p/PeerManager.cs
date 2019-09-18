@@ -18,7 +18,8 @@ namespace Core.P2p
         private static ILoggable Log;
         private static Core Core;
 
-        private static Timer Interval;
+        private static Timer PeerInterval;
+        private static Timer KeepAliveInterval;
 
         public PeerManager(Core core, ILoggable log = null)
         {
@@ -43,18 +44,30 @@ namespace Core.P2p
             foreach (string ip in ips)
                 AddPeer(ip);
 
-            Interval = new Timer(Config.PeerInterval);
-            Interval.Elapsed += OnTimedEvent;
-            Interval.AutoReset = true;
-            Interval.Enabled = true;
+            PeerInterval = new Timer(Config.PeerInterval);
+            PeerInterval.Elapsed += PeerInterval_Elapsed;
+            PeerInterval.AutoReset = true;
+            PeerInterval.Enabled = true;
+
+            KeepAliveInterval = new Timer(Config.PeerKeepAliveInterval);
+            KeepAliveInterval.Elapsed += KeepAliveInterval_Elapsed;
+            KeepAliveInterval.AutoReset = true;
+            KeepAliveInterval.Enabled = true;
 
             // Final step: initiate the server
             _ = new PeerServer(Config.TcpPort);
         }
 
+        private void KeepAliveInterval_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            // Because the keepalive is happening quite often these operations are silent as in no log lines.
+            foreach (Peer p in peers)
+                p.Signal();
+        }
+
         // Peer operations
 
-        private static void OnTimedEvent(object source, ElapsedEventArgs e)
+        private static void PeerInterval_Elapsed(object source, ElapsedEventArgs e)
         {
             // On each timed event we share our list of peers and check if the blockchain
             // is in synch.

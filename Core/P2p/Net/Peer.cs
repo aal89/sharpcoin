@@ -71,6 +71,11 @@ namespace Core.P2p.Net
             }
         }
 
+        public void Signal()
+        {
+            Send(Opcodes["Signal"], NOOP());
+        }
+
         public readonly static object synchchain_operation = new object();
         public void SynchChain(int peerSize)
         {

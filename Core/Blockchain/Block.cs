@@ -40,6 +40,11 @@ namespace Core
             return BigInteger.Parse($"0{Hash}", NumberStyles.AllowHexSpecifier);
         }
 
+        public int GetInaccurateDifficulty()
+        {
+            return GetDifficulty().Inaccurate(new GenesisBlock().GetDifficulty());
+        }
+
         public bool HasTransactions()
         {
             return Transactions.Count > 0;

@@ -107,6 +107,11 @@ namespace Core
             return Config.CalculateDifficulty(this);
         }
 
+        public int GetInaccurateDifficulty()
+        {
+            return GetDifficulty().Inaccurate(new GenesisBlock().GetDifficulty());
+        }
+
         public bool QueueTransaction(Transaction tx)
         {
             if (IsValidTransaction(tx) && tx.Verify() && QueuedTransactions.Add(tx))
@@ -257,7 +262,7 @@ namespace Core
 
             if (NewBlock.GetDifficulty() >= GetDifficulty())
             {
-                throw new BlockAssertion(NewBlock, $"Expected the difficulty of the new block ({NewBlock.GetDifficulty()}) to be less than the current difficulty ({GetDifficulty()}).");
+                throw new BlockAssertion(NewBlock, $"Expected the difficulty of the new block ({NewBlock.GetInaccurateDifficulty()}) to be less than the current difficulty ({GetInaccurateDifficulty()}).");
             }
 
             if (!NewBlock.HasTransactions())

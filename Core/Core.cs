@@ -68,13 +68,13 @@ namespace Core
 
                 // max value so that a Session object is created internally in the lib, only session objects
                 // are properly renewed (10min intervals)...
-                await device.CreatePortMapAsync(new Mapping(Protocol.Tcp, 18910, 18910, int.MaxValue, "sharpie"));
+                await device.CreatePortMapAsync(new Mapping(Protocol.Tcp, 18910, 18910, int.MaxValue, "sc.Nat"));
 
                 Log.NewLine("Successfully created UPnP port mapping.");
             }
             catch
             {
-                Log.NewLine("Could not create UPnP port mapping.");
+                Log.NewLine("Could not create UPnP port mapping. Decreased network connectivity.");
             }
             
         }

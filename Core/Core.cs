@@ -88,6 +88,7 @@ namespace Core
         {
             Transaction t = (Transaction)sender;
             PeerManager.BroadcastTransaction(t);
+            ClientManager.Push(t);
         }
 
         private void Blockchain_BlockAdded(object sender, EventArgs e)
@@ -95,6 +96,7 @@ namespace Core
             Block b = (Block)sender;
             // Broadcast block to all peers
             PeerManager.BroadcastBlock(b);
+            ClientManager.Push(b);
 
             // Iff were mining, stop and start again.
             if (Operator.Busy())

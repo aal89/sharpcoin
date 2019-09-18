@@ -178,13 +178,15 @@ namespace Core.Api.Net
             {
                 Transaction newtx = txb.Make();
 
-                Console.WriteLine(newtx);
-
-                Send(Opcodes["CreateTransactionResponse"], OK());
+                if (Core.Blockchain.QueueTransaction(newtx))
+                    Send(Opcodes["CreateTransactionResponse"], OK());
+                else
+                    Send(Opcodes["CreateTransactionResponse"], NOOP());
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                Console.WriteLine(e);
+                Log.NewLine($"Failed to create a new transaction. {e.Message}");
+
                 Send(Opcodes["CreateTransactionResponse"], NOOP());
             }
         }

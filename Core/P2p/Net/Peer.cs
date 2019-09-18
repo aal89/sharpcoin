@@ -137,7 +137,7 @@ namespace Core.P2p.Net
                 }
                 catch (BlockAssertion ba)
                 {
-                    Log.NewLine($"Skipping block {ba.Block.Index}. {ba.Message}");
+                    Log.NewLine($"Block validation failed, skipping block {ba.Block.Index}.");
                 }
                 catch
                 {

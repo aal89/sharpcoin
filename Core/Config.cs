@@ -25,7 +25,7 @@ namespace Core
 
         public static readonly int PeerInterval = 15 * 60 * 1000; // in ms
 
-        public static readonly int PeerKeepAliveInterval = 50 * 1000; // in ms
+        public static readonly int PeerKeepAliveInterval = 25 * 1000; // in ms
 
         // quite arbitrarily chosen number, we assume that an orphan chain will never be any longer than this...
         public static readonly int MaximumBlockTruncation = 50;

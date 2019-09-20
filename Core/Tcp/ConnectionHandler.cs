@@ -50,7 +50,10 @@ namespace Core.Tcp
                     Incoming(type, data);
                 }
             }
-            catch { }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
 
             client.Close();
             ClosedConn?.Invoke(this, EventArgs.Empty);

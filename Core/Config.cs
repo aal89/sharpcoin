@@ -55,7 +55,7 @@ namespace Core
             // Cap growth at max 80% (0.8).
             float DeltaChange = Math.Min((float)0.8, (AverageTimeDifference - MeanTimeBetweenBlocks) / MeanTimeBetweenBlocks);
 
-            return AverageDifficulty.Percentage(DeltaChange);
+            return AverageDifficulty + AverageDifficulty.Percentage(DeltaChange);
         }
     }
 }

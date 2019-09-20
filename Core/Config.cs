@@ -32,33 +32,30 @@ namespace Core
 
         public static readonly string BlockchainDirectory = "blockchain";
 
-        public static BigInteger CalculateDifficulty(Blockchain Blockchain)
+        public static BigInteger CalculateDifficulty(Block[] Section)
         {
-            BigInteger GenesisDifficulty = Blockchain.GetBlockByIndex(0).GetDifficulty();
-            Block[] Section = Blockchain.GetLastSection();
+            BigInteger GenesisDifficulty = new GenesisBlock().GetDifficulty();
 
-            if (Section != null)
+            if (Section == null)
+                return GenesisDifficulty;
+
+            List<int> TimeDifferences = new List<int> { };
+
+            for (int i = 0; i < Section.Length - 1; i++)
             {
-                List<int> TimeDifferences = new List<int> { };
+                Block NextBlock = Section[i + 1];
+                Block PreviousBlock = Section[i];
 
-                for (int i = 0; i < Section.Length - 1; i++)
-                {
-                    Block NextBlock = Section[i + 1];
-                    Block PreviousBlock = Section[i];
-
-                    TimeDifferences.Add(Convert.ToInt32(NextBlock.Timestamp.Subtract(PreviousBlock.Timestamp).TotalSeconds));
-                }
-
-                // Cap decline at max 80% (120 secs out of 600 secs).
-                int AverageTimeDifference = Math.Max(120, TimeDifferences.Reduce(R.Total, 0) / TimeDifferences.Count);
-                BigInteger AverageDifficulty = Section.Map(b => b.GetDifficulty()).Reduce(R.Total, GenesisDifficulty) / (ulong)Section.Length;
-                // Cap growth at max 80% (0.8).
-                float DeltaChange = Math.Min((float)0.8, (AverageTimeDifference - MeanTimeBetweenBlocks) / MeanTimeBetweenBlocks);
-
-                return AverageDifficulty + AverageDifficulty.Percentage(DeltaChange);
+                TimeDifferences.Add(Convert.ToInt32(NextBlock.Timestamp.Subtract(PreviousBlock.Timestamp).TotalSeconds));
             }
 
-            return GenesisDifficulty;
+            // Cap decline at max 80% (120 secs out of 600 secs).
+            int AverageTimeDifference = Math.Max(120, TimeDifferences.Reduce(R.Total, 0) / TimeDifferences.Count);
+            BigInteger AverageDifficulty = Section.Map(b => b.GetDifficulty()).Reduce(R.Total, GenesisDifficulty) / (ulong)Section.Length;
+            // Cap growth at max 80% (0.8).
+            float DeltaChange = Math.Min((float)0.8, (AverageTimeDifference - MeanTimeBetweenBlocks) / MeanTimeBetweenBlocks);
+
+            return AverageDifficulty.Percentage(DeltaChange);
         }
     }
 }

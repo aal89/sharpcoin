@@ -75,21 +75,20 @@ namespace Core
 
         // kind of obscure naming, but the blockchain is split up in parts of x
         // blocks this is used to recalculate the diff.
-        public Block[] GetLastSection(int n = 1)
+        public Block[] GetLastSection()
         {
             int BlockchainSize = Size();
-            if (BlockchainSize >= Config.SectionSize * n)
-            {
-                // BlockchainSize is effectively the same as the block index
-                int PreviousSectionIndex = BlockchainSize - (BlockchainSize % Config.SectionSize) - Config.SectionSize * n;
-                Block[] BlockSection = new Block[Config.SectionSize];
 
-                for (int i = PreviousSectionIndex; i < PreviousSectionIndex + Config.SectionSize; i++)
-                    BlockSection[i - PreviousSectionIndex] = ReadBlock(i);
+            if (BlockchainSize < Config.SectionSize)
+                return null;
 
-                return BlockSection;
-            }
-            return null;
+            int PreviousSectionIndex = Math.Max(0, BlockchainSize - (BlockchainSize % Config.SectionSize) - Config.SectionSize);
+            Block[] BlockSection = new Block[Config.SectionSize];
+
+            for (int i = PreviousSectionIndex; i < PreviousSectionIndex + Config.SectionSize; i++)
+                BlockSection[i - PreviousSectionIndex] = GetBlockByIndex(i);
+
+            return BlockSection;
         }
 
         public Block GetBlockByIndex(int Index)
@@ -104,7 +103,7 @@ namespace Core
 
         public BigInteger GetDifficulty()
         {
-            return Config.CalculateDifficulty(this);
+            return Config.CalculateDifficulty(GetLastSection());
         }
 
         public int GetInaccurateDifficulty()

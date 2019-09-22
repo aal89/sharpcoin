@@ -14,11 +14,11 @@ namespace Core
     {
         public int Index;
         public string PreviousHash = "";
+        public string TargetHash = "";
         public string Hash = "";
         public DateTime Timestamp = Date.Now();
         public uint Nonce;
-        public byte Version = 0x00;
-
+        
         [JsonProperty]
         private readonly HashSet<Transaction> Transactions = new HashSet<Transaction>(new TransactionComparer());
 
@@ -38,6 +38,12 @@ namespace Core
         {
             // prepend a zero to the hash so never a negative value gets parsed...
             return BigInteger.Parse($"0{Hash}", NumberStyles.AllowHexSpecifier);
+        }
+
+        public BigInteger GetTargetDifficulty()
+        {
+            // prepend a zero to the hash so never a negative value gets parsed...
+            return BigInteger.Parse($"0{TargetHash}", NumberStyles.AllowHexSpecifier);
         }
 
         public int GetInaccurateDifficulty()
@@ -72,7 +78,7 @@ namespace Core
 
         public string ToHash()
         {
-            return Utilities.Hash.Sha256($"{Index}{PreviousHash}{Timestamp.FormattedString()}{Nonce}{Version}{Transactions.Stringified()}");
+            return Utilities.Hash.Sha256($"{Index}{PreviousHash}{TargetHash}{Timestamp.FormattedString()}{Nonce}{Transactions.Stringified()}");
         }
 
         public bool Equals(Block other)

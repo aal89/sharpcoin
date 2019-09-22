@@ -101,6 +101,11 @@ namespace Core
             return ReadBlock(Size()) ?? Genesis;
         }
 
+        public Block GetLastBlockFromPreviousSection(Block Perspective)
+        {
+            return GetBlockByIndex(Perspective.Index - (Config.SectionSize % Perspective.Index) - 1);
+        }
+
         public BigInteger GetDifficulty()
         {
             return Config.CalculateDifficulty(GetLastSection());

@@ -49,11 +49,10 @@ namespace Core
                 TimeDifferences.Add(Convert.ToInt32(NextBlock.Timestamp.Subtract(PreviousBlock.Timestamp).TotalSeconds));
             }
 
-            // Cap decline at max 80% (120 secs out of 600 secs).
+            // Cap decline at max 80% (120 secs out of 600 secs), this prevents impossible target diffs.
             int AverageTimeDifference = Math.Max(120, TimeDifferences.Reduce(R.Total, 0) / TimeDifferences.Count);
             BigInteger AverageDifficulty = Section.Map(b => b.GetDifficulty()).Reduce(R.Total, GenesisDifficulty) / (ulong)Section.Length;
-            // Cap growth at max 80% (0.8).
-            float DeltaChange = Math.Min((float)0.8, (AverageTimeDifference - MeanTimeBetweenBlocks) / MeanTimeBetweenBlocks);
+            float DeltaChange = (AverageTimeDifference - MeanTimeBetweenBlocks) / MeanTimeBetweenBlocks;
 
             return AverageDifficulty + AverageDifficulty.Percentage(DeltaChange);
         }

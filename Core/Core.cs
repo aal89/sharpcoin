@@ -48,27 +48,29 @@ namespace Core
             Operator = new Operator(Blockchain, new Logger("Miner"));
             Log.Append("Done.");
 
-            // Setup peer manager (server&client)
-            Log.NewLine($"Setting up peer manager.");
-
             // Creating upnp mapping to optimize connections
             Log.NewLine($"Creating UPnP port mapping.");
-            _ = CreateUPnPMapping();
+            CreateUPnPMapping();
 
+            // Setup peer manager (server&client)
+            Log.NewLine($"Setting up peer manager.");
             PeerManager = new PeerManager(this, new Logger("PeerManager"));
         }
 
-        public async Task CreateUPnPMapping()
+        public void CreateUPnPMapping()
         {
             try
             {
                 var discoverer = new NatDiscoverer();
                 var cts = new CancellationTokenSource(3000);
-                NatDevice device = await discoverer.DiscoverDeviceAsync(PortMapper.Upnp, cts);
+                NatDevice device = Task.Run(async () => await discoverer.DiscoverDeviceAsync(PortMapper.Upnp, cts)).Result;
 
-                // max value so that a Session object is created internally in the lib, only session objects
-                // are properly renewed (10min intervals)...
-                await device.CreatePortMapAsync(new Mapping(Protocol.Tcp, 18910, 18910, int.MaxValue, "sc.Nat"));
+                // set nat device to ipaddr so that we can our external ip elsewhere in the application
+                IpAddr.Set(device);
+
+                // int.MaxValue so that a Session object is created internally in the lib, only session objects
+                // are properly renewed, lib has bug (10min intervals)...
+                _ = Task.Run(async () => await device.CreatePortMapAsync(new Mapping(Protocol.Tcp, 18910, 18910, int.MaxValue, "sc.Nat")));
 
                 Log.NewLine("Successfully created UPnP port mapping.");
             }

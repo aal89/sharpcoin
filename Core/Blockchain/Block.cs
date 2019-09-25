@@ -34,6 +34,11 @@ namespace Core
             Hash = ToHash();
         }
 
+        public bool IsCorrectDifficulty()
+        {
+            return GetDifficulty() < GetTargetDifficulty();
+        }
+
         public BigInteger GetDifficulty()
         {
             // prepend a zero to the hash so never a negative value gets parsed...
@@ -46,7 +51,7 @@ namespace Core
             return BigInteger.Parse($"0{TargetHash}", NumberStyles.AllowHexSpecifier);
         }
 
-        public int GetInaccurateDifficulty()
+        public int GetPrettyDifficulty()
         {
             return GetDifficulty().Inaccurate(new GenesisBlock().GetDifficulty());
         }
@@ -98,6 +103,8 @@ namespace Core
                 Index = LastBlock.Index + 1,
                 PreviousHash = LastBlock.Hash
             };
+
+            b.TargetHash = b.Index % Config.SectionSize == 0 ? Config.CalculateDifficulty(bc.GetLastSection()).ToString("x") : LastBlock.TargetHash;
 
             b.AddTransaction(Builder.MakeReward(skp, Config.BlockReward));
 

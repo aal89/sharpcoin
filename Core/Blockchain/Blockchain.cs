@@ -101,17 +101,12 @@ namespace Core
             return ReadBlock(Size()) ?? Genesis;
         }
 
-        public Block GetLastBlockFromPreviousSection(Block Perspective)
-        {
-            return GetBlockByIndex(Perspective.Index - (Config.SectionSize % Perspective.Index) - 1);
-        }
-
         public BigInteger GetDifficulty()
         {
             return Config.CalculateDifficulty(GetLastSection());
         }
 
-        public int GetInaccurateDifficulty()
+        public int GetPrettyDifficulty()
         {
             return GetDifficulty().Inaccurate(new GenesisBlock().GetDifficulty());
         }
@@ -264,9 +259,15 @@ namespace Core
                 throw new BlockAssertion(NewBlock, $"New blocks integrity check failed. Is {NewBlock.Hash}, should be: {NewBlock.ToHash()}");
             }
 
-            if (NewBlock.GetDifficulty() >= GetDifficulty())
+            string CorrectTarget = NewBlock.Index % Config.SectionSize == 0 ? Config.CalculateDifficulty(GetLastSection()).ToString("x") : PreviousBlock.TargetHash;
+            if (NewBlock.TargetHash != CorrectTarget)
             {
-                throw new BlockAssertion(NewBlock, $"Expected the difficulty of the new block ({NewBlock.GetInaccurateDifficulty()}) to be less than the current difficulty ({GetInaccurateDifficulty()}).");
+                throw new BlockAssertion(NewBlock, $"New blocks target difficulty is wrong. Target hash: {NewBlock.TargetHash}.");
+            }
+
+            if (!NewBlock.IsCorrectDifficulty())
+            {
+                throw new BlockAssertion(NewBlock, $"Expected the difficulty of the new block ({NewBlock.GetPrettyDifficulty()}) to be less than the current difficulty ({GetPrettyDifficulty()}).");
             }
 
             if (!NewBlock.HasTransactions())

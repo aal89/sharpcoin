@@ -15,7 +15,7 @@ namespace Core
 
         public static readonly int MaximumConnections = 20;
 
-        public static readonly int SectionSize = 144;
+        public static readonly int SectionSize = 10;
 
         public static readonly int TcpPort = 18910;
 
@@ -34,7 +34,7 @@ namespace Core
 
         public static BigInteger CalculateDifficulty(Block[] Section)
         {
-            BigInteger GenesisDifficulty = new GenesisBlock().GetDifficulty();
+            BigInteger GenesisDifficulty = new GenesisBlock().GetTargetDifficulty();
 
             if (Section == null)
                 return GenesisDifficulty;
@@ -51,10 +51,11 @@ namespace Core
 
             // Cap decline at max 80% (120 secs out of 600 secs), this prevents impossible target diffs.
             int AverageTimeDifference = Math.Max(120, TimeDifferences.Reduce(R.Total, 0) / TimeDifferences.Count);
-            BigInteger AverageDifficulty = Section.Map(b => b.GetDifficulty()).Reduce(R.Total, GenesisDifficulty) / (ulong)Section.Length;
             float DeltaChange = (AverageTimeDifference - MeanTimeBetweenBlocks) / MeanTimeBetweenBlocks;
 
-            return AverageDifficulty + AverageDifficulty.Percentage(DeltaChange);
+            Console.WriteLine(DeltaChange.ToString("0.00"));
+
+            return Section[0].GetTargetDifficulty() + Section[0].GetTargetDifficulty().Percentage(DeltaChange);
         }
     }
 }

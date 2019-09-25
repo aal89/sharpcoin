@@ -6,21 +6,21 @@ namespace Core
 {
     public static class Miner
     {
-        public static Block Solve(Block Block, BigInteger TargetDiff, in bool ControlFlag = true)
+        public static Block Solve(Block Block, in bool ControlFlag = true)
         {
-            while (Block.GetDifficulty() > TargetDiff && ControlFlag)
+            while (!Block.IsCorrectDifficulty() && ControlFlag)
             {
                 Block.Timestamp = Date.Now();
                 Block.Nonce++;
                 Block.Hash = Block.ToHash();
             }
 
-            return Block.GetDifficulty() < TargetDiff ? Block : null;
+            return Block.IsCorrectDifficulty() ? Block : null;
         }
 
         public static Block Solve(SharpKeyPair skp, Blockchain bc, in bool ControlFlag = true)
         {
-            return Solve(Block.Create(skp, bc), bc.GetDifficulty(), ControlFlag);
+            return Solve(Block.Create(skp, bc), ControlFlag);
         }
     }
 }

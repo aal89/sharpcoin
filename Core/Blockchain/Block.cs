@@ -56,6 +56,11 @@ namespace Core
             return GetDifficulty().Inaccurate(new GenesisBlock().GetDifficulty());
         }
 
+        public int GetPrettyTargetDifficulty()
+        {
+            return GetTargetDifficulty().Inaccurate(new GenesisBlock().GetDifficulty());
+        }
+
         public bool HasTransactions()
         {
             return Transactions.Count > 0;
@@ -103,6 +108,8 @@ namespace Core
                 Index = LastBlock.Index + 1,
                 PreviousHash = LastBlock.Hash
             };
+
+            Console.WriteLine(Config.CalculateDifficulty(bc.GetLastSection()));
 
             b.TargetHash = b.Index % Config.SectionSize == 0 ? Config.CalculateDifficulty(bc.GetLastSection()).ToString("x") : LastBlock.TargetHash;
 

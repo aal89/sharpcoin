@@ -61,7 +61,7 @@ namespace Core
             // Keep track of the blockchain size.
             int BcSize = Size();
 
-            for (var i = 1; i <= BcSize; i++)
+            for (var i = 1; i < BcSize; i++)
             {
                 // Get the block to be checked
                 Block CurrentBlock = ReadBlock(i);
@@ -69,7 +69,7 @@ namespace Core
                 IsValidBlock(CurrentBlock, i == 1 ? Genesis : ReadBlock(i - 1));
                 // If so create the indexes for that block, but save them only at the last iteration processed.
                 CreateIndexes(CurrentBlock, i == BcSize);
-                Log.NewLine($"Block {i}/{BcSize} is valid!");
+                Log.NewLine($"Block {i}/{BcSize - 1} is valid!");
             }
         }
 
@@ -98,17 +98,7 @@ namespace Core
 
         public Block GetLastBlock()
         {
-            return ReadBlock(Size()) ?? Genesis;
-        }
-
-        public BigInteger GetDifficulty()
-        {
-            return Config.CalculateDifficulty(GetLastSection());
-        }
-
-        public int GetPrettyDifficulty()
-        {
-            return GetDifficulty().Inaccurate(new GenesisBlock().GetDifficulty());
+            return ReadBlock(Size() - 1) ?? Genesis;
         }
 
         public bool QueueTransaction(Transaction tx)
@@ -262,12 +252,12 @@ namespace Core
             string CorrectTarget = NewBlock.Index % Config.SectionSize == 0 ? Config.CalculateDifficulty(GetLastSection()).ToString("x") : PreviousBlock.TargetHash;
             if (NewBlock.TargetHash != CorrectTarget)
             {
-                throw new BlockAssertion(NewBlock, $"New blocks target difficulty is wrong. Target hash: {NewBlock.TargetHash}.");
+                throw new BlockAssertion(NewBlock, $"New blocks target difficulty is wrong. Target hash: {NewBlock.TargetHash}, should be {CorrectTarget}.");
             }
 
             if (!NewBlock.IsCorrectDifficulty())
             {
-                throw new BlockAssertion(NewBlock, $"Expected the difficulty of the new block ({NewBlock.GetPrettyDifficulty()}) to be less than the current difficulty ({GetPrettyDifficulty()}).");
+                throw new BlockAssertion(NewBlock, $"Expected the difficulty of the new block ({NewBlock.GetPrettyDifficulty()}) to be less than the target difficulty ({NewBlock.GetPrettyTargetDifficulty()}).");
             }
 
             if (!NewBlock.HasTransactions())
@@ -347,7 +337,8 @@ namespace Core
 
         public int Size()
         {
-            return DirectoryInfo().GetFiles().Filter(i => i.Name.Contains(".block")).Count();
+            // +1 for the genesisblock that is hardcoded instead of saved to disk
+            return DirectoryInfo().GetFiles().Filter(i => i.Name.Contains(".block")).Count() + 1;
         }
 
         private DirectoryInfo DirectoryInfo()

@@ -49,9 +49,9 @@ namespace Core
                 TimeDifferences.Add(Convert.ToInt32(NextBlock.Timestamp.Subtract(PreviousBlock.Timestamp).TotalSeconds));
             }
 
-            // Cap decline at max 80% (120 secs out of 600 secs), this prevents impossible target diffs.
+            // Cap growth and decline at max 80% (120 secs out of 600 secs), this prevents impossible target diffs.
             int AverageTimeDifference = Math.Max(120, TimeDifferences.Reduce(R.Total, 0) / TimeDifferences.Count);
-            float DeltaChange = (AverageTimeDifference - MeanTimeBetweenBlocks) / MeanTimeBetweenBlocks;
+            float DeltaChange = Math.Min((float)0.8, (AverageTimeDifference - MeanTimeBetweenBlocks) / MeanTimeBetweenBlocks);
 
             Console.WriteLine(DeltaChange.ToString("0.00"));
 

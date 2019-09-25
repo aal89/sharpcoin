@@ -68,7 +68,7 @@ namespace Core
                 // Is it valid?
                 IsValidBlock(CurrentBlock, i == 1 ? Genesis : ReadBlock(i - 1));
                 // If so create the indexes for that block, but save them only at the last iteration processed.
-                CreateIndexes(CurrentBlock, i == BcSize);
+                CreateIndexes(CurrentBlock, i == BcSize - 1);
                 Log.NewLine($"Block {i}/{BcSize - 1} is valid!");
             }
         }

@@ -13,9 +13,9 @@ namespace Core
 
         public static readonly int MaximumBlockSizeInBytes = 2 * 1024 * 1000;
 
-        public static readonly int MaximumConnections = 20;
+        public static readonly int MaximumConnections = 10;
 
-        public static readonly int SectionSize = 10;
+        public static readonly int SectionSize = 144;
 
         public static readonly int TcpPort = 18910;
 
@@ -25,7 +25,7 @@ namespace Core
 
         public static readonly int PeerInterval = 15 * 60 * 1000; // in ms
 
-        public static readonly int PeerKeepAliveInterval = 25 * 1000; // in ms
+        public static readonly int PeerKeepAliveInterval = 20 * 1000; // in ms
 
         // quite arbitrarily chosen number, we assume that an orphan chain will never be any longer than this...
         public static readonly int MaximumBlockTruncation = 50;

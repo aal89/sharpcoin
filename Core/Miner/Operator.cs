@@ -36,9 +36,8 @@ namespace Core
                 {
                     Blockchain.AddBlock(b);
                 }
-                catch (Exception e)
+                catch
                 {
-                    Console.WriteLine(e);
                     Log.NewLine($"Adding mined block failed. Skipping.");
                 }
 

@@ -53,8 +53,6 @@ namespace Core
             int AverageTimeDifference = Math.Max(120, TimeDifferences.Reduce(R.Total, 0) / TimeDifferences.Count);
             float DeltaChange = Math.Min((float)0.8, (AverageTimeDifference - MeanTimeBetweenBlocks) / MeanTimeBetweenBlocks);
 
-            Console.WriteLine(DeltaChange.ToString("0.00"));
-
             return Section[0].GetTargetDifficulty() + Section[0].GetTargetDifficulty().Percentage(DeltaChange);
         }
     }

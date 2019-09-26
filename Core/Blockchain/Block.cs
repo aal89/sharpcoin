@@ -109,8 +109,6 @@ namespace Core
                 PreviousHash = LastBlock.Hash
             };
 
-            Console.WriteLine(Config.CalculateDifficulty(bc.GetLastSection()));
-
             b.TargetHash = b.Index % Config.SectionSize == 0 ? Config.CalculateDifficulty(bc.GetLastSection()).ToString("x") : LastBlock.TargetHash;
 
             b.AddTransaction(Builder.MakeReward(skp, Config.BlockReward));

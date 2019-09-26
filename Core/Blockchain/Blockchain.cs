@@ -6,7 +6,6 @@ using Core.Exceptions;
 using Core.Transactions;
 using Core.Utilities;
 using Core.Crypto;
-using System.Numerics;
 
 namespace Core
 {

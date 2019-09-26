@@ -75,9 +75,9 @@ namespace Core
 
         // kind of obscure naming, but the blockchain is split up in parts of x
         // blocks this is used to recalculate the diff.
-        public Block[] GetLastSection()
+        public Block[] GetLastSection(Block Perspective = null)
         {
-            int BlockchainSize = Size();
+            int BlockchainSize = Perspective != null ? Perspective.Index : Size();
 
             if (BlockchainSize < Config.SectionSize)
                 return null;
@@ -249,7 +249,7 @@ namespace Core
                 throw new BlockAssertion(NewBlock, $"New blocks integrity check failed. Is {NewBlock.Hash}, should be: {NewBlock.ToHash()}");
             }
 
-            string CorrectTarget = NewBlock.Index % Config.SectionSize == 0 ? Config.CalculateDifficulty(GetLastSection()).ToString("x") : PreviousBlock.TargetHash;
+            string CorrectTarget = NewBlock.Index % Config.SectionSize == 0 ? Config.CalculateDifficulty(GetLastSection(NewBlock)).ToString("x") : PreviousBlock.TargetHash;
             if (NewBlock.TargetHash != CorrectTarget)
             {
                 throw new BlockAssertion(NewBlock, $"New blocks target difficulty is wrong. Target hash: {NewBlock.TargetHash}, should be {CorrectTarget}.");

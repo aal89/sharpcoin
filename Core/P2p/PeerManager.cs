@@ -7,6 +7,10 @@ using Core.P2p.Net;
 using System.Net.Sockets;
 using System.Timers;
 using System;
+using Open.Nat;
+using System.Threading.Tasks;
+using System.Threading;
+using Timer = System.Timers.Timer;
 
 namespace Core.P2p
 {
@@ -30,6 +34,9 @@ namespace Core.P2p
             {
                 File.Create(peersPath).Dispose();
             }
+
+            Log.NewLine($"Creating UPnP port mapping.");
+            CreateUPnPMapping();
 
             Log.NewLine("Setting up server and accepting connections...");
 
@@ -73,6 +80,30 @@ namespace Core.P2p
             // is in synch.
             BroadcastBlockchainSize();
             BroadcastPeers();
+        }
+
+        private void CreateUPnPMapping()
+        {
+            try
+            {
+                var discoverer = new NatDiscoverer();
+                var cts = new CancellationTokenSource(3000);
+                NatDevice device = Task.Run(async () => await discoverer.DiscoverDeviceAsync(PortMapper.Upnp, cts)).Result;
+
+                // set nat device to ipaddr so that we can our external ip elsewhere in the application
+                IpAddr.Set(device);
+
+                // int.MaxValue so that a Session object is created internally in the lib, only session objects
+                // are properly renewed, lib has bug (10min intervals)...
+                _ = Task.Run(async () => await device.CreatePortMapAsync(new Mapping(Protocol.Tcp, 18910, 18910, int.MaxValue, "sc.Nat")));
+
+                Log.NewLine("Successfully created UPnP port mapping.");
+            }
+            catch
+            {
+                Log.NewLine("Could not create UPnP port mapping. Decreased network connectivity.");
+            }
+
         }
 
         public static void BroadcastBlock(Block block)
@@ -173,11 +204,6 @@ namespace Core.P2p
         public static bool HasPeer(string ip)
         {
             return peers.Any(peer => peer.Ip == ip);
-        }
-
-        public static Peer[] GetPeers()
-        {
-            return peers.ToArray();
         }
 
         public static string[] GetPeersAsIps()

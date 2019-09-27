@@ -67,11 +67,6 @@ namespace Core.Transactions
             Signature = Skp.Sign(Hash.Sha1(ToString()));
         }
 
-        public bool ContainsInput(Input input)
-        {
-            return Inputs.Any(Input => Input.Transaction == input.Transaction && Input.Index == input.Index);
-        }
-
         public bool IsRewardTransaction(long Equates)
         {
             return Type == TransactionType.REWARD && Inputs.Length == 0 && Outputs.Length == 1 && Outputs[0].Amount == Equates;

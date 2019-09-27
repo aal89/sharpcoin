@@ -48,38 +48,12 @@ namespace Core
             Operator = new Operator(Blockchain, new Logger("Miner"));
             Log.Append("Done.");
 
-            // Creating upnp mapping to optimize connections
-            Log.NewLine($"Creating UPnP port mapping.");
-            CreateUPnPMapping();
-
             // Setup peer manager (server&client)
             Log.NewLine($"Setting up peer manager.");
             PeerManager = new PeerManager(this, new Logger("PeerManager"));
         }
 
-        public void CreateUPnPMapping()
-        {
-            try
-            {
-                var discoverer = new NatDiscoverer();
-                var cts = new CancellationTokenSource(3000);
-                NatDevice device = Task.Run(async () => await discoverer.DiscoverDeviceAsync(PortMapper.Upnp, cts)).Result;
-
-                // set nat device to ipaddr so that we can our external ip elsewhere in the application
-                IpAddr.Set(device);
-
-                // int.MaxValue so that a Session object is created internally in the lib, only session objects
-                // are properly renewed, lib has bug (10min intervals)...
-                _ = Task.Run(async () => await device.CreatePortMapAsync(new Mapping(Protocol.Tcp, 18910, 18910, int.MaxValue, "sc.Nat")));
-
-                Log.NewLine("Successfully created UPnP port mapping.");
-            }
-            catch
-            {
-                Log.NewLine("Could not create UPnP port mapping. Decreased network connectivity.");
-            }
-            
-        }
+        
 
         public Operator GetOperator()
         {

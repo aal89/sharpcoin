@@ -206,20 +206,6 @@ namespace Core
             UnspentOutputs.Save();
         }
 
-        public void RebuildIndexes()
-        {
-            ClearIndexes();
-
-            int BcSize = Size();
-
-            for (var i = 1; i <= BcSize; i++)
-            {
-                // Save indexes only when we processed the last block (i == BcSize).
-                CreateIndexes(ReadBlock(i), i == BcSize);
-                Log.NewLine($"Block {i}/{BcSize} is indexed.");
-            }
-        }
-
         public bool IsValidBlock(Block NewBlock, Block PreviousBlock = null)
         {
             if (PreviousBlock == null)

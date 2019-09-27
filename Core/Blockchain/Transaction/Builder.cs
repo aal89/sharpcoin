@@ -36,10 +36,10 @@ namespace Core.Transactions
 
         public Transaction Make()
         {
-            return Make(skp, uouts.ToArray())(nouts.ToArray())(null);
+            return Make(skp, uouts.ToArray())(nouts.ToArray())();
         }
 
-        public Func<(string address, long amount)[], Func<string, Transaction>> Make(SharpKeyPair skp, (Transaction tx, int index)[] uouts)
+        public Func<(string address, long amount)[], Func<Transaction>> Make(SharpKeyPair skp, (Transaction tx, int index)[] uouts)
         {
             if (Product != null)
                 throw new BuilderException(Product, "Builder has already built a transaction. To build a new transaction, create a new builder first.");
@@ -74,13 +74,13 @@ namespace Core.Transactions
                     nouts.Add(utxo);
                 }
 
-                return (string id) =>
+                return () =>
                 {
                     // Before continuing on we need to check the balance of the transaction
                     // if its postive. Iff thats the case we need to add one more change output
                     // towards the creator of this tx (the skp).
 
-                    Transaction newtx = new Transaction(ins.ToArray(), nouts.ToArray(), id);
+                    Transaction newtx = new Transaction(ins.ToArray(), nouts.ToArray());
 
                     if (newtx.Balance() > 0)
                     {
@@ -90,7 +90,7 @@ namespace Core.Transactions
                             Amount = newtx.Balance()
                         };
                         nouts.Add(changeout);
-                        newtx = new Transaction(ins.ToArray(), nouts.ToArray(), id);
+                        newtx = new Transaction(ins.ToArray(), nouts.ToArray());
                     }
 
                     newtx.Sign(skp);

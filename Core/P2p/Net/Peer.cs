@@ -95,7 +95,7 @@ namespace Core.P2p.Net
                 {
                     Core.Blockchain.RemoveBlock(Core.Blockchain.GetBlockByIndex(i));
                     RequestBlock(i);
-                    Thread.Sleep(100);
+                    Thread.Sleep(10);
                 }
             }
         }
@@ -345,7 +345,6 @@ namespace Core.P2p.Net
             {
                 Send(Opcodes["AcceptBlockchainSizeResponse"], NOOP());
             }
-                
         }
 
         protected void AcceptBlockchainSizeResponse(byte[] data) { }

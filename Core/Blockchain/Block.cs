@@ -51,14 +51,9 @@ namespace Core
             return BigInteger.Parse($"0{TargetHash}", NumberStyles.AllowHexSpecifier);
         }
 
-        public int GetPrettyDifficulty()
+        public int GetPrettyDifficulty(bool TargetDifficulty = false)
         {
-            return GetDifficulty().Inaccurate(new GenesisBlock().GetDifficulty());
-        }
-
-        public int GetPrettyTargetDifficulty()
-        {
-            return GetTargetDifficulty().Inaccurate(new GenesisBlock().GetDifficulty());
+            return Math.Max(1, (TargetDifficulty ? GetTargetDifficulty() : GetDifficulty()).DivideBy(new GenesisBlock().GetDifficulty()));
         }
 
         public bool HasTransactions()

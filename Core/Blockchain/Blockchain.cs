@@ -242,7 +242,7 @@ namespace Core
 
             if (!NewBlock.IsCorrectDifficulty())
             {
-                throw new BlockAssertion(NewBlock, $"Expected the difficulty of the new block ({NewBlock.GetPrettyDifficulty()}) to be less than the target difficulty ({NewBlock.GetPrettyTargetDifficulty()}).");
+                throw new BlockAssertion(NewBlock, $"Expected the difficulty of the new block ({NewBlock.GetPrettyDifficulty()}) to be less than the target difficulty ({NewBlock.GetPrettyDifficulty(true)}).");
             }
 
             if (!NewBlock.HasTransactions())

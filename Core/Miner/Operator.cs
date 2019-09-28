@@ -30,7 +30,7 @@ namespace Core
                 Block b = Miner.Solve((SharpKeyPair)skp, Blockchain, IsMining);
 
                 if (b != null)
-                    Log.NewLine($"Solved block {b.Index} with nonce {b.Nonce} ({b.Hash.Substring(0, 10)}) in {(int)Date.Now().Subtract(started).TotalMinutes} mins! Target diff was: {b.GetPrettyTargetDifficulty()}.");
+                    Log.NewLine($"Solved block {b.Index} with nonce {b.Nonce} ({b.Hash.Substring(0, 10)}) in {(int)Date.Now().Subtract(started).TotalMinutes} mins! Target diff was: {b.GetPrettyDifficulty(true)}.");
 
                 try
                 {

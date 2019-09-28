@@ -12,7 +12,7 @@ namespace Core
             PreviousHash = "";
             Hash = "0000003674f6a2b8ac9e577ae1795f34c1badf5d7ac017c8d087c0c3ac1b7289";
             TargetHash = "0000003674f6a2b8ac9e577ae1795f34c1badf5d7ac017c8d087c0c3ac1b7289";
-            Timestamp = new DateTime(2019, 09, 20, 19, 08, 00);
+            Timestamp = new DateTime(2019, 09, 28, 17, 00, 00);
             Nonce = 27164049;
 
             Transaction RTx = new Transaction(new Output[] { new Output {

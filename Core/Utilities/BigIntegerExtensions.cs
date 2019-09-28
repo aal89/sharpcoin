@@ -10,7 +10,7 @@ namespace Core.Utilities
             return (self / 100) * (int)(num * 100);
         }
 
-        public static int Inaccurate(this BigInteger self, BigInteger divider)
+        public static int DivideBy(this BigInteger self, BigInteger divider)
         {
             return (int)(divider / self);
         }

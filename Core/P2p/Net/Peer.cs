@@ -220,7 +220,11 @@ namespace Core.P2p.Net
 
         protected void ServeAcceptPeers(byte[] data)
         {
-            string[] peers = Encoding.UTF8.GetString(data).Split(",").Filter(ip => ip != IpAddr.Mine()).ToArray();
+            string[] peers = Encoding.UTF8.GetString(data)
+                .Split(",")
+                .Filter(ip => ip != IpAddr.Mine())
+                .Filter(ip => ip != IpAddr.MineExternal())
+                .ToArray();
             Log.NewLine($"Accepting {peers.Length} peers.");
             foreach (string peer in peers)
             {

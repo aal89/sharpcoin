@@ -129,7 +129,11 @@ namespace Core.P2p
             Log.NewLine("Broadcasting peers.");
             foreach (Peer p in peers)
             {
-                p.AcceptPeers(GetPeersAsIps().Stringified(","));
+                string connectedPeers = GetPeersAsIps()
+                    .Filter(ip => ip != p.Ip)
+                    .ToArray()
+                    .Stringified(",");
+                p.AcceptPeers(connectedPeers);
             }
         }
 

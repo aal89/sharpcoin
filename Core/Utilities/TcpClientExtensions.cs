@@ -1,4 +1,5 @@
-﻿using System.Net.Sockets;
+﻿using System.Net;
+using System.Net.Sockets;
 
 namespace Core.Utilities
 {
@@ -6,10 +7,7 @@ namespace Core.Utilities
     {
         public static string Ip(this TcpClient self)
         {
-            // raw cutting in an endpoint... probably bugged because it expects ipv4
-            // address in this format [::ffff:xxx.yyy.zzz.aaa]:18910
-            string raw = self.Client.RemoteEndPoint.ToString().Split(':')[3];
-            return raw.Remove(raw.Length - 1);
+            return ((IPEndPoint)self.Client.RemoteEndPoint).Address.ToString();
         }
     }
 }

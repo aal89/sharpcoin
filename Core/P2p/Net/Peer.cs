@@ -202,7 +202,11 @@ namespace Core.P2p.Net
 
         protected void RequestPeersResponse(byte[] data)
         {
-            string[] peers = Encoding.UTF8.GetString(data).Split(",").Filter(ip => ip != IpAddr.Mine()).ToArray();
+            string[] peers = Encoding.UTF8.GetString(data)
+                .Split(",")
+                .Filter(ip => !String.IsNullOrEmpty(ip))
+                .Filter(ip => !IpAddr.EqualsMine(ip))
+                .ToArray();
             Log.NewLine($"Peer responded with {peers.Length} peers.");
             foreach (string peer in peers)
             {
@@ -222,9 +226,10 @@ namespace Core.P2p.Net
         {
             string[] peers = Encoding.UTF8.GetString(data)
                 .Split(",")
-                .Filter(ip => ip != IpAddr.Mine())
-                .Filter(ip => ip != IpAddr.MineExternal())
+                .Filter(ip => !String.IsNullOrEmpty(ip))
+                .Filter(ip => !IpAddr.EqualsMine(ip))
                 .ToArray();
+
             Log.NewLine($"Accepting {peers.Length} peers.");
             foreach (string peer in peers)
             {

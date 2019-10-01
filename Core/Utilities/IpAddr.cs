@@ -20,6 +20,11 @@ namespace Core.Utilities
             IpAddr.Device = Device;
         }
 
+        public static bool EqualsMine(string Address)
+        {
+            return Mine() == Address || Mine() == $"::ffff:${Address}" || MineExternal() == Address || MineExternal() == $"::ffff:${Address}";
+        }
+
         public static string Mine()
         {
             return Address ?? Dns.GetHostEntry(Dns.GetHostName())
@@ -31,11 +36,6 @@ namespace Core.Utilities
         public static string MineExternal()
         {
             return Device != null ? Task.Run(async () => await Device.GetExternalIPAsync()).Result.ToString() : "0.0.0.0";
-        }
-        
-        public static IPAddress MineAsObject()
-        {
-            return IPAddress.Parse(Mine());
         }
     }
 }

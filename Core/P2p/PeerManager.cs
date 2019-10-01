@@ -155,7 +155,7 @@ namespace Core.P2p
             {
                 try
                 {
-                    return ip != IpAddr.Mine() && ip != IpAddr.MineExternal() && !HasPeer(ip) && !HasMaximumConnections() && AddPeer(Peer.Create(Core, ip));
+                    return ip != "" && !IpAddr.EqualsMine(ip) && !HasPeer(ip) && !HasMaximumConnections() && AddPeer(Peer.Create(Core, ip));
                 }
                 catch
                 {
@@ -171,7 +171,7 @@ namespace Core.P2p
             {
                 try
                 {
-                    return tcpc.Ip() != IpAddr.Mine() && tcpc.Ip() != IpAddr.MineExternal() && !HasPeer(tcpc.Ip()) && !HasMaximumConnections() && AddPeer(Peer.Create(Core, tcpc));
+                    return tcpc.Ip() != "" && !IpAddr.EqualsMine(tcpc.Ip()) && !HasPeer(tcpc.Ip()) && !HasMaximumConnections() && AddPeer(Peer.Create(Core, tcpc));
                 }
                 catch
                 {

@@ -91,7 +91,7 @@ namespace Core.P2p.Net
 
                 // Synch for our reduced size untill we have the size of our peer,
                 // delete our block before requesting the new one.
-                for (int i = reducedSize; i <= peerSize; i++)
+                for (int i = reducedSize; i < peerSize; i++)
                 {
                     Core.Blockchain.RemoveBlock(Core.Blockchain.GetBlockByIndex(i));
                     RequestBlock(i);

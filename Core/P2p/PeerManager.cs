@@ -197,7 +197,7 @@ namespace Core.P2p
         private static void Peer_OpenenConn(object sender, EventArgs e)
         {
             // Save all peers to a file
-            SavePeers(GetPeersAsIps().ToArray());
+            SavePeers(GetPeersAsIps());
         }
 
         private static void Peer_ClosedConn(object sender, System.EventArgs e)

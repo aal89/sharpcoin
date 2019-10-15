@@ -162,10 +162,13 @@ namespace Core.Api.Net
 
             SharpKeyPair skp = new SharpKeyPair(pubk, seck);
             Builder txb = new Builder(skp);
+            // All queued inputs as meta outputs, so that we can compare them against all the keypair's unspent outputs in the index... We don't want
+            // to use inputs that are already queued up in the blockchain.
+            MetaOutput[] QueuedInputsAsOutputs = Core.Blockchain.GetQueuedTransactions().FlatMap(tx => tx.Inputs).Map(input => input.AsMetaOutput()).ToArray();
 
             IEnumerator<Output> utxos = ((IEnumerable<Output>)Core.Blockchain.GetUnspentOutputs(skp.GetAddress())).GetEnumerator();
 
-            while (txb.InputAmount() < TotalAmount && utxos.MoveNext())
+            while (txb.InputAmount() < TotalAmount && utxos.MoveNext() && !QueuedInputsAsOutputs.Any(output => output.Equals((MetaOutput)utxos.Current)))
             {
                 MetaOutput output = (MetaOutput)utxos.Current;
                 txb.AddInput(Core.Blockchain.GetTransaction(output.Transaction), output.Index);

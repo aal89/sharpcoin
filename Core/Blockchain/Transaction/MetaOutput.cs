@@ -1,9 +1,19 @@
-﻿namespace Core.Transactions
+﻿using System;
+
+namespace Core.Transactions
 {
-    public class MetaOutput : Output
+    public class MetaOutput : Output, IEquatable<MetaOutput>
     {
-        // obscure naming for maximum compression and low overhead
         public string Transaction;
         public int Index;
+
+        public bool Equals(MetaOutput other)
+        {
+            return other != null
+                && other.Transaction == Transaction
+                && other.Index == Index
+                && other.Amount == Amount
+                && other.Address == Address;
+        }
     }
 }

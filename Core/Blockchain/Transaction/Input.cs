@@ -31,6 +31,17 @@ namespace Core.Transactions
             };
         }
 
+        public MetaOutput AsMetaOutput()
+        {
+            return new MetaOutput
+            {
+                Transaction = Transaction,
+                Address = Address,
+                Amount = Amount,
+                Index = Index
+            };
+        }
+
         public override string ToString()
         {
             return $"{Transaction}{Index}{Amount}{Address}";

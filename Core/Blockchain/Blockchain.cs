@@ -102,7 +102,7 @@ namespace Core
 
         public bool QueueTransaction(Transaction tx)
         {
-            if (IsValidTransaction(tx) && tx.Verify() && QueuedTransactions.Add(tx))
+            if (IsValidTransaction(tx) && tx.Verify() && !QueuedTransactions.FlatMap(tx => tx.Inputs).Any(input => tx.Inputs.Contains(input)) && QueuedTransactions.Add(tx))
             {
                 // Fire the tx added event
                 QueuedTransactionAdded?.Invoke(tx, EventArgs.Empty);

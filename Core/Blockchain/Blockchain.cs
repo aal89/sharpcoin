@@ -170,6 +170,7 @@ namespace Core
             foreach (Transaction tx in Block.GetTransactions())
                 Transactions.Add(tx.Id, Block.Index);
 
+            // (This is different responsibility and should be split up (the remove action))
             // 2nd part requires some understanding; first we remove all the (unspent) outputs on this block
             // that were used as inputs and remove them from the utxo index.
 

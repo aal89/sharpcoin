@@ -168,10 +168,14 @@ namespace Core.Api.Net
 
             IEnumerator<Output> utxos = ((IEnumerable<Output>)Core.Blockchain.GetUnspentOutputs(skp.GetAddress())).GetEnumerator();
 
-            while (txb.InputAmount() < TotalAmount && utxos.MoveNext() && !QueuedInputsAsOutputs.Any(output => output.Equals((MetaOutput)utxos.Current)))
+            while (txb.InputAmount() < TotalAmount && utxos.MoveNext())
             {
-                MetaOutput output = (MetaOutput)utxos.Current;
-                txb.AddInput(Core.Blockchain.GetTransaction(output.Transaction), output.Index);
+                // This expression somehow fails when put in the while test, so its an if here.
+                if (!QueuedInputsAsOutputs.Any(output => output.Equals((MetaOutput)utxos.Current)))
+                {
+                    MetaOutput output = (MetaOutput)utxos.Current;
+                    txb.AddInput(Core.Blockchain.GetTransaction(output.Transaction), output.Index);
+                }
             }
 
             foreach(TransactionRecipient txr in txrs)

@@ -92,6 +92,8 @@ core.exe 192.168.178.100
 
 The last log line (`Setting up server and accepting connections...`) is an indication that the core is done booting and is ready for use. Connect and control it via the port `28910`. This port should not be exposed to the outside, so watchout with hosts running in the DMZ of your router. If you want to connect to the core using Javascript/Typescript use this [library](https://github.com/aal89/sharpcoin-lib).
 
+### Connecting to the network
+
 So far you have a sharpcoin node running in isolation to connect to the current operational network close `core.exe` and open the `peers.txt` file and add this ip address: `::ffff:37.97.206.23`. Don't forgot the end the file with a newline. Close and save the file. Now start `core.exe` again. You should see the output from above, but also some synchronisation happening. The most updated blockchain is being downloaded and verified.
 
 To start mining or use any of the other features, read the documentation in the [sharpcoin-lib](https://github.com/aal89/sharpcoin-lib).

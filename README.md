@@ -1,4 +1,7 @@
-# sharpcoin
+<h1>
+ <img src="sc_logo.png" height='100px'> sharpcoin
+</h1>
+
 Sharpcoin is a cryptocurrency implementation that follows the same principals as Bitcoin, it is inspired by [Naivecoin](https://github.com/conradoqg/naivecoin) and its main goal is not to be a serious contender among all the other coins. This coin should be considered a toycoin. Originally sharpcoin was developed for educational purposes, however it is a fully operational coin.
 
 This repository contains code in c# and is called the core. It manages the entire backend of the coin and offers a programmable interface through a TCP server. For easy access to the API see the [sharpcoin-lib](https://github.com/aal89/sharpcoin-lib) package.

@@ -168,9 +168,8 @@ namespace Core.P2p.Net
                 Core.Blockchain.AddBlock(block);
                 Send(Opcodes["AcceptBlockResponse"], OK());
             }
-            catch (BlockAssertion ba)
+            catch (BlockAssertion)
             {
-                Log.NewLine($"Rejecting block ({ba.Block.Index}) received.");
                 Send(Opcodes["AcceptBlockResponse"], NOOP());
             }
             catch
@@ -181,8 +180,8 @@ namespace Core.P2p.Net
 
         protected void AcceptBlockResponse(byte[] data)
         {
-            string status = IsOK(data) ? "accepted" : "rejected";
-            Log.NewLine($"Block got {status} by peer.");
+            if (IsOK(data))
+                Log.NewLine($"Block got accepted by peer.");
         }
 
         // =====
@@ -239,8 +238,8 @@ namespace Core.P2p.Net
 
         protected void AcceptPeersResponse(byte[] data)
         {
-            string status = IsOK(data) ? "accepted" : "rejected";
-            Log.NewLine($"Peers got {status} by peer.");
+            if (IsOK(data))
+                Log.NewLine($"Peers got accepted by peer.");
         }
 
         // =====
@@ -293,8 +292,8 @@ namespace Core.P2p.Net
 
         protected void AcceptTransactionResponse(byte[] data)
         {
-            string status = IsOK(data) ? "accepted" : "rejected";
-            Log.NewLine($"Transaction got {status} by peer.");
+            if (IsOK(data))
+                Log.NewLine($"Transaction got accepted by peer.");
         }
 
         // =====

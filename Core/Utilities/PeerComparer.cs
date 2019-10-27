@@ -9,7 +9,7 @@ namespace Core.Utilities
         {
             if (c1 == null && c2 == null) { return true; }
             if (c1 == null | c2 == null) { return false; }
-            if (c1.Ip == c2.Ip) { return true; }
+            if (IpAddr.Equals(c1.Ip, c2.Ip)) { return true; }
             return false;
         }
         public int GetHashCode(Peer p)

@@ -20,6 +20,11 @@ namespace Core.Utilities
             IpAddr.Device = Device;
         }
 
+        public static bool Equals(string lhs, string rhs)
+        {
+            return lhs == rhs || lhs == $"::ffff:${rhs}" || rhs == $"::ffff:${lhs}";
+        }
+
         public static bool EqualsMine(string Address)
         {
             return Mine() == Address || Mine() == $"::ffff:${Address}" || MineExternal() == Address || MineExternal() == $"::ffff:${Address}";

@@ -207,7 +207,7 @@ namespace Core.P2p
 
         public static bool HasPeer(string ip)
         {
-            return peers.Any(peer => peer.Ip == ip);
+            return peers.Any(peer => IpAddr.Equals(peer.Ip, ip));
         }
 
         public static string[] GetPeersAsIps()

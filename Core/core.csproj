@@ -12,8 +12,8 @@
       <CustomCommands>
         <Command>
           <type>Build</type>
-          <command>build.sh</command>
-          <workingdir>./</workingdir>
+          <command>../build.sh</command>
+          <workingdir></workingdir>
         </Command>
       </CustomCommands>
     </CustomCommands>

@@ -58,7 +58,7 @@ You can build the product yourself or download a binary, see releases. Dotnet co
 dotnet publish -c Release -r [rid] --self-contained true /p:PublishSingleFile=true
 ```
 
-Following the `-r` parameter is a platform indication. As called by Microsoft a Runtime IDentifier (rid). To build for a different platform/arch use a different value. See [this page](https://docs.microsoft.com/en-us/dotnet/core/rid-catalog#windows-rids) for more information. Note that building for an arm processor works, but mining fails for such systems. It is a known issue.
+Following the `-r` parameter is a platform indication. As called by Microsoft a Runtime IDentifier (rid). To build for a different platform/arch use a different value. See [this page](https://docs.microsoft.com/en-us/dotnet/core/rid-catalog#windows-rids) for more information. Note that building for linux environments work, but keypair operations fail for such systems. However, verification of all stuff seems to work so you can use it as a full node, just no mining features available. It is a known issue.
 
 The output should contain one warning (yellow text) to indicate a dependency its target SDK is of a different version, this is ok. Afterwards in the directory `Core/bin/Release/netcoreapp3.0/[rid]/publish` you will find the built binaries.
 

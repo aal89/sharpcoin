@@ -6,6 +6,18 @@
     <ReleaseVersion>0.1.1</ReleaseVersion>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType></DebugType>
+    <CustomCommands>
+      <CustomCommands>
+        <Command>
+          <type>Build</type>
+          <command>build.sh</command>
+          <workingdir>./</workingdir>
+        </Command>
+      </CustomCommands>
+    </CustomCommands>
+  </PropertyGroup>
   <ItemGroup>
     <Folder Include="Exceptions\" />
     <Folder Include="Utilities\" />

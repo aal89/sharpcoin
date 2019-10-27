@@ -22,12 +22,17 @@ namespace Core.Utilities
 
         public static bool Equals(string lhs, string rhs)
         {
-            return lhs == rhs || lhs == $"::ffff:${rhs}" || rhs == $"::ffff:${lhs}";
+            return lhs == rhs || lhs == $"::ffff:{rhs}" || rhs == $"::ffff:{lhs}";
         }
 
         public static bool EqualsMine(string Address)
         {
-            return Mine() == Address || Mine() == $"::ffff:${Address}" || MineExternal() == Address || MineExternal() == $"::ffff:${Address}";
+            return Mine() == Address
+                || Mine() == $"::ffff:{Address}"
+                || $"::ffff:{Mine()}" == Address
+                || MineExternal() == Address
+                || MineExternal() == $"::ffff:{Address}"
+                || $"::ffff:{MineExternal()}" == Address;
         }
 
         public static string Mine()

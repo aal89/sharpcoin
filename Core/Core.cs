@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using Core.Api;
 using Core.P2p;
 using Core.Transactions;
 using Core.Utilities;
-using Open.Nat;
 
 namespace Core
 {
@@ -21,7 +19,7 @@ namespace Core
 
         public Core(string[] args)
         {
-            Log.NewLine("sharpcoin (core) v0.1 -- by aal89");
+            Log.NewLine("sharpcoin (core) v0.1.1 -- by aal89");
 
             // Configure the ip address to bind on
             if (args.Length == 1 && IPAddress.Parse(args[0]) != null)

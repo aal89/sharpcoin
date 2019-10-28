@@ -16,6 +16,7 @@ rm 'sharpcoin-core-v'"$VERSION"'_win-x86.zip'
 
 mv publish 'sharpcoin-core-v'"$VERSION"'_win-x86'
 zip -r 'sharpcoin-core-v'"$VERSION"'_win-x86.zip' 'sharpcoin-core-v'"$VERSION"'_win-x86'
+mv 'sharpcoin-core-v'"$VERSION"'_win-x86.zip' '../sharpcoin-core-v'"$VERSION"'_win-x86.zip'
 
 # win-x64
 
@@ -25,6 +26,7 @@ rm 'sharpcoin-core-v'"$VERSION"'_win-x64.zip'
 
 mv publish 'sharpcoin-core-v'"$VERSION"'_win-x64'
 zip -r 'sharpcoin-core-v'"$VERSION"'_win-x64.zip' 'sharpcoin-core-v'"$VERSION"'_win-x64'
+mv 'sharpcoin-core-v'"$VERSION"'_win-x64.zip' '../sharpcoin-core-v'"$VERSION"'_win-x64.zip'
 
 # osx-x64
 
@@ -34,3 +36,4 @@ rm 'sharpcoin-core-v'"$VERSION"'_osx-x64.zip'
 
 mv publish 'sharpcoin-core-v'"$VERSION"'_osx-x64'
 zip -r 'sharpcoin-core-v'"$VERSION"'_osx-x64.zip' 'sharpcoin-core-v'"$VERSION"'_osx-x64'
+mv 'sharpcoin-core-v'"$VERSION"'_osx-x64.zip' '../sharpcoin-core-v'"$VERSION"'_osx-x64.zip'
